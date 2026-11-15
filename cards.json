@@ -1209,7 +1209,7 @@
       "Power": "-1 W"
     },
     "image": "cards/part-26.webp",
-    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "science": "UHF radios use simple antennas that radiate in almost every direction, so they need no precise pointing but carry data slowly.",
     "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
     "rules": {
       "key": "uhf",
@@ -1230,7 +1230,7 @@
       "Power": "-1 W"
     },
     "image": "cards/part-27.webp",
-    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "science": "UHF radios use simple antennas that radiate in almost every direction, so they need no precise pointing but carry data slowly.",
     "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
     "rules": {
       "key": "uhf",
@@ -1251,7 +1251,7 @@
       "Power": "-1 W"
     },
     "image": "cards/part-28.webp",
-    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "science": "UHF radios use simple antennas that radiate in almost every direction, so they need no precise pointing but carry data slowly.",
     "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
     "rules": {
       "key": "uhf",

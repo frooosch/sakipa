@@ -44,6 +44,9 @@ Fixes to try (re-run `sim.js` after each one):
 - A11y: modals don't trap focus, and Escape only works when focus is inside the scrim.
 - Depends on Google Fonts. Self-host or add fallbacks so the demo works offline.
 
+- **Fixed:** the in-game header (title, round, event, scores, Rules / New game) was clipped to a thin strip. The Data bar reused the CSS class `bar` that the header also had, squashing it to 10 px.
+- **Fixed:** less text, more visuals — card library, orbit map, shuffle/flip/deal/launch/dice animations, visual operations report, part thumbnails, plain-language labels.
+
 ## 4. Suggested order
 
 1. ~~Rename to Sakipa Satellite~~ done.

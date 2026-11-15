@@ -144,6 +144,8 @@ At the end of each mission, whether it worked or failed, the game shows a debrie
 - Win target lowered from 15 SP to 10 SP (shorter game: 8). Simulated games never reached 15: one satellite at a time plus 2–3 rounds of data collection caps a player at about 6–8 SP over 6 rounds.
 - No discard pile: Special parts that are scrapped or come home with a retired satellite go to the bottom of the Special deck, so the 2 copies of each camera keep circulating.
 - The digital version guides each agency through its first satellite.
+- Digital version: a card library on the title screen (flip through all cards before playing), an orbit map with real distances, animated event draws, card deals, launches and dice rolls, and a visual operations report.
+- UHF Antenna's Real Science line corrected: CubeSat UHF antennas radiate in almost every direction; they are not directional. The printed card art still shows the old line.
 - Ground Station Pass now lifts the UHF 2-Data limit; before, it did exactly the same as Extra Ground Pass.
 - Added a second radiation shielding, redundant computer and cold-gas thruster (same card art; 106 cards). With one copy each, Spare Electronics and Space Debris Warning rarely mattered, and the debrief's "Safer option" asked for parts only one player could ever own.
 - Body-mounted cells are capped by frame surface (1U: 1, 3U: 2, 6U: 3, 12U: 4). Before, cells took no volume and had no limit, so a 1U frame with 10 cells made 40 W and deployable panels were never worth buying.

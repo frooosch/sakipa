@@ -80,6 +80,7 @@ header.bar { display: flex; align-items: center; gap: 18px; padding: 12px 20px; 
 /* ---------- main grid ---------- */
 main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 18px; padding: 18px 20px 28px; max-width: 1500px; margin: 0 auto; }
 @media (max-width: 1100px) { main.console { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { header.bar { position: static; } } /* the wrapped header is too tall to pin on narrow screens */
 .panel { background: var(--ink-2); border-radius: 18px; padding: 16px; border: 1px solid #fff1; }
 .panel + .panel { margin-top: 18px; }
 .panel-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -156,7 +157,8 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 
 /* shelf & market */
 .shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.shelf-item { background: var(--salmon); color: var(--ink); border: 0; border-radius: 12px; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 2px; min-height: 74px; }
+.shelf-item { background: var(--salmon); color: var(--ink); border: 0; border-radius: 12px; padding: 8px; text-align: left; display: grid; grid-template-columns: 30px 1fr; grid-template-rows: auto 1fr; column-gap: 8px; row-gap: 2px; min-height: 74px; }
+.shelf-item img { grid-row: 1 / 3; width: 30px; border-radius: 4px; align-self: start; }
 .shelf-item .t { font-weight: 800; font-size: 13px; line-height: 1.15; }
 .shelf-item .m { font-family: var(--mono); font-size: 11px; margin-top: auto; }
 .shelf-item:disabled { opacity: .45; cursor: not-allowed; }
@@ -172,8 +174,8 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .sat img { width: 54px; border-radius: 6px; }
 .sat .t { font-weight: 800; font-size: 14px; }
 .sat .o { font-size: 12px; opacity: .8; }
-.bar { height: 10px; background: #ffffff18; border-radius: 99px; overflow: hidden; margin-top: 6px; display: flex; }
-.bar .down { background: var(--mustard); } .bar .stored { background: #eab43b66; }
+.dbar { height: 10px; background: #ffffff18; border-radius: 99px; overflow: hidden; margin-top: 6px; display: flex; }
+.dbar .down { background: var(--mustard); animation: grow .6s ease-out; } .dbar .stored { background: #eab43b66; }
 .sat .status { font-size: 11px; font-weight: 800; text-transform: uppercase; display: inline-block; padding: 1px 6px; border-radius: 4px; margin-top: 4px; }
 .st-pending { background: var(--sky); color: var(--ink); } .st-active { background: var(--teal); color: var(--ink); }
 .empty-note { opacity: .6; font-size: 13px; }
@@ -209,7 +211,8 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .title-card h1 span { display: block; color: var(--orange); }
 .title-card .tagline { font-size: 18px; max-width: 46ch; margin-top: 14px; }
 .fan { position: relative; height: 380px; }
-.fan .cardimg { position: absolute; width: 190px; top: 30px; transition: transform .3s; }
+.fan .cardimg { position: absolute; width: 190px; top: 30px; transition: transform .3s; transform: rotate(var(--r)) translateY(var(--y)); }
+.fan button.cardimg:hover { transform: rotate(var(--r)) translateY(calc(var(--y) - 22px)) scale(1.05); z-index: 3; }
 .setup { background: var(--paper); color: var(--ink); border-radius: 22px; padding: 20px; margin-top: 22px; }
 .setup label { font-size: 12px; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px; }
 .setup input[type=text], .setup select { width: 100%; padding: 9px 12px; border-radius: 10px; border: 2px solid var(--ink); background: #fff8ea; font: inherit; color: var(--ink); }
@@ -233,6 +236,85 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .outcome.done { background: var(--teal); } .outcome.lost, .outcome.reentered { background: var(--bad); color: var(--paper); }
 .altdot { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 800; margin-right: 6px; border: 1.5px solid var(--ink); vertical-align: -4px; }
 .chartwrap svg { width: 100%; height: auto; display: block; }
+
+
+/* ---------- motion ---------- */
+@keyframes dealIn { from { opacity: 0; transform: translate(var(--dx, 140px), var(--dy, -70px)) rotate(var(--dr, 16deg)) scale(.7); } }
+.deal { animation: dealIn .45s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 110ms); }
+@keyframes pop { from { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.12); } }
+.pop { animation: pop .35s ease-out both; }
+@keyframes grow { from { width: 0; } }
+@keyframes fadeIn { from { opacity: 0; } }
+.late { animation: fadeIn .4s 1.6s both; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cardimg { transition: transform .15s; }
+button.cardimg:not(.empty):hover { transform: translateY(-4px) rotate(-1deg); }
+
+/* card back + shuffle and flip (event draw, forecast) */
+.cardback { background: var(--ink) repeating-linear-gradient(135deg, #ffffff0d 0 10px, transparent 10px 20px); border: 6px solid var(--paper); border-radius: 12px; display: grid; place-items: center; box-shadow: 0 6px 18px #0007; }
+.deckflip { position: relative; width: 300px; max-width: 100%; aspect-ratio: 630/880; perspective: 900px; margin: 0 auto; }
+.deckflip > .cardback, .deckflip .flipper, .deckflip .flipper > * { position: absolute; inset: 0; }
+.deckflip .shuf { animation: shuf .9s ease-in-out both; }
+.deckflip .shuf:nth-child(1) { --sx: -46px; --sr: -9deg; }
+.deckflip .shuf:nth-child(2) { --sx: 46px; --sr: 9deg; animation-delay: .08s; }
+.deckflip .shuf:nth-child(3) { --sx: -24px; --sr: -4deg; animation-delay: .16s; }
+@keyframes shuf { 0%, 100% { transform: none; } 30% { transform: translateX(var(--sx)) rotate(var(--sr)); } 65% { transform: translateX(calc(var(--sx) * -.6)) rotate(calc(var(--sr) * -.6)); } }
+.deckflip .flipper { transform-style: preserve-3d; animation: flip .7s 1.05s cubic-bezier(.3,.7,.3,1) both; }
+@keyframes flip { from { transform: rotateY(180deg); } }
+.deckflip .flipper > * { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.deckflip .flipper .cardback { transform: rotateY(180deg); }
+.zoom .deckflip .cardimg { width: 100%; }
+
+/* launch */
+.rocket { position: fixed; left: 50%; bottom: -110px; z-index: 40; pointer-events: none; transform: translateX(-50%); animation: liftoff 1.3s cubic-bezier(.5,0,.8,.4) forwards; }
+@keyframes liftoff { to { transform: translate(-50%, -125vh); } }
+.rocket .flame { transform-origin: 20px 44px; animation: flick .09s infinite alternate; }
+@keyframes flick { to { transform: scaleY(1.5); } }
+
+/* card library */
+.gal { display: grid; grid-template-columns: 44px 1fr 44px; gap: 10px; align-items: center; margin-top: 14px; }
+.galnav { width: 44px; height: 44px; padding: 0; font-size: 26px; line-height: 1; }
+.gal h3 { font-size: 26px; }
+.gal .count { font-family: var(--mono); font-size: 12px; opacity: .7; }
+.strip { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding: 14px 4px 6px; }
+.strip .cardimg { width: 64px; flex: none; scroll-snap-align: center; opacity: .6; box-shadow: none; }
+.strip .cardimg.sel { opacity: 1; outline-width: 3px; }
+@keyframes slideL { from { opacity: 0; transform: translateX(70px) rotate(5deg); } }
+@keyframes slideR { from { opacity: 0; transform: translateX(-70px) rotate(-5deg); } }
+.slide-next { animation: slideL .3s ease-out both; } .slide-prev { animation: slideR .3s ease-out both; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.chips span { background: var(--sky); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; font-family: var(--mono); }
+
+
+/* orbit map */
+.orbitrow { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .orbitrow { grid-template-columns: 1fr; } }
+.omap svg { width: 100%; max-width: 320px; height: auto; display: block; margin: 0 auto; }
+.ring { fill: none; stroke: #ffffff33; stroke-width: 1.5; stroke-dasharray: 3 5; }
+.ring.on { stroke: var(--mustard); stroke-width: 2.5; stroke-dasharray: none; }
+.rl { fill: var(--paper); font-size: 10px; font-family: var(--mono); opacity: .75; paint-order: stroke; stroke: var(--ink-2); stroke-width: 3px; }
+.rl.on { fill: var(--mustard); opacity: 1; font-weight: 700; }
+.osat { animation: spin linear infinite; }
+.olegs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.oleg { border: 0; background: var(--ink-3); color: var(--paper); border-radius: 999px; padding: 3px 9px; font-size: 11px; font-family: var(--mono); }
+.oleg b { color: var(--sky); }
+.oleg.on { outline: 2px solid var(--mustard); }
+
+/* operations report */
+.opsviz { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.opsviz .dbar { flex: 1; min-width: 120px; margin-top: 0; height: 14px; background: #241d2722; }
+.opsviz .dbar .stored { background: #eab43b88; }
+.opsviz .die { margin-right: 0; }
+.opsviz .vs { font-size: 12px; }
+.die.rolling { background: var(--orange); color: var(--ink); }
+.stamp { font-weight: 800; font-size: 12px; text-transform: uppercase; border-radius: 6px; padding: 2px 8px; border: 2px solid; transform: rotate(-4deg); }
+.stamp.ok { color: #2e7a63; } .stamp.bad { color: var(--bad); }
+.opsline details { margin-top: 6px; font-size: 13px; }
+.opsline summary { cursor: pointer; font-weight: 700; opacity: .75; }
+
+/* plain-language labels */
+.key { font-size: 12px; margin: 8px 0 0; opacity: .85; }
+.meter .k span { display: block; font-weight: 400; text-transform: none; opacity: .7; }
 
 /* toasts */
 #toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 10px; z-index: 30; width: min(380px, calc(100vw - 32px)); }
@@ -345,20 +427,63 @@ function modal({ title, tag, body, foot, narrow, onClose, dismiss = true }) {
 }
 function closeModal() { $('#modal-root').innerHTML = ''; }
 
+
+// Real distances and signal delays, shown on orbit cards and the orbit map.
+const ORBIT_REAL = {
+  leo: ['160–2,000 km up', 'the ISS flies at about 400 km'],
+  sso: ['about 600–800 km up', 'passes near both poles'],
+  geo: ['35,786 km up', 'one orbit takes 24 hours'],
+  lunar: ['about 384,400 km away', 'a radio signal takes 1.3 s'],
+  l2: ['about 1.5 million km away', 'a radio signal takes 5 s'],
+  mars: ['55–400 million km away', 'a radio signal takes 3–22 min']
+};
+function cardDetails(c) {
+  let extra = '';
+  if (c.type === 'event') extra = `<div class="effect"><b>In play:</b> ${esc(eventHelp(c.id))}</div>`;
+  if (c.type === 'orbit') extra = `<div class="chips">${ORBIT_REAL[c.rules.code].map(t => `<span>${esc(t)}</span>`).join('')}</div><div class="effect">${esc(LW.ORBIT_LESSONS[c.rules.code])}</div>`;
+  if (c.type === 'part' && CAT[c.rules.key]) extra = `<div class="effect">${esc(partHelp(c.rules.key))}</div>`;
+  if (c.type === 'mission') extra = `<div class="effect">${esc(missionCostHint(c.id))}</div>`;
+  return `${c.type === 'fact' ? '' : `<p class="lede">${esc(c.text)}</p>`}${extra}
+      ${c.science ? `<div class="science"><div class="eyebrow">Real science</div><p>${esc(c.science)}</p><a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener">Read the source ↗</a></div>` : ''}`;
+}
+// ---------- card library: flip through every card ----------
+function showGallery(type = 'mission') {
+  const TYPES = [['mission', 'Missions'], ['orbit', 'Orbits'], ['part', 'Parts'], ['event', 'Events'], ['fact', 'Field notes']];
+  let idx = 0;
+  const list = () => { const seen = new Set(); return LW.byType(type).filter(c => !seen.has(c.title) && seen.add(c.title)); }; // copies of a part show once
+  const m = modal({ title: 'Card library', tag: [CARDS.length + ' cards', 'tag-fact'],
+    body: `<div class="seg" id="gtabs">${TYPES.map(([t, l]) => `<button data-t="${t}">${l}</button>`).join('')}</div><div id="gbody"></div>`,
+    foot: `<span style="margin-right:auto;font-size:13px;opacity:.7">Use ← → to flip through</span><button class="btn go" id="gclose">Close</button>` });
+  const draw = dir => {
+    const cs = list(), c = cs[idx];
+    [...$('#gtabs').children].forEach(b => b.classList.toggle('on', b.dataset.t === type));
+    $('#gbody').innerHTML = `<div class="gal"><button class="btn galnav" id="gprev" aria-label="Previous card">‹</button>
+      <div class="zoom"><div class="cardimg slide-${dir}"><img src="${esc(c.image)}" alt=""></div><div><h3 class="display">${esc(c.title)}</h3><span class="count">${idx + 1} / ${cs.length}</span>${cardDetails(c)}</div></div>
+      <button class="btn galnav" id="gnext" aria-label="Next card">›</button></div>
+      <div class="strip" id="gstrip">${cs.map((x, i) => `<button class="cardimg ${i === idx ? 'sel' : ''}" data-i="${i}" aria-label="${esc(x.title)}"><img src="${esc(x.image)}" alt="" loading="lazy"></button>`).join('')}</div>`;
+    const sel = $('#gstrip .sel'); if (sel) $('#gstrip').scrollLeft = sel.offsetLeft - $('#gstrip').clientWidth / 2;
+  };
+  const go = d => { const n = list().length; idx = (idx + d + n) % n; draw(d < 0 ? 'prev' : 'next'); };
+  m.el.addEventListener('click', e => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.t) { type = t.dataset.t; idx = 0; draw('next'); }
+    else if (t.id === 'gprev') go(-1); else if (t.id === 'gnext') go(1);
+    else if (t.dataset.i != null) { const d = +t.dataset.i < idx ? 'prev' : 'next'; idx = +t.dataset.i; draw(d); }
+    else if (t.id === 'gclose') closeModal();
+  });
+  m.el.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1); });
+  draw('next');
+}
+
 // ---------- card zoom ----------
 function zoom(id) {
   const c = C(id);
   const tags = { mission: ['Mission', 'tag-mission'], orbit: ['Orbit', 'tag-orbit'], part: ['Part', 'tag-part'], event: ['Event', 'tag-event'], fact: ['Field note', 'tag-fact'] };
-  let extra = '';
-  if (c.type === 'event') extra = `<div class="effect"><b>In play:</b> ${esc(eventHelp(id))}</div>`;
-  if (c.type === 'orbit') extra = `<div class="effect">${esc(LW.ORBIT_LESSONS[c.rules.code])}</div>`;
-  if (c.type === 'part' && CAT[c.rules.key]) extra = `<div class="effect">${esc(partHelp(c.rules.key))}</div>`;
   let foot = '';
   const slot = G && G.phase === 'turns' ? G.market.indexOf(id) : -1;
   if (slot >= 0 && !G.pending) foot = `<button class="btn go" id="zbuy">Buy for ${LW.partPrice(G, c.rules.key)} BC</button>`;
   const m = modal({ title: c.title, tag: tags[c.type], narrow: false,
-    body: `<div class="zoom">${cardImg(id)}<div><p class="lede">${esc(c.text)}</p>${extra}
-      ${c.science ? `<div class="science"><div class="eyebrow">Real science</div><p>${esc(c.science)}</p><a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener">Read the source ↗</a></div>` : ''}</div></div>`,
+    body: `<div class="zoom">${cardImg(id)}<div>${cardDetails(c)}</div></div>`,
     foot: foot + `<button class="btn ghost" style="color:var(--ink);box-shadow:inset 0 0 0 2px #241d2733" id="zclose">Close</button>` });
   $('#zclose').onclick = closeModal;
   if ($('#zbuy')) $('#zbuy').onclick = () => { closeModal(); doAct({ type: 'buy', source: 'market', slot }); };
@@ -411,21 +536,24 @@ function renderTitle() {
         </div>
         <div class="row">
           <button class="btn go big" id="start">Start the countdown</button>
+          <button class="btn big" id="browse">Browse the cards</button>
           ${saved && saved.G && saved.G.phase !== 'over' ? `<button class="btn big" id="resume">Resume round ${saved.G.round}</button>` : ''}
         </div>
       </div>
     </div>
-    <div class="fan" aria-hidden="true">${fanIds.map((id, i) => `<div class="cardimg" style="left:${i * 15}%;transform:rotate(${(i - 2) * 6}deg) translateY(${Math.abs(i - 2) * 14}px)"><img src="${esc(img(id))}" alt=""></div>`).join('')}</div>
+    <div class="fan">${fanIds.map((id, i) => `<button class="cardimg deal" data-gal="${C(id).type}" aria-label="Browse ${C(id).type} cards" style="left:${i * 15}%;--r:${(i - 2) * 6}deg;--y:${Math.abs(i - 2) * 14}px;--i:${i};--dx:${(2 - i) * 60}px;--dy:60px;--dr:0deg"><img src="${esc(img(id))}" alt=""></button>`).join('')}</div>
   </div></div>`;
   const drawNames = () => {
     $('#names').innerHTML = Array.from({ length: UI.setupPlayers }, (_, i) => `<div><label for="pn${i}">Agency ${i + 1}</label><input type="text" id="pn${i}" maxlength="22" value="${esc(DEFAULT_NAMES[i])}"></div>`).join('');
   };
   drawNames();
+  $('#browse').onclick = () => showGallery();
+  $('.fan').onclick = e => { const b = e.target.closest('[data-gal]'); if (b) showGallery(b.dataset.gal); };
   $('#seg').onclick = e => { const b = e.target.closest('button'); if (!b) return; UI.setupPlayers = +b.dataset.n; [...$('#seg').children].forEach(x => x.classList.toggle('on', x === b)); drawNames(); };
   $('#start').onclick = () => {
     const names = Array.from({ length: UI.setupPlayers }, (_, i) => ($('#pn' + i).value || DEFAULT_NAMES[i]).trim());
     G = LW.createGame(CARDS, { players: names, advanced: $('#adv').checked, funding: +$('#fund').value, winSP: +$('#win').value });
-    G.guide = $('#guide').checked;
+    G.guide = $('#guide').checked; UI.prevMarket = UI.prevParts = null;
     UI.debriefShown = 0; UI.seenFacts = {};
     nextRound();
   };
@@ -444,17 +572,28 @@ function resumeFlow() {
   else if (G.phase === 'roundEnd') showDebriefs(() => { LW.endRound(G); nextRound(); });
   else if (G.phase === 'over') showDebriefs(showGameOver);
 }
+function deckFlip(id) {
+  const back = '<div class="cardback shuf"></div>';
+  return `<div class="deckflip">${back}${back}${back}<div class="flipper">${cardImg(id)}<div class="cardback">${swoosh(120)}</div></div></div>`;
+}
+function launchFx() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const d = document.createElement('div'); d.className = 'rocket';
+  d.innerHTML = '<svg viewBox="0 0 40 90" width="60" aria-hidden="true"><path class="flame" d="M13 44h14l-7 28z" fill="#eab43b"/><path d="M20 2c9 10 12 26 12 42H8C8 28 11 12 20 2z" fill="#fff1d8" stroke="#241d27" stroke-width="2"/><circle cx="20" cy="24" r="5" fill="#9db3cf" stroke="#241d27" stroke-width="2"/><path d="M8 40l-7 14h9zM32 40l7 14h-9z" fill="#e2793a" stroke="#241d27" stroke-width="2"/></svg>';
+  document.body.appendChild(d); setTimeout(() => d.remove(), 1500);
+}
 function showEvent() {
   const ev = C(G.event), lead = G.players[G.lead];
   const tech = G.pending && G.pending.type === 'tech';
   modal({ title: ev.title, tag: ['Round ' + G.round + ' event', 'tag-event'], dismiss: false,
-    body: `<div class="zoom">${cardImg(G.event)}<div>
-      <p class="lede">${esc(lead.name)} is Mission Lead and draws the event.</p>
+    body: `<div class="zoom">${deckFlip(G.event)}<div>
+      <p class="lede">${esc(lead.name)} is Mission Lead and draws the event.</p><div class="late">
       <div class="effect"><b>Effect:</b> ${esc(eventHelp(G.event))}</div>
       <p>Every agency receives <b>+${G.funding} BC</b> of yearly funding.</p>
       ${tech ? `<p><b>${esc(lead.name)}, pick a Market part to make cheaper for the rest of the game:</b></p><div class="pick-row" id="techpick" style="justify-content:flex-start">${G.market.filter(Boolean).map(id => `<button class="btn small" data-k="${esc(C(id).rules.key)}">${esc(C(id).title)}</button>`).join('')}</div>` : ''}
-    </div></div>`,
+    </div></div></div>`,
     foot: tech ? '' : `<button class="btn go" id="evgo">Begin turns</button>` });
+  $('.mhead h2').classList.add('late');
   const begin = () => { closeModal(); LW.beginTurns(G); save(); beforeTurn(); };
   if (tech) $('#techpick').onclick = e => { const b = e.target.closest('button'); if (!b) return; LW.act(G, { type: 'techPick', key: b.dataset.k }); begin(); };
   else $('#evgo').onclick = begin;
@@ -480,7 +619,7 @@ function doAct(a) {
   if (G.pending && G.pending.type === 'draft') showDraft();
   if (G.pending && G.pending.type === 'trade') showTrade();
   if (res.eventId) showPeek(res.eventId);
-  if (res.sat) { const s = G.sats.find(x => x.id === res.sat); factToast(LW.orbitCard(s.orbit).id); }
+  if (res.sat) { launchFx(); const s = G.sats.find(x => x.id === res.sat); factToast(LW.orbitCard(s.orbit).id); }
   return res;
 }
 function endTurn() {
@@ -502,7 +641,7 @@ function showDraft() {
   const pd = G.pending, p = G.players[pd.player];
   modal({ title: pd.free ? 'Choose your first mission' : 'Choose a mission', tag: ['Mission briefing', 'tag-mission'], dismiss: false,
     body: `<p class="lede">${esc(p.name)}: keep one, the other goes back to the deck. Harder orbits pay more, but cost more to reach.</p>
-      <div class="pick-row">${pd.offer.map(id => `<div class="mission-slot">${cardImg(id, { attrs: `data-keep="${esc(id)}"` })}<button class="btn mustard small" data-keep="${esc(id)}">Keep ${esc(C(id).title)}</button><span class="cap">${esc(missionCostHint(id))}</span></div>`).join('')}</div>`,
+      <div class="pick-row">${pd.offer.map((id, i) => `<div class="mission-slot deal" style="--i:${i}">${cardImg(id, { attrs: `data-keep="${esc(id)}"` })}<button class="btn mustard small" data-keep="${esc(id)}">Keep ${esc(C(id).title)}</button><span class="cap">${esc(missionCostHint(id))}</span></div>`).join('')}</div>`,
   });
   $('.pick-row').onclick = e => { const b = e.target.closest('button.btn[data-keep]'); if (!b) return; closeModal(); doAct({ type: 'keepMission', id: b.dataset.keep }); };
 }
@@ -515,7 +654,7 @@ function showTrade() {
   const pd = G.pending; let pick = null, slot = null;
   modal({ title: 'Trade Study', tag: ['Top of the Special deck', 'tag-part'], dismiss: false,
     body: `<p class="lede">Pick one part to bring into the Market, then the Market card it replaces. The rest go to the bottom of the deck.</p>
-      <h3 class="eyebrow tag-part" style="color:#a0472a">From the deck</h3><div class="pick-row" id="tp" style="justify-content:flex-start;margin:8px 0 16px">${pd.offer.map((id, i) => cardImg(id, { attrs: `data-i="${i}"`, cls: 'tp' })).join('')}</div>
+      <h3 class="eyebrow tag-part" style="color:#a0472a">From the deck</h3><div class="pick-row" id="tp" style="justify-content:flex-start;margin:8px 0 16px">${pd.offer.map((id, i) => cardImg(id, { attrs: `data-i="${i}" style="--i:${i}"`, cls: 'tp deal' })).join('')}</div>
       <h3 class="eyebrow" style="color:#a0472a">Replace in the Market</h3><div class="pick-row" id="tm" style="justify-content:flex-start;margin-top:8px">${G.market.map((id, i) => id ? cardImg(id, { attrs: `data-i="${i}"`, cls: 'tm' }) : '').join('')}</div>`,
     foot: `<button class="btn" id="tcancel">Keep the Market as is</button><button class="btn go" id="tok" disabled>Swap</button>` });
   [...document.querySelectorAll('.tp,.tm')].forEach(b => { b.style.width = '120px'; b.removeAttribute('data-zoom'); });
@@ -535,7 +674,7 @@ function showTradeChoice() {
 }
 function showPeek(id) {
   modal({ title: 'Forecast: ' + C(id).title, tag: ['Next round', 'tag-event'],
-    body: `<div class="zoom">${cardImg(id)}<div><p class="lede">This event will be drawn at the start of round ${G.round + 1}. Only you know.</p><div class="effect">${esc(eventHelp(id))}</div></div></div>`,
+    body: `<div class="zoom">${deckFlip(id)}<div><p class="lede">This event will be drawn at the start of round ${G.round + 1}. Only you know.</p><div class="effect">${esc(eventHelp(id))}</div></div></div>`,
     foot: `<button class="btn go" id="pk">Got it</button>` });
   $('#pk').onclick = closeModal;
 }
@@ -544,17 +683,34 @@ function showSpecialOrder() {
   const list = Object.keys(keys).sort((a, b) => LW.partCard(a).title.localeCompare(LW.partCard(b).title));
   modal({ title: 'Special Order', tag: ['1 action · price +' + LW.SPECIAL_ORDER_FEE + ' BC', 'tag-part'],
     body: `<p class="lede">Order a specific part straight from the supplier. Faster than waiting for it to show up in the Market, but it costs ${LW.SPECIAL_ORDER_FEE} BC extra.</p>
-      <div class="shelf" id="so">${list.map(k => { const pc = LW.partCard(k); return `<button class="shelf-item" data-k="${k}"><span class="t">${esc(pc.title)}</span><span class="m">${LW.partPrice(G, k) + LW.SPECIAL_ORDER_FEE} BC · ${pc.rules.volume} U · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W · ${keys[k]} left</span></button>`; }).join('') || '<p>The deck is empty.</p>'}</div>` });
+      <div class="shelf" id="so">${list.map(k => { const pc = LW.partCard(k); return `<button class="shelf-item" data-k="${k}"><img src="${esc(pc.image)}" alt="" loading="lazy"><span class="t">${esc(pc.title)}</span><span class="m">${LW.partPrice(G, k) + LW.SPECIAL_ORDER_FEE} BC · ${pc.rules.volume} U · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W · ${keys[k]} left</span></button>`; }).join('') || '<p>The deck is empty.</p>'}</div>` });
   $('#so').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; closeModal(); doAct({ type: 'specialOrder', key: b.dataset.k }); };
 }
 function showOps(rep, next) {
-  const body = rep.length ? rep.map(l => {
-    const p = G.players[l.owner];
-    return `<div class="opsline" style="--who:${PLAYER_COLORS[l.owner]}"><div class="t">${esc(p.name)} · ${esc(l.mission)} <span style="font-weight:400">(${esc(LW.orbitCard(l.orbit).title)})</span></div>
-      <ul>${l.notes.map(n => `<li>${n.startsWith('Launch check') ? `<span class="die">${l.launch.roll}</span>` : ''}${esc(n)}</li>`).join('')}</ul></div>`;
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const body = rep.length ? rep.map((l, i) => {
+    const p = G.players[l.owner], sat = G.sats.find(x => x.id === l.sat), need = C(sat.missionId).rules.data;
+    const lost = l.launch && !l.launch.ok, wait = calm ? 0 : i * 350, shown = wait + (l.launch && !calm ? 900 : 0);
+    const pct = v => Math.min(100, v / need * 100);
+    const trouble = lost || l.notes.some(n => /skip|loses|re-enters|Signal Fade|Antenna Maintenance|No ground pass|Pointing Drift|−1/.test(n));
+    return `<div class="opsline deal" style="--who:${PLAYER_COLORS[l.owner]};--i:${i * 3};--dx:0px;--dy:30px;--dr:0deg">
+      <div class="t">${esc(p.name)} · ${esc(l.mission)} <span style="font-weight:400">(${esc(LW.orbitCard(l.orbit).title)})</span></div>
+      <div class="opsviz">
+        ${l.launch ? `<span class="die" data-roll="${l.launch.roll}" data-wait="${wait}">${l.launch.roll}</span><span class="vs">needs more than ${l.launch.risk}</span><span class="stamp ${lost ? 'bad' : 'ok'} pop" style="animation-delay:${shown}ms">${lost ? 'Lost' : 'Working'}</span>` : ''}
+        ${lost ? '' : `<div class="dbar"><span class="down" style="width:${pct(sat.down)}%"></span><span class="stored" style="width:${Math.min(100 - pct(sat.down), pct(sat.stored))}%"></span></div><span class="mono">${sat.down}/${need} Data home</span>`}
+        ${l.scored ? `<span class="stamp ok pop" style="animation-delay:${shown + 300}ms">+${l.scored} SP</span>` : ''}
+      </div>
+      <details ${trouble ? 'open' : ''}><summary>What happened</summary><ul>${l.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul></details></div>`;
   }).join('') : '<p class="lede">No satellites in orbit yet. The ground stations wait.</p>';
   modal({ title: 'Operations, round ' + G.round, tag: ['Phase 3', 'tag-orbit'], dismiss: false, body, foot: `<button class="btn go" id="opsgo">Continue</button>` });
   $('#opsgo').onclick = () => { closeModal(); next(); };
+  if (!calm) document.querySelectorAll('.die[data-roll]').forEach(d => {
+    const end = Date.now() + 800 + +d.dataset.wait; d.classList.add('rolling');
+    const t = setInterval(() => {
+      if (!d.isConnected || Date.now() >= end) { clearInterval(t); d.textContent = d.dataset.roll; d.classList.remove('rolling'); }
+      else d.textContent = 1 + Math.floor(Math.random() * 10);
+    }, 70);
+  });
 }
 function showDebriefs(next) {
   if (UI.debriefShown >= G.debriefs.length) return next();
@@ -690,6 +846,7 @@ function renderGame() {
       ${ev ? `<button class="event-chip" data-zoom="${G.event}"><img src="${esc(ev.image)}" alt="">${esc(ev.title)}</button>` : ''}</div>
     <div class="scores">${G.players.map((q, i) => `<div class="score ${inTurns && i === pi ? 'active' : ''}"><span class="dot" style="background:${PLAYER_COLORS[i]}"></span><span class="nm">${esc(q.name)}</span><span class="vals num">${q.sp} SP · ${q.bc} BC</span>${i === G.lead ? '<span class="lead">LEAD</span>' : ''}</div>`).join('')}</div>
     <button class="btn small ghost" id="rulesbtn">Rules</button>
+    <button class="btn small ghost" id="cardsbtn">Cards</button>
     <button class="btn small ghost" id="quitbtn">New game</button>
   </header>
   <main class="console">
@@ -710,7 +867,7 @@ function renderGame() {
       </div>
       <div class="panel">
         <div class="panel-head"><span class="eyebrow tag-orbit">Tracking</span><h2 class="display">Satellites in orbit</h2><span class="hint">Yellow = downlinked Data, faded = stored on board</span></div>
-        ${tracker()}
+        <div class="orbitrow">${orbitMap(p)}<div>${tracker()}</div></div>
       </div>
     </section>
     <aside>
@@ -720,7 +877,7 @@ function renderGame() {
       </div>
       <div class="panel">
         <div class="panel-head"><span class="eyebrow tag-part">Market</span><h2 class="display">Special parts</h2><span class="hint">${G.specialDeck.length} in deck</span></div>
-        <div class="market">${G.market.map((id, i) => id ? `<div>${cardImg(id)}<span class="price">${marketPrice(id)}</span><button class="btn small mustard" style="width:100%;margin-top:4px" data-buy="${i}" ${canAct() && p.build ? '' : 'disabled'}>Buy</button></div>` : '<div class="cardimg empty"></div>').join('')}</div>
+        <div class="market">${G.market.map((id, i) => id ? `<div class="${!UI.prevMarket || UI.prevMarket.includes(id) ? '' : 'deal'}" style="--dx:0px;--dy:-60px;--dr:-8deg">${cardImg(id)}<span class="price">${marketPrice(id)}</span><button class="btn small mustard" style="width:100%;margin-top:4px" data-buy="${i}" ${canAct() && p.build ? '' : 'disabled'}>Buy</button></div>` : '<div class="cardimg empty"></div>').join('')}</div>
         <div class="toolrow">
           <button class="btn small" id="sobtn" ${canAct() && p.build ? '' : 'disabled'}>Special order…</button>
           <button class="btn small" id="tsbtn" ${canAct() ? '' : 'disabled'}>Trade Study…</button>
@@ -734,6 +891,7 @@ function renderGame() {
   </main>`;
   bind();
   const target = coach && $(coach.sel); if (target) target.classList.add('coach-target');
+  UI.prevMarket = G.market.slice(); UI.prevParts = p.build ? p.build.parts.map(x => x.uid) : [];
 }
 function canAct() { return G.phase === 'turns' && G.actionsLeft > 0 && !G.pending; }
 function marketPrice(id) {
@@ -766,6 +924,7 @@ function buildBay(p) {
   const costSoFar = st.cost + lp.price;
   return `<div class="bay">
     <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span class="eyebrow" style="color:#a0472a">Build bay</span><h3 class="display">${esc(m.title)}</h3><span class="sub">${esc(m.text)} Needs ${m.rules.data} Data · pays ${m.rules.sp} SP</span></div>
+    <p class="key"><b>BC</b> budget · <b>SP</b> science points · <b>U</b> size (1U is a 10 cm cube) · <b>W</b> watts of power · <b>Data</b> what your instrument collects</p>
     <div class="orbits" role="group" aria-label="Orbit">${orbBtns}</div>
     ${locked ? '<p class="sub" style="margin:-4px 0 10px">Orbit locked: parts are installed.</p>' : '<p class="sub" style="margin:-4px 0 10px">Choosing the orbit is free until you install the first part.</p>'}
     <div class="bayrow">
@@ -780,9 +939,9 @@ function buildBay(p) {
       </div>
       <div>
         <div class="meters">
-          <div class="meter ${st.volume > st.capacity ? 'warn' : ''}"><div class="k">Volume</div><div class="v num">${st.volume}/${st.capacity} U</div></div>
-          <div class="meter ${st.used > st.made ? 'warn' : ''}"><div class="k">Power</div><div class="v num">${st.made}/${st.used} W</div></div>
-          <div class="meter"><div class="k">Launch</div><div class="v num">${Math.round(rk.chance * 100)}%</div></div>
+          <div class="meter ${st.volume > st.capacity ? 'warn' : ''}"><div class="k">Volume <span>used / fits</span></div><div class="v num">${st.volume}/${st.capacity} U</div></div>
+          <div class="meter ${st.used > st.made ? 'warn' : ''}"><div class="k">Power <span>made / used</span></div><div class="v num">${st.made}/${st.used} W</div></div>
+          <div class="meter"><div class="k">Launch <span>chance it works</span></div><div class="v num">${Math.round(rk.chance * 100)}%</div></div>
         </div>
         <p class="sub" style="margin:8px 0 0">Risk ${rk.risk}: ${rk.why.map(w => esc(w.label) + ' ' + (w.v > 0 ? '+' : '') + w.v).join(', ')}. Collects ${dpr} Data/round; about ${rounds > 8 ? 'too many' : rounds} round${rounds === 1 ? '' : 's'} to finish.</p>
         <ul class="review">${rv.items.map(i => `<li><span class="${i.ok ? 'ok' : 'no'}">${i.ok ? '✓' : '✗'}</span>${esc(i.text)}</li>`).join('')}</ul>
@@ -801,13 +960,13 @@ function chassis(b, st) {
   const blocks = [];
   b.parts.filter(x => !x.key.startsWith('frame') && (C(x.cardId).rules.volume || 0) > 0).forEach(x => {
     const n = Math.round(C(x.cardId).rules.volume * 2);
-    for (let i = 0; i < n; i++) blocks.push({ label: i === 0 ? C(x.cardId).title : '', cat: CAT[x.key] });
+    for (let i = 0; i < n; i++) blocks.push({ label: i === 0 ? C(x.cardId).title : '', cat: CAT[x.key], fresh: UI.prevParts && !UI.prevParts.includes(x.uid) });
   });
   const ext = b.parts.filter(x => !x.key.startsWith('frame') && !(C(x.cardId).rules.volume > 0));
   let html = '';
   for (let i = 0; i < Math.max(cells, blocks.length); i++) {
     const bl = blocks[i];
-    html += bl ? `<div class="cell fill cat-${bl.cat}" ${i >= cells ? 'style="outline:2px solid var(--bad)"' : ''}>${esc(bl.label)}</div>` : '<div class="cell"></div>';
+    html += bl ? `<div class="cell fill cat-${bl.cat} ${bl.fresh ? 'pop' : ''}" ${i >= cells ? 'style="outline:2px solid var(--bad)"' : ''}>${esc(bl.label)}</div>` : '<div class="cell"></div>';
   }
   return `<div class="chassis"><div class="eyebrow" style="color:var(--paper);opacity:.75;margin-bottom:6px">${esc(C(st.frame.cardId).title)} · each slot is 0.5 U</div>
     <div class="chassis-grid" style="grid-template-columns:repeat(${cols},1fr)">${html}</div>
@@ -815,7 +974,26 @@ function chassis(b, st) {
 }
 function shelfItem(k, p) {
   const pc = LW.partCard(k), price = LW.partPrice(G, k);
-  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && p.build ? '' : 'disabled'} title="${esc(partHelp(k))}"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room, ' + pc.rules.cellSlots + ' cell' + (pc.rules.cellSlots > 1 ? 's' : '') : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
+  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && p.build ? '' : 'disabled'} title="${esc(partHelp(k))}"><img src="${esc(pc.image)}" alt="" loading="lazy"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room, ' + pc.rules.cellSlots + ' cell' + (pc.rules.cellSlots > 1 ? 's' : '') : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
+}
+function orbitMap(p) {
+  const RAD = { leo: 36, sso: 50, geo: 70, lunar: 94, l2: 118, mars: 142 }, SHORT = { leo: 'LEO', sso: 'SSO', geo: 'GEO', lunar: 'Moon', l2: 'L2', mars: 'Mars' };
+  const orbits = LW.ORBIT_ORDER.filter(o => G.advanced || o !== 'mars'), size = RAD[orbits[orbits.length - 1]] * 2 + 44, c = size / 2;
+  const target = p.build && p.build.orbit;
+  let g = orbits.map((o, k) => {
+    const a = (-72 + k * 10) * Math.PI / 180;
+    return `<circle cx="${c}" cy="${c}" r="${RAD[o]}" class="ring ${o === target ? 'on' : ''}"/><text x="${(c + RAD[o] * Math.cos(a)).toFixed(1)}" y="${(c + RAD[o] * Math.sin(a) - 3).toFixed(1)}" class="rl ${o === target ? 'on' : ''}">${SHORT[o]}</text>`;
+  }).join('');
+  g += `<circle cx="${c}" cy="${c}" r="22" fill="#9db3cf"/><path d="M${c - 14} ${c - 6}q8 -10 16 -4q6 6 -2 12q-10 4 -14 -8zM${c + 2} ${c + 8}q8 -4 12 2q-4 8 -12 -2z" fill="#7fb8a6"/>`;
+  g += `<circle cx="${(c - RAD.lunar * .7).toFixed(1)}" cy="${(c + RAD.lunar * .714).toFixed(1)}" r="6" fill="#fff1d8"/>`;
+  if (G.advanced) g += `<circle cx="${(c - RAD.mars * .9).toFixed(1)}" cy="${(c - RAD.mars * .436).toFixed(1)}" r="6" fill="#e2603a"/>`;
+  G.sats.filter(s => s.status === 'active' || s.status === 'pending').forEach((s, k) => {
+    const r = RAD[s.orbit], col = PLAYER_COLORS[s.owner];
+    g += `<g class="osat" style="transform-origin:${c}px ${c}px;animation-duration:${Math.round(10 + r / 3)}s;animation-delay:-${(k * 4.3).toFixed(1)}s"><circle cx="${c + r}" cy="${c}" r="6" fill="${s.status === 'pending' ? '#312838' : col}" stroke="${col}" stroke-width="3"><title>${esc(G.players[s.owner].name + ': ' + C(s.missionId).title)}</title></circle></g>`;
+  });
+  return `<div class="omap"><svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Orbit map, not to scale">${g}</svg>
+    <div class="olegs">${orbits.map(o => `<button class="oleg ${o === target ? 'on' : ''}" data-zoom="${LW.orbitCard(o).id}"><b>${SHORT[o]}</b> ${esc(ORBIT_REAL[o][0])}</button>`).join('')}</div>
+    <p class="empty-note" style="margin:6px 0 0;font-size:11px">Map not to scale; distances are real.${target ? ' Bright ring: the orbit you are building for.' : ''} Hollow dot: waiting for its launch check.</p></div>`;
 }
 function tracker() {
   const live = G.sats.filter(s => s.status === 'active' || s.status === 'pending');
@@ -825,7 +1003,7 @@ function tracker() {
     const life = o.rules.lifetime ? ` · ${Math.max(0, o.rules.lifetime - s.opsRounds)} rounds before re-entry` : '';
     return `<div class="sat" style="--who:${PLAYER_COLORS[s.owner]}"><img src="${esc(m.image)}" alt=""><div>
       <div class="t">${esc(m.title)}</div><div class="o">${esc(G.players[s.owner].name)} · ${esc(o.title)}${life}</div>
-      <div class="bar" title="${s.down} of ${need} Data downlinked, ${s.stored} stored"><span class="down" style="width:${Math.min(100, s.down / need * 100)}%"></span><span class="stored" style="width:${Math.min(100 - Math.min(100, s.down / need * 100), s.stored / need * 100)}%"></span></div>
+      <div class="dbar" title="${s.down} of ${need} Data downlinked, ${s.stored} stored"><span class="down" style="width:${Math.min(100, s.down / need * 100)}%"></span><span class="stored" style="width:${Math.min(100 - Math.min(100, s.down / need * 100), s.stored / need * 100)}%"></span></div>
       <span class="status ${s.status === 'pending' ? 'st-pending' : 'st-active'}">${s.status === 'pending' ? 'Launch check at end of round' : s.down + '/' + need + ' Data home'}</span></div></div>`;
   }).join('')}</div>`;
 }
@@ -836,6 +1014,7 @@ function bind() {
     if (t.dataset.zoom) return zoom(t.dataset.zoom);
     if (t.id === 'endturn') return endTurn();
     if (t.id === 'rulesbtn') return showRules();
+    if (t.id === 'cardsbtn') return showGallery();
     if (t.id === 'coachoff') { G.guide = false; save(); return renderGame(); }
     if (t.id === 'quitbtn') return confirmQuit();
     if (t.id === 'takemission') return doAct({ type: 'takeMission' });
