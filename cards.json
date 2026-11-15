@@ -588,7 +588,7 @@
       "Comms": "Slow"
     },
     "image": "cards/orbit-04.webp",
-    "science": "NASA's Lunar Reconnaissance Orbiter has mapped the Moon from orbit since 2009.",
+    "science": "The Lunar Reconnaissance Orbiter has mapped the Moon from orbit since 2009.",
     "sourceUrl": "https://science.nasa.gov/mission/lro/",
     "rules": {
       "code": "lunar",

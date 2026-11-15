@@ -194,7 +194,7 @@
     var ant = bestAntenna(parts);
     items.push({ ok: needHga ? ant === 'hga' : !!ant, text: needHga ? 'High-gain antenna (required here)' : 'An antenna' });
     if (o && o.rules.requires.indexOf('electric') >= 0) items.push({ ok: hasKey(parts, 'electric'), text: 'Electric thruster (required here)' });
-    // Flagships are NASA Class A missions: the highest reliability standard, with backups for everything.
+    // Flagship missions are built to the highest reliability class ("Class A"), with backups for everything.
     if (missionId === COOP_MISSION) items.push({ ok: riskOf(parts, orbit, false).risk <= 1, text: 'Flagship standard (Class A): Risk must be 1. Add backups.' });
     if (hasKey(parts, 'magnetorquers') && o) items.push({ ok: orbit === 'leo' || orbit === 'sso', text: 'Magnetorquers only work in LEO or SSO' });
     return { ok: items.every(function (i) { return i.ok; }), items: items, stats: st };

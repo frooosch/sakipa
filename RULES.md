@@ -131,7 +131,7 @@ Then the Mission Lead passes clockwise and a new round starts.
 - **Co-op (2–4 agencies):** everyone builds one Flagship Observatory at L2 (6 Data, 20 SP). Finish it before round 6 ends and every agency wins.
   - **Subsystems.** Each agency owns some subsystems and may only buy those parts: Payload & pointing (instruments, reaction wheels, magnetorquers), Communications (antennas and radios), Propulsion (thrusters), Power & structure (frames, solar, battery, shielding, backup computer). With 2 agencies each owns two; with 3, one agency owns two.
   - **One budget.** The team starts with 24 BC and gets 7 BC per round, split as evenly as possible between agencies. Use Trade to pass BC to whoever needs it.
-  - **Class A.** Flagships are NASA Class A missions, built to the highest reliability standard: the Flagship's Risk must be 1 to pass the Design Review.
+  - **Class A.** Real flagship missions are built to the highest reliability class, called Class A: the Flagship's Risk must be 1 to pass the Design Review.
   - The agency that owns Power & structure is the first Mission Lead, so the frame goes in first. Any agency may launch the Flagship. If it is lost, the team builds a new one.
 - **Solo:** play alone against the Event deck. Try to reach 10 SP in 6 rounds.
 
@@ -180,6 +180,6 @@ Measured with `sim.js` (1,500 bot games per setting). Bots now reach 10 SP in 20
 - Trade Study can peek at the next Event (the exact launch chance is now always shown).
 - Mars needs an electric thruster and high-gain antenna.
 - Removed "First to complete" missions (each mission card belongs to one player).
-- "NASA Grant" is now "Research Grant", matching the card.
+- The grant event's name now matches its card: Research Grant.
 - Magnetorquers work in LEO and SSO.
 - Corrected Real Science lines on Polar Field Survey, Equatorial Field Map, Particle Patrol, Lunar Orbit and Mars Transfer.
