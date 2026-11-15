@@ -1,0 +1,59 @@
+// Balance sim: greedy bots play N games through the real engine. `node sim.js [games] [players]`
+// ponytail: naive greedy bot (cheapest viable design, no wheels/backups); smarter bots if we tune balance seriously.
+const LW = require('./engine.js'), CARDS = require('./cards.json');
+const N = +process.argv[2] || 2000, P = +process.argv[3] || 1;
+
+function plan(s, b) {
+  const m = LW.card(b.missionId), o = LW.orbitCard(b.orbit).rules;
+  const want = [m.rules.payload, o.requires.includes('hga') ? 'hga' : 'uhf', ...o.requires.filter(k => k !== 'hga')];
+  if (process.env.SAFE) want.push('battery', ['leo', 'sso'].includes(b.orbit) ? 'magnetorquers' : 'wheels');
+  const vol = want.reduce((a, k) => a + LW.partCard(k).rules.volume, 0);
+  const frame = vol <= 1 ? 'frame1' : vol <= 3 ? 'frame3' : vol <= 6 ? 'frame6' : 'frame12';
+  return [frame, ...want];
+}
+function step(s) {
+  const pi = LW.current(s), p = s.players[pi];
+  if (s.pending && s.pending.type === 'draft') {
+    const best = s.pending.offer.slice().sort((a, b) => score(b) - score(a))[0];
+    return LW.act(s, { type: 'keepMission', id: best });
+  }
+  if (s.actionsLeft < 1) return LW.act(s, { type: 'endTurn' });
+  const b = p.build;
+  const idle = !b && p.missions.find(id => !LW.satForMission(s, id));
+  if (idle) return LW.act(s, { type: 'selectBuild', missionId: idle });
+  if (!b) return p.missions.length < LW.MAX_MISSIONS && LW.act(s, { type: 'takeMission' }).ok ? { ok: true } : LW.act(s, { type: 'endTurn' });
+  const have = b.parts.map(x => x.key), need = plan(s, b).filter(k => !have.includes(k));
+  if (need.length) {
+    const k = need[0], slot = s.market.findIndex(id => id && LW.card(id).rules.key === k);
+    const a = LW.shelfKeys().includes(k) ? { type: 'buy', source: 'shelf', key: k }
+      : slot >= 0 ? { type: 'buy', source: 'market', slot } : { type: 'specialOrder', key: k };
+    const r = LW.act(s, a); return r.ok ? r : LW.act(s, { type: 'endTurn' });
+  }
+  const st = LW.designStats(b.parts, b.orbit);
+  if (st.made < st.used) { const r = LW.act(s, { type: 'buy', source: 'shelf', key: 'cells' }); return r.ok ? r : LW.act(s, { type: 'endTurn' }); }
+  const r = LW.act(s, { type: 'launch' }); return r.ok ? r : LW.act(s, { type: 'endTurn' });
+}
+function score(id) { const m = LW.card(id).rules, o = LW.orbitCard(m.orbits[0]).rules; return m.sp / (o.launch + 6 + o.requires.length * 4); }
+
+const res = { wins: 0, sp: [], rounds: [], byOrbit: {}, lost: 0, launched: 0, bc: [] };
+for (let g = 0; g < N; g++) {
+  const s = LW.createGame(CARDS, { players: Array.from({ length: P }, (_, i) => 'B' + i), seed: g + 1 });
+  while (s.phase !== 'over') {
+    LW.startRound(s);
+    if (s.pending && s.pending.type === 'tech') LW.act(s, { type: 'techPick', key: LW.card(s.market.find(Boolean)).rules.key });
+    LW.beginTurns(s);
+    let guard = 0;
+    while (s.phase === 'turns' && guard++ < 500) step(s);
+    LW.runOps(s); if (s.phase !== 'over') LW.endRound(s);
+  }
+  const best = Math.max(...s.players.map(p => p.sp));
+  if (best >= s.winSP) res.wins++;
+  res.sp.push(best); res.bc.push(s.players[0].bc); res.rounds.push(s.round);
+  s.sats.forEach(x => { const o = res.byOrbit[x.orbit] = res.byOrbit[x.orbit] || { n: 0, done: 0 }; o.n++; if (x.status === 'done') o.done++; });
+  s.players.forEach(p => { res.lost += p.stats.lost; res.launched += p.stats.launched; });
+}
+const avg = a => (a.reduce((x, y) => x + y, 0) / a.length).toFixed(2);
+console.log(`${process.env.SAFE ? 'SAFE bot' : 'lean bot'}, ${N} games, ${P} player(s): reached 15 SP in ${(100 * res.wins / N).toFixed(1)}%, avg top SP ${avg(res.sp)}, avg rounds ${avg(res.rounds)}, avg BC left ${avg(res.bc)}`);
+console.log(`launches ${res.launched}, lost at launch ${(100 * res.lost / res.launched).toFixed(1)}%`);
+console.log('sats by orbit (launched / completed):', Object.entries(res.byOrbit).map(([k, v]) => `${k} ${v.n}/${v.done}`).join(', '));
+console.assert(res.launched > 0, 'bots never launched: engine or bot broken');
