@@ -78,3 +78,8 @@ for (const [ev, want] of [['event-08', 5], ['event-20', LW.UHF_CAP]]) {
   LW.runOps(g);
   console.assert(g.sats[0].down === want, ev + ': expected ' + want + ' Data down, got ' + g.sats[0].down);
 }
+
+// check: a first turn with an empty Mission deck leaves no dead-end choice
+{ const g = LW.createGame(CARDS, { seed: 1 }); g.missionDeck = []; LW.startRound(g); LW.beginTurns(g);
+  console.assert(!g.pending, 'empty mission deck must not open a draft');
+  console.assert(LW.act(g, { type: 'endTurn' }).ok, 'player can still end the turn'); }

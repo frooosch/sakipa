@@ -111,7 +111,9 @@
     s.actionsLeft = ACTIONS_PER_TURN;
     if (!p.drafted) {
       p.drafted = true;
-      s.pending = { type: 'draft', player: current(s), offer: drawMissions(s, 2), free: true };
+      var offer = drawMissions(s, 2);
+      // an empty offer would open a choice with nothing to pick
+      if (offer.length) s.pending = { type: 'draft', player: current(s), offer: offer, free: true };
     }
   }
   function drawMissions(s, n) { var out = []; while (out.length < n && s.missionDeck.length) out.push(s.missionDeck.shift()); return out; }
@@ -433,7 +435,7 @@
     });
     s.reportsThisRound = rep; s.reports.push({ round: s.round, lines: rep });
     var top = Math.max.apply(null, s.players.map(function (p) { return p.sp; }));
-    if (top >= s.winSP || s.round >= ROUNDS) { s.phase = 'over'; s.winner = winnerOf(s); log(s, 'Game over. ' + s.players[s.winner].name + ' wins.'); }
+    if (top >= s.winSP || s.round >= ROUNDS) { s.phase = 'over'; s.winner = winnerOf(s); log(s, s.players.length > 1 ? 'Game over. ' + s.players[s.winner].name + ' wins.' : 'Game over: ' + s.players[0].sp + ' of ' + s.winSP + ' SP.'); }
     else s.phase = 'roundEnd';
     return rep;
   }

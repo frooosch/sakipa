@@ -602,10 +602,11 @@ function tradeChart(alts) {
 function showGameOver() {
   const order = G.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.sp - a.p.sp || b.p.bc - a.p.bc);
   const w = G.players[G.winner];
-  modal({ title: w.name + ' wins!', tag: ['Mission archive', 'tag-mission'], dismiss: false,
+  const solo = G.players.length === 1;
+  modal({ title: solo ? (w.sp >= G.winSP ? 'Mission accomplished!' : 'Out of time') : w.name + ' wins!', tag: ['Mission archive', 'tag-mission'], dismiss: false,
     body: `<p class="lede">${G.players.length === 1 ? (w.sp >= G.winSP ? 'You reached ' + G.winSP + ' SP. Ground control is cheering.' : 'Round ' + LW.ROUNDS + ' is over: you finished with ' + w.sp + ' SP. Target: ' + G.winSP + '.') : 'Final standings after round ' + G.round + ':'}</p>
       <table class="alts"><thead><tr><th>Agency</th><th>SP</th><th>BC left</th><th>Launched</th><th>Completed</th><th>Lost</th></tr></thead><tbody>
-      ${order.map(({ p, i }) => `<tr class="${i === G.winner ? 'you' : ''}"><td><span style="color:${PLAYER_COLORS[i]}">●</span> ${esc(p.name)}</td><td class="n">${p.sp}</td><td class="n">${p.bc}</td><td class="n">${p.stats.launched}</td><td class="n">${p.stats.completed}</td><td class="n">${p.stats.lost}</td></tr>`).join('')}</tbody></table>`,
+      ${order.map(({ p, i }) => `<tr class="${i === G.winner && !solo ? 'you' : ''}"><td><span style="color:${PLAYER_COLORS[i]}">●</span> ${esc(p.name)}</td><td class="n">${p.sp}</td><td class="n">${p.bc}</td><td class="n">${p.stats.launched}</td><td class="n">${p.stats.completed}</td><td class="n">${p.stats.lost}</td></tr>`).join('')}</tbody></table>`,
     foot: `<button class="btn go" id="again">New game</button>` });
   $('#again').onclick = () => { clearSave(); closeModal(); G = null; renderTitle(); };
 }
