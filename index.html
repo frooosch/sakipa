@@ -204,8 +204,8 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .effect { background: var(--paper-2); border-radius: 12px; padding: 10px 14px; margin-top: 12px; }
 
 /* setup screen */
-.title-screen { min-height: 100vh; display: grid; place-items: center; padding: 30px 16px; }
-.title-card { width: min(980px, 100%); display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: center; }
+.title-screen { min-height: 100vh; display: grid; place-items: center; padding: 30px 16px; overflow-x: clip; } /* the card fan pokes past narrow screens */
+.title-card { width: min(1120px, 100%); display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: center; }
 @media (max-width: 860px) { .title-card { grid-template-columns: 1fr; } }
 .title-card h1 { font-size: clamp(56px, 9vw, 104px); line-height: .9; color: var(--mustard); }
 .title-card h1 span { display: block; color: var(--orange); }
@@ -213,15 +213,44 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .fan { position: relative; height: 380px; }
 .fan .cardimg { position: absolute; width: 190px; top: 30px; transition: transform .3s; transform: rotate(var(--r)) translateY(var(--y)); }
 .fan button.cardimg:hover { transform: rotate(var(--r)) translateY(calc(var(--y) - 22px)) scale(1.05); z-index: 3; }
-.setup { background: var(--paper); color: var(--ink); border-radius: 22px; padding: 20px; margin-top: 22px; }
+.setup [hidden] { display: none !important; } /* the option rows set display, which would beat the hidden attribute */
+.setup { background: var(--paper); color: var(--ink); border-radius: 22px; padding: 22px; margin-top: 22px; display: grid; gap: 18px; box-shadow: 0 18px 50px #0006; }
 .setup label { font-size: 12px; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px; }
-.setup input[type=text], .setup select { width: 100%; padding: 9px 12px; border-radius: 10px; border: 2px solid var(--ink); background: #fff8ea; font: inherit; color: var(--ink); }
-.setup .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 3px; gap: 2px; }
-.seg button { border: 0; background: transparent; border-radius: 999px; padding: 6px 14px; font-weight: 800; color: var(--ink); }
+.setup input[type=text] { width: 100%; padding: 10px 12px; border-radius: 12px; border: 2px solid #241d2733; background: #fff8ea; font: inherit; font-weight: 600; color: var(--ink); transition: border-color .15s; }
+.setup input[type=text]:focus { border-color: var(--ink); outline: none; }
+.sect h3 { font-family: var(--body); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 10px; color: #8a5a3a; display: flex; gap: 8px; align-items: center; }
+.sect h3 b { width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-size: 11px; letter-spacing: 0; }
+.seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 4px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 7px 16px; font-weight: 800; color: var(--ink); transition: background .15s, color .15s; }
+.seg button:hover:not(.on) { background: #241d2714; }
 .seg button.on { background: var(--ink); color: var(--paper); }
-.setup .row { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; margin-top: 12px; }
+.seg.small button { padding: 5px 12px; font-size: 13px; }
+.names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.namefield { position: relative; }
+.namefield .mark { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
+.namefield input[type=text] { padding-left: 34px; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.setup label.mode { position: relative; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; border: 2px solid #241d2726; border-radius: 16px; padding: 12px 14px; margin: 0; cursor: pointer; background: #fff8ea; text-transform: none; font-size: 13px; font-weight: 400; transition: border-color .15s, transform .15s, background .15s; }
+.mode input { position: absolute; opacity: 0; pointer-events: none; }
+.mode b { display: block; font-size: 16px; font-weight: 800; }
+.mode svg { width: 44px; height: 44px; }
+.mode:hover { transform: translateY(-2px); }
+.mode:has(input:checked) { border-color: var(--ink); background: #fbe2a4; box-shadow: 0 4px 0 var(--ink); }
+.mode:has(input:focus-visible) { outline: 3px solid var(--orange); outline-offset: 2px; }
+.mode:has(input:disabled) { opacity: .45; cursor: not-allowed; transform: none; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+.setup .opt { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: #fff8ea; border-radius: 12px; padding: 9px 12px; margin: 0; text-transform: none; font-size: 14px; font-weight: 400; cursor: pointer; }
+.opt.static { cursor: default; }
+.opt .what b { display: block; font-size: 14px; font-weight: 800; }
+.opt .what span { font-size: 12px; opacity: .7; }
+.switch { appearance: none; -webkit-appearance: none; width: 44px; height: 26px; border-radius: 999px; background: #241d2733; position: relative; cursor: pointer; flex: none; margin: 0; transition: background .2s; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0004; transition: transform .2s; }
+.switch:checked { background: var(--teal); }
+.switch:checked::after { transform: translateX(18px); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .check { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 14px; text-transform: none !important; }
+@media (max-width: 560px) { .modes, .opts, .names { grid-template-columns: 1fr; } .setup { padding: 16px; } #seg .lg { display: none; } }
+#seg button { white-space: nowrap; }
 
 /* ops + debrief */
 .opsline { border-left: 6px solid var(--who); background: var(--paper-2); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
@@ -376,7 +405,7 @@ const CAT = { thermal: 'instrument', multispectral: 'instrument', radiation: 'in
   coldgas: 'prop', electric: 'prop', shielding: 'rel', computer: 'rel' };
 const ALT_COLORS = ['#e2793a', '#9db3cf', '#7fb8a6'];
 const SAVE_KEY = 'sakipa-satellite-save-v3';
-let CARDS = [], G = null, UI = { setupPlayers: 2, debriefShown: 0, seenFacts: {} };
+let CARDS = [], G = null, UI = { setupPlayers: 2, setupNames: [], setupMode: 'race', setupWin: 10, setupFund: 5, setupGuide: true, setupAdv: false, debriefShown: 0, seenFacts: {} };
 
 // ---------- starfield ----------
 function drawStars() {
@@ -562,40 +591,76 @@ function renderTitle() {
       ${swoosh(200)}
       <h1 class="display">Sakipa<span>Satellite</span></h1>
       <p class="tagline">Run a small space agency. Pick a mission, choose its orbit, build a CubeSat that fits the budget, the volume and the power, and launch it before round 6 runs out.</p>
-      <div class="setup" id="setup">
-        <div class="row" style="margin-top:0">
-          <div><label>Agencies</label><div class="seg" id="seg">${[1, 2, 3, 4].map(n => `<button data-n="${n}" class="${n === UI.setupPlayers ? 'on' : ''}">${n === 1 ? 'Solo' : n}</button>`).join('')}</div></div>
+      <form class="setup" id="setup" novalidate>
+        <div class="sect"><h3><b>1</b> Who's playing</h3>
+          <div class="seg" id="seg" role="group" aria-label="Number of agencies">${[1, 2, 3, 4].map(n => `<button type="button" data-n="${n}" class="${n === UI.setupPlayers ? 'on' : ''}" aria-pressed="${n === UI.setupPlayers}">${n === 1 ? 'Solo' : n + '<span class="lg"> agencies</span>'}</button>`).join('')}</div>
+          <div class="names" id="names"></div>
         </div>
-        <div class="grid" id="names" style="margin-top:12px"></div>
-        <div class="row">
-          <div><label for="fund">Funding per round</label><select id="fund"><option value="5" selected>+5 BC (standard)</option><option value="7">+7 BC (relaxed)</option></select></div>
-          <div><label for="win">Win at</label><select id="win"><option value="10" selected>10 SP (standard)</option><option value="8">8 SP (shorter)</option></select></div>
-          <label class="check"><input type="checkbox" id="adv"> Advanced: include Mars</label>
-          <label class="check"><input type="checkbox" id="guide" checked> Guide my first satellite</label>
-          <label class="check"><input type="checkbox" id="coop"> Co-op: build the Flagship Observatory together (2–4 agencies)</label>
+        <div class="sect"><h3><b>2</b> How to play</h3>
+          <div class="modes" role="radiogroup" aria-label="Game mode">
+            <label class="mode"><input type="radio" name="mode" id="race" value="race" ${UI.setupMode !== 'coop' ? 'checked' : ''}>
+              <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="21" fill="#eab43b"/><path d="M15 33V10" stroke="#241d27" stroke-width="3" stroke-linecap="round"/><path d="M15 11h15l-4 5 4 5H15z" fill="#e2793a" stroke="#241d27" stroke-width="2" stroke-linejoin="round"/></svg>
+              <span><b id="racetitle">Race</b><span id="racehint"></span></span></label>
+            <label class="mode"><input type="radio" name="mode" id="coop" value="coop" ${UI.setupMode === 'coop' ? 'checked' : ''}>
+              <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="21" fill="#9db3cf"/><path d="M12 30l13-13" stroke="#241d27" stroke-width="5" stroke-linecap="round"/><circle cx="27" cy="15" r="6" fill="#fff1d8" stroke="#241d27" stroke-width="2"/><path d="M18 30l-4 6M18 30l4 6" stroke="#241d27" stroke-width="2" stroke-linecap="round"/><circle cx="33" cy="31" r="2" fill="#fff1d8"/><circle cx="10" cy="14" r="1.5" fill="#fff1d8"/></svg>
+              <span><b>Co-op</b><span id="coophint"></span></span></label>
+          </div>
         </div>
-        <div class="row">
-          <button class="btn go big" id="start">Start the countdown</button>
-          <button class="btn big" id="browse">Browse the cards</button>
-          ${saved && saved.G && saved.G.phase !== 'over' ? `<button class="btn big" id="resume">Resume round ${saved.G.round}</button>` : ''}
+        <div class="sect"><h3><b>3</b> Options</h3>
+          <div class="opts">
+            <label class="opt"><span class="what"><b>Guide my first satellite</b><span>Tips show the next step</span></span><input type="checkbox" class="switch" id="guide" ${UI.setupGuide !== false ? 'checked' : ''}></label>
+            <label class="opt race-only"><span class="what"><b>Include Mars</b><span>Advanced: one hard 9 SP mission</span></span><input type="checkbox" class="switch" id="adv" ${UI.setupAdv ? 'checked' : ''}></label>
+            <div class="opt static race-only"><span class="what"><b>Win at</b><span>First to reach it wins</span></span><div class="seg small" id="win" role="group" aria-label="Win at">${[[10, '10 SP'], [8, '8 SP']].map(([v, l]) => `<button type="button" data-v="${v}" class="${v === UI.setupWin ? 'on' : ''}" aria-pressed="${v === UI.setupWin}">${l}</button>`).join('')}</div></div>
+            <div class="opt static race-only"><span class="what"><b>Funding</b><span>BC each round</span></span><div class="seg small" id="fund" role="group" aria-label="Funding per round">${[[5, '+5 BC'], [7, '+7 BC']].map(([v, l]) => `<button type="button" data-v="${v}" class="${v === UI.setupFund ? 'on' : ''}" aria-pressed="${v === UI.setupFund}">${l}</button>`).join('')}</div></div>
+            <div class="opt static coop-only"><span class="what"><b>Team budget</b><span>${LW.COOP_BUDGET} BC + ${LW.COOP_FUNDING} BC per round, shared</span></span></div>
+            <div class="opt static coop-only"><span class="what"><b>Goal</b><span>Flagship at L2 by round ${LW.ROUNDS}, Risk 1</span></span></div>
+          </div>
         </div>
-      </div>
+        <div class="actions">
+          <button type="submit" class="btn go big" id="start">Start the countdown</button>
+          <button type="button" class="btn big" id="browse">Browse the cards</button>
+          ${saved && saved.G && saved.G.phase !== 'over' ? `<button type="button" class="btn big" id="resume">Resume round ${saved.G.round}</button>` : ''}
+        </div>
+      </form>
     </div>
     <div class="fan">${fanIds.map((id, i) => `<button class="cardimg deal" data-gal="${C(id).type}" aria-label="Browse ${C(id).type} cards" style="left:${i * 15}%;--r:${(i - 2) * 6}deg;--y:${Math.abs(i - 2) * 14}px;--i:${i};--dx:${(2 - i) * 60}px;--dy:60px;--dr:0deg"><img src="${esc(img(id))}" alt=""></button>`).join('')}</div>
   </div></div>`;
+  const readNames = () => { for (let i = 0; i < 4; i++) { const el = $('#pn' + i); if (el) UI.setupNames[i] = el.value; } };
   const drawNames = () => {
-    $('#names').innerHTML = Array.from({ length: UI.setupPlayers }, (_, i) => `<div><label for="pn${i}">Agency ${i + 1}</label><input type="text" id="pn${i}" maxlength="22" value="${esc(DEFAULT_NAMES[i])}"></div>`).join('');
+    $('#names').innerHTML = Array.from({ length: UI.setupPlayers }, (_, i) => `<div class="namefield"><label for="pn${i}">${UI.setupPlayers === 1 ? 'Your agency' : 'Agency ' + (i + 1)}</label><div style="position:relative">${mark(i)}<input type="text" id="pn${i}" maxlength="22" autocomplete="off" value="${esc(UI.setupNames[i])}" placeholder="${esc(DEFAULT_NAMES[i])}"></div></div>`).join('');
   };
-  drawNames();
+  // What each mode means changes with the number of agencies; co-op needs at least 2.
+  const sync = () => {
+    const solo = UI.setupPlayers === 1, coopBox = $('#coop');
+    coopBox.disabled = solo; if (solo && coopBox.checked) $('#race').checked = true;
+    const coop = $('#coop').checked; UI.setupMode = coop ? 'coop' : 'race';
+    $('#racetitle').textContent = solo ? 'Solo' : 'Race';
+    $('#racehint').textContent = solo ? 'Reach the target before round ' + LW.ROUNDS + ' ends' : 'First agency to the target wins';
+    $('#coophint').textContent = solo ? 'Needs 2 or more agencies' : 'Build the Flagship Observatory together';
+    document.querySelectorAll('.race-only').forEach(x => x.hidden = coop);
+    document.querySelectorAll('.coop-only').forEach(x => x.hidden = !coop);
+    $('#start').textContent = coop ? 'Start the Flagship' : 'Start the countdown';
+  };
+  const pickSeg = (box, attr, set) => box.onclick = e => { const b = e.target.closest('button'); if (!b) return; set(+b.dataset[attr]); [...box.children].forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); };
+  drawNames(); sync();
   $('#browse').onclick = () => showGallery();
   $('.fan').onclick = e => { const b = e.target.closest('[data-gal]'); if (b) showGallery(b.dataset.gal); };
-  $('#seg').onclick = e => { const b = e.target.closest('button'); if (!b) return; UI.setupPlayers = +b.dataset.n; [...$('#seg').children].forEach(x => x.classList.toggle('on', x === b)); drawNames(); };
-  $('#start').onclick = () => {
-    const coop = $('#coop').checked;
-    if (coop && UI.setupPlayers < 2) return errorToast('Co-op needs at least 2 agencies: pick 2, 3 or 4 above.');
-    const names = Array.from({ length: UI.setupPlayers }, (_, i) => ($('#pn' + i).value || DEFAULT_NAMES[i]).trim());
-    G = LW.createGame(CARDS, { players: names, advanced: $('#adv').checked, funding: +$('#fund').value, winSP: +$('#win').value, coop });
-    G.guide = $('#guide').checked; UI.prevMarket = UI.prevParts = null;
+  pickSeg($('#seg'), 'n', n => { readNames(); UI.setupPlayers = n; drawNames(); sync(); });
+  pickSeg($('#win'), 'v', v => UI.setupWin = v);
+  pickSeg($('#fund'), 'v', v => UI.setupFund = v);
+  $('#setup').onchange = e => { if (e.target.name === 'mode') sync(); if (e.target.id === 'guide') UI.setupGuide = e.target.checked; if (e.target.id === 'adv') UI.setupAdv = e.target.checked; };
+  $('#setup').onsubmit = e => {
+    e.preventDefault(); readNames();
+    const coop = UI.setupMode === 'coop' && UI.setupPlayers > 1;
+    // blank names fall back to the defaults; repeated names get a number so logs and trades stay clear
+    const names = [];
+    for (let i = 0; i < UI.setupPlayers; i++) {
+      let n = (UI.setupNames[i] || '').trim() || DEFAULT_NAMES[i], k = 2;
+      while (names.some(x => x.toLowerCase() === n.toLowerCase())) n = n.replace(/ \d+$/, '') + ' ' + k++;
+      names.push(n);
+    }
+    G = LW.createGame(CARDS, { players: names, advanced: !coop && UI.setupAdv, funding: UI.setupFund, winSP: UI.setupWin, coop });
+    G.guide = UI.setupGuide !== false; UI.prevMarket = UI.prevParts = null;
     UI.debriefShown = 0; UI.seenFacts = {};
     nextRound();
   };
