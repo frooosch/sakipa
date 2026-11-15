@@ -7,9 +7,11 @@ function plan(s, b) {
   const m = LW.card(b.missionId), o = LW.orbitCard(b.orbit).rules;
   const want = [m.rules.payload, o.requires.includes('hga') ? 'hga' : 'uhf', ...o.requires.filter(k => k !== 'hga')];
   if (process.env.SAFE) want.push('battery', ['leo', 'sso'].includes(b.orbit) ? 'magnetorquers' : 'wheels');
-  const vol = want.reduce((a, k) => a + LW.partCard(k).rules.volume, 0);
-  const frame = vol <= 1 ? 'frame1' : vol <= 3 ? 'frame3' : vol <= 6 ? 'frame6' : 'frame12';
-  return [frame, ...want];
+  const frameFor = ks => { const v = ks.reduce((a, k) => a + LW.partCard(k).rules.volume, 0); return v <= 1 ? 'frame1' : v <= 3 ? 'frame3' : v <= 6 ? 'frame6' : 'frame12'; };
+  const used = want.reduce((a, k) => a - Math.min(0, LW.partCard(k).rules.power), 0), cellW = LW.solarOutput(3, b.orbit);
+  // cells are capped by frame surface; plan a deployable panel when they can't cover the load
+  if (LW.partCard(frameFor(want)).rules.cellSlots * cellW < used) want.push('panels');
+  return [frameFor(want), ...want];
 }
 function step(s) {
   const pi = LW.current(s), p = s.players[pi];
@@ -33,7 +35,7 @@ function step(s) {
     const r = LW.act(s, a); return r.ok ? r : LW.act(s, { type: 'endTurn' });
   }
   const st = LW.designStats(b.parts, b.orbit);
-  if (st.made < st.used) { const r = LW.act(s, { type: 'buy', source: 'shelf', key: 'cells' }); return r.ok ? r : LW.act(s, { type: 'endTurn' }); }
+  if (st.made < st.used) { const r = LW.act(s, { type: 'buy', source: 'shelf', key: st.cells < st.cellSlots ? 'cells' : 'panels' }); return r.ok ? r : LW.act(s, { type: 'endTurn' }); }
   const r = LW.act(s, { type: 'launch' }); return r.ok ? r : LW.act(s, { type: 'endTurn' });
 }
 function score(id) { const m = LW.card(id).rules, o = LW.orbitCard(m.orbits[0]).rules; return m.sp / (o.launch + 6 + o.requires.length * 4); }
@@ -61,3 +63,9 @@ console.log(`launches ${res.launched}, lost at launch ${(100 * res.lost / res.la
 console.log('reached SP:', [6, 8, 10, 12, 15].map(t => `${t}: ${(100 * res.sp.filter(x => x >= t).length / N).toFixed(0)}%`).join(', '));
 console.log('sats by orbit (launched / completed):', Object.entries(res.byOrbit).map(([k, v]) => `${k} ${v.n}/${v.done}`).join(', '));
 console.assert(res.launched > 0, 'bots never launched: engine or bot broken');
+
+// check: the cell cap holds (1U frame fits 1 body-mounted cell)
+{ const g = LW.createGame(CARDS, { seed: 1 }); LW.startRound(g); LW.beginTurns(g); LW.act(g, { type: 'keepMission', id: g.pending.offer[0] });
+  LW.act(g, { type: 'buy', source: 'shelf', key: 'frame1' });
+  console.assert(LW.act(g, { type: 'buy', source: 'shelf', key: 'cells' }).ok, 'first cell should fit');
+  console.assert(!LW.act(g, { type: 'buy', source: 'shelf', key: 'cells' }).ok, 'second cell on a 1U frame should be refused'); }

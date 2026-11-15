@@ -54,6 +54,7 @@ Parts come in two groups:
 Part notes:
 
 - **Reaction wheels** point the instrument precisely: the satellite collects 2 Data per round instead of 1.
+- **Body-mounted cells** take no volume but need frame surface: a 1U frame fits 1, 3U fits 2, 6U fits 3 and 12U fits 4. For more power, use deployable panels.
 - **Magnetorquers** work only in LEO or SSO (they push against Earth's magnetic field). They count as attitude control but collect at the normal rate.
 - **Radiation shielding** and **redundant computer** each lower Risk by 1.
 - **Cold-gas thruster** protects against Space Debris Warning. **Electric thruster** is needed for lunar orbit, L2 and Mars.
@@ -92,6 +93,7 @@ Free (no action): choosing the mission and orbit for the satellite you're buildi
 **Design Review** (checked before you can launch; the digital version checks it for you and says what's missing):
 
 - Total size ≤ frame size (U)
+- Body-mounted cells ≤ the frame's surface (1U: 1, 3U: 2, 6U: 3, 12U: 4)
 - Power made ≥ power used (after the orbit's sunlight)
 - It has the instrument the mission needs
 - It has an antenna (L2 and Mars: a high-gain antenna)
@@ -139,6 +141,7 @@ At the end of each mission, whether it worked or failed, the game shows a debrie
 - Renamed to Sakipa Satellite.
 - Win target lowered from 15 SP to 10 SP (shorter game: 8). Simulated games never reached 15: one satellite at a time plus 2–3 rounds of data collection caps a player at about 6–8 SP over 6 rounds.
 - No discard pile: Special parts that are scrapped or come home with a retired satellite go to the bottom of the Special deck, so the 2 copies of each camera keep circulating.
+- Body-mounted cells are capped by frame surface (1U: 1, 3U: 2, 6U: 3, 12U: 4). Before, cells took no volume and had no limit, so a 1U frame with 10 cells made 40 W and deployable panels were never worth buying.
 
 ## What changed from v1
 

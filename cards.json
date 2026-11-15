@@ -678,6 +678,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 1,
+      "cellSlots": 1,
       "volume": 0
     }
   },
@@ -700,6 +701,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 3,
+      "cellSlots": 2,
       "volume": 0
     }
   },
@@ -722,6 +724,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 3,
+      "cellSlots": 2,
       "volume": 0
     }
   },
@@ -744,6 +747,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 3,
+      "cellSlots": 2,
       "volume": 0
     }
   },
@@ -766,6 +770,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 6,
+      "cellSlots": 3,
       "volume": 0
     }
   },
@@ -788,6 +793,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 6,
+      "cellSlots": 3,
       "volume": 0
     }
   },
@@ -810,6 +816,7 @@
       "power": 0,
       "shelf": "workshop",
       "capacity": 12,
+      "cellSlots": 4,
       "volume": 0
     }
   },

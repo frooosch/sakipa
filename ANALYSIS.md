@@ -48,7 +48,7 @@ Fixes to try (re-run `sim.js` after each one):
 
 1. ~~Rename to Sakipa Satellite~~ done.
 2. ~~Win target / pacing~~ done (v3): target 10 SP (8 short), Special parts recycle to the deck bottom. Bots now reach 10 SP in 4–13% of games and 8 SP in 26–55%; bots skip reaction wheels in LEO/SSO, so humans should do better. If playtests show 10 is still too hard, raise base Data per round next.
-3. Cap body-mounted cells; fix the duplicate/dead events; fix the debrief's unavailable parts.
+3. ~~Cap body-mounted cells~~ done (1U: 1, 3U: 2, 6U: 3, 12U: 4; cheap builds unaffected, heavy LEO and Mars builds now need panels). Fix the duplicate/dead events; fix the debrief's unavailable parts.
 4. Solo loss screen + empty-deck guard.
 5. Onboarding tutorial round.
 6. Co-op variant / trading, if time allows.

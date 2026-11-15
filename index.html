@@ -364,7 +364,7 @@ function partHelp(k) {
     coldgas: 'A small thruster for dodging debris: protects against Space Debris Warning.', electric: 'Efficient propulsion needed to reach lunar orbit, L2 or Mars.',
     uhf: 'Cheapest radio. Sends at most 2 Data per ground pass.', sband: 'Standard radio. Sends all stored Data each pass.',
     hga: 'Points a tight beam home. Sends everything, every round, even from the Moon. Required at L2 and Mars.',
-    cells: 'Small solar cells on the body: +3 W (more in strong sunlight).', panels: 'Unfolding solar wings: +6 W (more in strong sunlight).'
+    cells: 'Small solar cells on the body: +3 W (more in strong sunlight). They take no volume, but the frame surface is limited: 1U fits 1, 3U 2, 6U 3, 12U 4.', panels: 'Unfolding solar wings: +6 W (more in strong sunlight).'
   })[k] || 'Meets the matching mission’s instrument requirement.';
 }
 function eventHelp(id) {
@@ -619,6 +619,7 @@ function showRules() {
       <li><b>Design Review:</b> parts fit the frame, power made ≥ power used, the mission's instrument, an antenna (high-gain at L2 and Mars), an electric thruster for the Moon, L2 and Mars.</li>
       <li><b>Risk</b> = orbit base risk, +1 with no battery, +1 with no wheels or magnetorquers, −1 shielding, −1 backup computer (minimum 1). Checked once, in the launch round: roll a d10 higher than Risk.</li>
       <li><b>Operations:</b> each working satellite collects 1 Data per round (2 with reaction wheels) and downlinks it. UHF sends 2 Data per pass at most. At the Moon without a high-gain antenna, and on the way to Mars, you can only downlink every other round. LEO satellites re-enter after 3 rounds.</li>
+      <li><b>Body-mounted cells</b> need frame surface: 1U fits 1, 3U 2, 6U 3, 12U 4. Need more power? Deployable panels.</li>
       <li><b>Sunlight:</b> solar parts give +1 W in High sun, +2 W in Very high, half in Low.</li>
       <li><b>Rideshare:</b> if another agency already launched to the same orbit this round, you pay half and they get half back.</li></ol>
       <p>Every card's <i>Real Science</i> line links to its source. Click any card to read it.</p>`,
@@ -761,7 +762,7 @@ function chassis(b, st) {
 }
 function shelfItem(k, p) {
   const pc = LW.partCard(k), price = LW.partPrice(G, k);
-  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && p.build ? '' : 'disabled'} title="${esc(partHelp(k))}"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room' : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
+  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && p.build ? '' : 'disabled'} title="${esc(partHelp(k))}"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room, ' + pc.rules.cellSlots + ' cell' + (pc.rules.cellSlots > 1 ? 's' : '') : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
 }
 function tracker() {
   const live = G.sats.filter(s => s.status === 'active' || s.status === 'pending');

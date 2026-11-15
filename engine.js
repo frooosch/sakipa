@@ -126,15 +126,15 @@
   function hasKey(parts, k) { return parts.some(function (x) { return x.key === k; }); }
   function frameOf(parts) { for (var i = 0; i < parts.length; i++) if (parts[i].key.indexOf('frame') === 0) return parts[i]; return null; }
   function designStats(parts, orbit) {
-    var frame = frameOf(parts), cap = frame ? card(frame.cardId).rules.capacity : 0;
-    var vol = 0, made = 0, used = 0, cost = 0;
+    var frame = frameOf(parts), cap = frame ? card(frame.cardId).rules.capacity : 0, cellSlots = frame ? card(frame.cardId).rules.cellSlots : 0;
+    var vol = 0, made = 0, used = 0, cost = 0, cells = 0;
     parts.forEach(function (x) {
       var r = card(x.cardId).rules;
-      vol += r.volume || 0; cost += x.paid != null ? x.paid : r.price;
+      vol += r.volume || 0; cost += x.paid != null ? x.paid : r.price; if (x.key === 'cells') cells++;
       if (r.power > 0) made += (x.key === 'cells' || x.key === 'panels') ? solarOutput(r.power, orbit) : r.power;
       else used += -r.power;
     });
-    return { capacity: cap, volume: Math.round(vol * 10) / 10, made: made, used: used, cost: cost, frame: frame };
+    return { capacity: cap, volume: Math.round(vol * 10) / 10, made: made, used: used, cost: cost, frame: frame, cells: cells, cellSlots: cellSlots };
   }
   function attitude(parts, orbit) {
     return hasKey(parts, 'wheels') || (hasKey(parts, 'magnetorquers') && (orbit === 'leo' || orbit === 'sso'));
@@ -165,6 +165,7 @@
     items.push({ ok: !!o && !!m && m.rules.orbits.indexOf(orbit) >= 0, text: o ? 'Orbit: ' + o.title : 'Choose an orbit' });
     items.push({ ok: !!st.frame, text: st.frame ? 'Frame: ' + card(st.frame.cardId).title : 'Buy a frame' });
     items.push({ ok: !!st.frame && st.volume <= st.capacity, text: 'Volume ' + st.volume + ' / ' + st.capacity + ' U' });
+    if (st.cells) items.push({ ok: st.cells <= st.cellSlots, text: 'Body-mounted cells ' + st.cells + ' / ' + st.cellSlots + ' (frame surface)' });
     items.push({ ok: st.made >= st.used && (st.used > 0 || st.made > 0 || parts.length > 0), text: 'Power ' + st.made + ' W made, ' + st.used + ' W used' });
     if (m) { var pc = partCard(m.rules.payload); items.push({ ok: hasKey(parts, m.rules.payload), text: 'Instrument: ' + (pc ? pc.title : m.rules.payload) }); }
     var needHga = o && o.rules.requires.indexOf('hga') >= 0;
@@ -287,6 +288,7 @@
         if (!isFrame && !st.frame) return fail('Buy a frame first: it sets how much fits.');
         var vol = card(cid).rules.volume || 0;
         if (!isFrame && st.volume + vol > st.capacity + 1e-9) return fail('Not enough room: ' + (st.capacity - st.volume) + ' U free, this needs ' + vol + ' U.');
+        if (key === 'cells' && st.cells >= st.cellSlots) return fail('No surface left: this frame fits ' + st.cellSlots + ' body-mounted cell' + (st.cellSlots === 1 ? '' : 's') + '. Use deployable panels for more power.');
         if (p.bc < price) return fail('Not enough budget: costs ' + price + ' BC, you have ' + p.bc + '.');
         p.bc -= price; spend(s, 1);
         if (slot != null) refillSlot(s, slot);
@@ -479,7 +481,9 @@
     while (guard++ < 6) {
       var st = designStats(keys.map(function (k) { return { key: k, cardId: partCard(k).id }; }), orbit);
       if (st.made >= st.used) break;
-      keys.push(hasKey(keys.map(function (k) { return { key: k }; }), 'panels') || st.used - st.made > 3 ? 'panels' : 'cells');
+      var slots = partCard(fitFrame(keys.slice()).filter(function (k) { return k.indexOf('frame') === 0; })[0]).rules.cellSlots;
+      var nCells = keys.filter(function (k) { return k === 'cells'; }).length;
+      keys.push(hasKey(keys.map(function (k) { return { key: k }; }), 'panels') || st.used - st.made > 3 || nCells >= slots ? 'panels' : 'cells');
     }
     return fitFrame(keys);
   }
