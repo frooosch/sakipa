@@ -181,8 +181,9 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .empty-note { opacity: .6; font-size: 13px; }
 
 /* log */
-.log { max-height: 240px; overflow: auto; font-size: 12px; display: grid; gap: 3px; }
-.log div { opacity: .85; } .log b { color: var(--mustard); font-family: var(--mono); font-weight: 400; }
+.log { font-size: 14px; display: grid; gap: 4px; }
+.log div { padding: 4px 0; border-bottom: 1px solid #241d2714; }
+.log b { display: inline-block; min-width: 30px; color: #a0472a; font-family: var(--mono); }
 
 /* ---------- modal ---------- */
 .scrim { position: fixed; inset: 0; background: #120d14d9; z-index: 20; display: grid; place-items: center; padding: 16px; overflow: auto; }
@@ -872,6 +873,13 @@ function tradeChart(alts) {
   });
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trade space: cost against launch success chance; bigger dots finish faster">${g}</svg><p style="font-size:12px;margin:2px 0 0;text-align:right">Numbers match the table. Bigger dot = finishes in fewer rounds.</p>`;
 }
+// The full game log, newest first. Kept out of the main screen; most of it is also shown where it happens.
+function showLog() {
+  modal({ title: 'Mission log', tag: ['Round ' + G.round, 'tag-fact'], narrow: true,
+    body: `<div class="log">${G.log.slice().reverse().map(l => `<div><b>${l.round ? 'R' + l.round : 'Start'}</b> ${esc(l.msg)}</div>`).join('') || '<p>Nothing yet.</p>'}</div>`,
+    foot: `<button class="btn go" id="logok">Close</button>` });
+  $('#logok').onclick = closeModal;
+}
 function showGameOver() {
   const order = G.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.sp - a.p.sp || b.p.bc - a.p.bc);
   const w = G.players[G.winner], solo = G.players.length === 1;
@@ -1008,6 +1016,7 @@ function renderGame() {
     <div class="scores">${G.players.map((q, i) => `<div class="score ${inTurns && i === pi ? 'active' : ''}">${mark(i)}<span class="nm">${esc(q.name)}</span><span class="vals num">${q.sp} SP · ${q.bc} BC</span>${i === G.lead ? '<span class="lead">LEAD</span>' : ''}</div>`).join('')}</div>
     <button class="btn small ghost" id="rulesbtn">Rules</button>
     <button class="btn small ghost" id="cardsbtn">Cards</button>
+    <button class="btn small ghost" id="logbtn">Log</button>
     <button class="btn small ghost" id="quitbtn">New game</button>
   </header>
   <main class="console">
@@ -1044,10 +1053,6 @@ function renderGame() {
           <button class="btn small" id="tsbtn" ${canAct() ? '' : 'disabled'}>Trade Study…</button>
           ${G.players.length > 1 ? `<button class="btn small" id="tradebtn" ${inTurns && !G.pending ? '' : 'disabled'}>Trade with an agency…</button>` : ''}
         </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><span class="eyebrow tag-fact">Ground control</span><h2 class="display">Log</h2></div>
-        <div class="log">${G.log.slice(-40).reverse().map(l => `<div><b>R${l.round}</b> ${esc(l.msg)}</div>`).join('')}</div>
       </div>
     </aside>
   </main>`;
@@ -1200,6 +1205,7 @@ function bind() {
     if (t.id === 'endturn') return endTurn();
     if (t.id === 'rulesbtn') return showRules();
     if (t.id === 'cardsbtn') return showGallery();
+    if (t.id === 'logbtn') return showLog();
     if (t.id === 'coachoff') { G.guide = false; save(); return renderGame(); }
     if (t.id === 'quitbtn') return confirmQuit();
     if (t.id === 'takemission') return doAct({ type: 'takeMission' });
