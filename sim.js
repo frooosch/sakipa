@@ -23,6 +23,9 @@ function step(s) {
   if (idle) return LW.act(s, { type: 'selectBuild', missionId: idle });
   if (!b) return p.missions.length < LW.MAX_MISSIONS && LW.act(s, { type: 'takeMission' }).ok ? { ok: true } : LW.act(s, { type: 'endTurn' });
   const have = b.parts.map(x => x.key), need = plan(s, b).filter(k => !have.includes(k));
+  // optional extras (SAFE bot) are skipped when no copy is buyable
+  const opt = ['battery', 'magnetorquers', 'wheels'], avail = k => LW.shelfKeys().includes(k) || s.market.some(id => id && LW.card(id).rules.key === k) || s.specialDeck.some(id => LW.card(id).rules.key === k);
+  if (need.length && opt.includes(need[0]) && !avail(need[0])) need.shift();
   if (need.length) {
     const k = need[0], slot = s.market.findIndex(id => id && LW.card(id).rules.key === k);
     const a = LW.shelfKeys().includes(k) ? { type: 'buy', source: 'shelf', key: k }
@@ -53,7 +56,8 @@ for (let g = 0; g < N; g++) {
   s.players.forEach(p => { res.lost += p.stats.lost; res.launched += p.stats.launched; });
 }
 const avg = a => (a.reduce((x, y) => x + y, 0) / a.length).toFixed(2);
-console.log(`${process.env.SAFE ? 'SAFE bot' : 'lean bot'}, ${N} games, ${P} player(s): reached 15 SP in ${(100 * res.wins / N).toFixed(1)}%, avg top SP ${avg(res.sp)}, avg rounds ${avg(res.rounds)}, avg BC left ${avg(res.bc)}`);
+console.log(`${process.env.SAFE ? 'SAFE bot' : 'lean bot'}, ${N} games, ${P} player(s): reached ${LW.WIN_SP} SP in ${(100 * res.wins / N).toFixed(1)}%, avg top SP ${avg(res.sp)}, avg rounds ${avg(res.rounds)}, avg BC left ${avg(res.bc)}`);
 console.log(`launches ${res.launched}, lost at launch ${(100 * res.lost / res.launched).toFixed(1)}%`);
+console.log('reached SP:', [6, 8, 10, 12, 15].map(t => `${t}: ${(100 * res.sp.filter(x => x >= t).length / N).toFixed(0)}%`).join(', '));
 console.log('sats by orbit (launched / completed):', Object.entries(res.byOrbit).map(([k, v]) => `${k} ${v.n}/${v.done}`).join(', '));
 console.assert(res.launched > 0, 'bots never launched: engine or bot broken');

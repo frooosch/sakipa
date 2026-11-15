@@ -46,8 +46,8 @@ Fixes to try (re-run `sim.js` after each one):
 
 ## 4. Suggested order
 
-1. Rename to Sakipa Satellite (minutes).
-2. Fix win target / pacing, using `sim.js` to confirm (biggest gameplay win).
+1. ~~Rename to Sakipa Satellite~~ done.
+2. ~~Win target / pacing~~ done (v3): target 10 SP (8 short), Special parts recycle to the deck bottom. Bots now reach 10 SP in 4–13% of games and 8 SP in 26–55%; bots skip reaction wheels in LEO/SSO, so humans should do better. If playtests show 10 is still too hard, raise base Data per round next.
 3. Cap body-mounted cells; fix the duplicate/dead events; fix the debrief's unavailable parts.
 4. Solo loss screen + empty-deck guard.
 5. Onboarding tutorial round.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Launch Window</title>
+<title>Sakipa Satellite</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22%23e2793a%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -267,7 +267,7 @@ const CAT = { thermal: 'instrument', multispectral: 'instrument', radiation: 'in
   cells: 'power', panels: 'power', battery: 'power', uhf: 'comms', sband: 'comms', hga: 'comms', wheels: 'control', magnetorquers: 'control',
   coldgas: 'prop', electric: 'prop', shielding: 'rel', computer: 'rel' };
 const ALT_COLORS = ['#e2793a', '#9db3cf', '#7fb8a6'];
-const SAVE_KEY = 'launch-window-save-v2';
+const SAVE_KEY = 'sakipa-satellite-save-v3';
 let CARDS = [], G = null, UI = { setupPlayers: 2, debriefShown: 0, seenFacts: {} };
 
 // ---------- starfield ----------
@@ -389,7 +389,7 @@ function renderTitle() {
   $('#app').innerHTML = `<div class="title-screen"><div class="title-card">
     <div>
       ${swoosh(200)}
-      <h1 class="display">Launch<span>Window</span></h1>
+      <h1 class="display">Sakipa<span>Satellite</span></h1>
       <p class="tagline">Run a small space agency. Pick a mission, choose its orbit, build a CubeSat that fits the budget, the volume and the power, and launch it before round 6 runs out.</p>
       <div class="setup" id="setup">
         <div class="row" style="margin-top:0">
@@ -398,7 +398,7 @@ function renderTitle() {
         <div class="grid" id="names" style="margin-top:12px"></div>
         <div class="row">
           <div><label for="fund">Funding per round</label><select id="fund"><option value="5" selected>+5 BC (standard)</option><option value="7">+7 BC (relaxed)</option></select></div>
-          <div><label for="win">Win at</label><select id="win"><option value="15" selected>15 SP (standard)</option><option value="12">12 SP (shorter)</option></select></div>
+          <div><label for="win">Win at</label><select id="win"><option value="10" selected>10 SP (standard)</option><option value="8">8 SP (shorter)</option></select></div>
           <label class="check"><input type="checkbox" id="adv"> Advanced: include Mars</label>
         </div>
         <div class="row">
@@ -610,9 +610,9 @@ function showGameOver() {
   $('#again').onclick = () => { clearSave(); closeModal(); G = null; renderTitle(); };
 }
 function showRules() {
-  modal({ title: 'How to play', tag: ['Rules v2', 'tag-fact'],
+  modal({ title: 'How to play', tag: ['Rules v3', 'tag-fact'],
     body: `<ol style="padding-left:20px;display:grid;gap:8px">
-      <li><b>Goal:</b> first to ${G ? G.winSP : 15} Science Points (SP), or the most SP after round ${LW.ROUNDS}. Ties go to whoever has more BC left.</li>
+      <li><b>Goal:</b> first to ${G ? G.winSP : LW.WIN_SP} Science Points (SP), or the most SP after round ${LW.ROUNDS}. Ties go to whoever has more BC left.</li>
       <li><b>Each round:</b> an event is drawn, everyone gets +${G ? G.funding : 5} BC, then each agency takes a turn of <b>${LW.ACTIONS_PER_TURN} actions</b>.</li>
       <li><b>Actions:</b> take a mission (max 2 open), buy a part (it installs straight away), special-order a part (+${LW.SPECIAL_ORDER_FEE} BC), run a Trade Study (1 BC), or launch.</li>
       <li><b>Free:</b> pick which mission you are building for and its orbit (locked after the first part), scrap a part.</li>
@@ -633,7 +633,7 @@ function renderGame() {
   const ev = G.event ? C(G.event) : null;
   $('#app').innerHTML = `
   <header class="bar">
-    <div class="brand">${swoosh(90)}<h1 class="display">Launch Window</h1></div>
+    <div class="brand">${swoosh(90)}<h1 class="display">Sakipa Satellite</h1></div>
     <div class="roundbox"><span class="round-dial">ROUND <b>${G.round}</b>/${LW.ROUNDS}</span>
       ${ev ? `<button class="event-chip" data-zoom="${G.event}"><img src="${esc(ev.image)}" alt="">${esc(ev.title)}</button>` : ''}</div>
     <div class="scores">${G.players.map((q, i) => `<div class="score ${inTurns && i === pi ? 'active' : ''}"><span class="dot" style="background:${PLAYER_COLORS[i]}"></span><span class="nm">${esc(q.name)}</span><span class="vals num">${q.sp} SP · ${q.bc} BC</span>${i === G.lead ? '<span class="lead">LEAD</span>' : ''}</div>`).join('')}</div>

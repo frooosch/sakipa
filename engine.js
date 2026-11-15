@@ -1,9 +1,9 @@
-/* Launch Window — rules engine (v2 rules). No DOM. Works in the browser (window.LW) and Node (module.exports). */
+/* Sakipa Satellite — rules engine (v3 rules). No DOM. Works in the browser (window.LW) and Node (module.exports). */
 (function (root) {
   'use strict';
 
   var ACTIONS_PER_TURN = 4;
-  var START_BC = 20, FUNDING = 5, WIN_SP = 15, ROUNDS = 6, MAX_MISSIONS = 2;
+  var START_BC = 20, FUNDING = 5, WIN_SP = 10, ROUNDS = 6, MAX_MISSIONS = 2;
   var SPECIAL_ORDER_FEE = 2;
   var ORBIT_ORDER = ['leo', 'sso', 'geo', 'lunar', 'l2', 'mars'];
   var SUN_BONUS = { medium: 0, high: 1, veryhigh: 2 };
@@ -53,7 +53,7 @@
       v: 2, funding: opts.funding || FUNDING, winSP: opts.winSP || WIN_SP, rng: (opts.seed == null ? Math.floor(Math.random() * 2e9) : opts.seed) | 0,
       advanced: !!opts.advanced, round: 0, phase: 'event', lead: 0, order: [], turnPos: 0,
       actionsLeft: 0, event: null, players: [], sats: [], satSeq: 0, uidSeq: 0,
-      missionDeck: [], specialDeck: [], discard: [], market: [], eventDeck: [],
+      missionDeck: [], specialDeck: [], market: [], eventDeck: [],
       techDiscount: {}, launches: {}, pending: null, log: [], debriefs: [], reports: [],
       peekedEvent: null, winner: null, factsSeen: {}
     };
@@ -75,7 +75,6 @@
   function log(s, msg, who) { s.log.push({ round: s.round, msg: msg, who: who == null ? null : who }); if (s.log.length > 200) s.log.shift(); }
 
   function drawSpecial(s) {
-    if (!s.specialDeck.length && s.discard.length) { s.specialDeck = shuffle(s, s.discard); s.discard = []; log(s, 'The Special deck ran out: discards reshuffled.'); }
     return s.specialDeck.shift() || null;
   }
   function refillSlot(s, i) { s.market[i] = drawSpecial(s); }
@@ -301,7 +300,7 @@
         var i = b.parts.findIndex(function (x) { return x.uid === a.uid; });
         if (i < 0) return fail('Part not found.');
         var gone = b.parts.splice(i, 1)[0];
-        if (card(gone.cardId).rules.shelf === 'market') s.discard.push(gone.cardId);
+        if (card(gone.cardId).rules.shelf === 'market') s.specialDeck.push(gone.cardId);
         log(s, p.name + ' scraps ' + card(gone.cardId).title + '.', pi);
         return okr();
 
@@ -435,8 +434,9 @@
     else s.phase = 'roundEnd';
     return rep;
   }
+  // Special parts go back to the bottom of the Special deck (only 2 of each camera exist; a discard pile locked them away).
   function retire(s, sat) {
-    sat.parts.forEach(function (x) { if (card(x.cardId).rules.shelf === 'market') s.discard.push(x.cardId); });
+    sat.parts.forEach(function (x) { if (card(x.cardId).rules.shelf === 'market') s.specialDeck.push(x.cardId); });
   }
   function winnerOf(s) {
     var best = 0;
