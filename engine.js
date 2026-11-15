@@ -1,10 +1,22 @@
-/* Sakipa Satellite — rules engine (v3 rules). No DOM. Works in the browser (window.LW) and Node (module.exports). */
+/* Sakipa Satellite — rules engine (v4 rules). No DOM. Works in the browser (window.LW) and Node (module.exports). */
 (function (root) {
   'use strict';
 
   var ACTIONS_PER_TURN = 4;
   var START_BC = 20, FUNDING = 5, WIN_SP = 10, ROUNDS = 6, MAX_MISSIONS = 2;
-  var SPECIAL_ORDER_FEE = 2;
+  var SPECIAL_ORDER_FEE = 2, FIRST_ROUND_BONUS = 1;
+  // Co-op: each agency owns subsystems of the shared Flagship and may only buy those parts.
+  var ROLES = [
+    { id: 'payload', name: 'Payload & pointing', keys: ['thermal', 'multispectral', 'radiation', 'telescope', 'magnetometer', 'sail', 'wheels', 'magnetorquers'] },
+    { id: 'comms', name: 'Communications', keys: ['uhf', 'sband', 'hga'] },
+    { id: 'propulsion', name: 'Propulsion', keys: ['electric', 'coldgas'] },
+    { id: 'power', name: 'Power & structure', keys: ['frame1', 'frame3', 'frame6', 'frame12', 'cells', 'panels', 'battery', 'shielding', 'computer'] }
+  ];
+  var COOP_MISSION = 'coop-flagship';
+  // A flagship has one budget however many partners join: the team's money is split between agencies.
+  var COOP_BUDGET = 24, COOP_FUNDING = 7;
+  // exact split: the first (total mod n) agencies, counted from the Mission Lead, get 1 BC more
+  function shareOf(total, n, k) { return Math.floor(total / n) + (k < total % n ? 1 : 0); }
   var ORBIT_ORDER = ['leo', 'sso', 'geo', 'lunar', 'l2', 'mars'];
   var SUN_BONUS = { medium: 0, high: 1, veryhigh: 2 };
   var UHF_CAP = 2;
@@ -44,6 +56,7 @@
   function partCard(key) { return PART_BY_KEY[key]; }
   function shelfKeys() { return Object.keys(SHELF); }
   function eventIs(s, id) { return s.event === id; }
+  function possessive(name) { return name + (/s$/i.test(name) ? '’' : '’s'); }
 
   // ---------- game creation ----------
   function createGame(cards, opts) {
@@ -55,12 +68,14 @@
       actionsLeft: 0, event: null, players: [], sats: [], satSeq: 0, uidSeq: 0,
       missionDeck: [], specialDeck: [], market: [], eventDeck: [],
       techDiscount: {}, launches: {}, pending: null, log: [], debriefs: [], reports: [],
-      peekedEvent: null, winner: null, factsSeen: {}
+      peekedEvent: null, winner: null, factsSeen: {}, coop: !!opts.coop, coopWon: false, flagship: null
     };
     var names = opts.players && opts.players.length ? opts.players : ['Agency 1'];
     names.forEach(function (n, i) {
-      s.players.push({ name: n, bc: START_BC, sp: 0, missions: [], build: null, drafted: false, peerReviewUsed: false, stats: { launched: 0, lost: 0, completed: 0 } });
+      s.players.push({ name: n, bc: s.coop ? shareOf(COOP_BUDGET, names.length, i) : START_BC, sp: 0, missions: [], build: null, drafted: s.coop, peerReviewUsed: false, stats: { launched: 0, lost: 0, completed: 0 },
+        roles: ROLES.map(function (r, k) { return k; }).filter(function (k) { return k % names.length === i; }) });
     });
+    if (s.coop) s.flagship = newFlagship();
     s.missionDeck = shuffle(s, BY_TYPE.mission.filter(function (c) {
       return !c.rules.coop && (s.advanced || !c.rules.advanced);
     }).map(function (c) { return c.id; }));
@@ -68,6 +83,8 @@
     for (var i = 0; i < 5; i++) refillSlot(s, i);
     s.eventDeck = shuffle(s, BY_TYPE.event.map(function (c) { return c.id; }));
     s.lead = Math.floor(rand(s) * s.players.length);
+    // co-op: the agency that owns the structure goes first, so the Flagship has a frame to build into
+    if (s.coop) s.lead = s.players.findIndex(function (p) { return p.roles.indexOf(ROLES.length - 1) >= 0; });
     log(s, 'Mission Lead for round 1: ' + s.players[s.lead].name + '.');
     return s;
   }
@@ -95,7 +112,7 @@
       var min = Math.min.apply(null, s.players.map(function (p) { return p.sp; }));
       s.players.forEach(function (p) { if (p.sp === min) { p.bc += 5; log(s, 'Research Grant: ' + p.name + ' gains 5 BC.'); } });
     }
-    s.players.forEach(function (p) { p.bc += s.funding; });
+    s.players.forEach(function (p, i) { p.bc += s.coop ? shareOf(COOP_FUNDING, s.players.length, (i - s.lead + s.players.length) % s.players.length) : s.funding; });
     s.order = [];
     for (var i = 0; i < s.players.length; i++) s.order.push((s.lead + i) % s.players.length);
     s.turnPos = 0;
@@ -104,11 +121,14 @@
     return ev;
   }
 
-  function beginTurns(s) { s.phase = 'turns'; s.actionsLeft = ACTIONS_PER_TURN; startTurnFor(s); }
+  function beginTurns(s) { s.phase = 'turns'; startTurnFor(s); }
   function current(s) { return s.order[s.turnPos]; }
+  // Round 1 gets one extra action so a first satellite can launch straight away
+  // (frame, instrument, antenna, power, launch = 5 actions).
+  function actionsFor(s) { return ACTIONS_PER_TURN + (s.round === 1 ? FIRST_ROUND_BONUS : 0); }
   function startTurnFor(s) {
     var p = s.players[current(s)];
-    s.actionsLeft = ACTIONS_PER_TURN;
+    s.actionsLeft = actionsFor(s);
     if (!p.drafted) {
       p.drafted = true;
       var offer = drawMissions(s, 2);
@@ -174,6 +194,8 @@
     var ant = bestAntenna(parts);
     items.push({ ok: needHga ? ant === 'hga' : !!ant, text: needHga ? 'High-gain antenna (required here)' : 'An antenna' });
     if (o && o.rules.requires.indexOf('electric') >= 0) items.push({ ok: hasKey(parts, 'electric'), text: 'Electric thruster (required here)' });
+    // Flagships are NASA Class A missions: the highest reliability standard, with backups for everything.
+    if (missionId === COOP_MISSION) items.push({ ok: riskOf(parts, orbit, false).risk <= 1, text: 'Flagship standard (Class A): Risk must be 1. Add backups.' });
     if (hasKey(parts, 'magnetorquers') && o) items.push({ ok: orbit === 'leo' || orbit === 'sso', text: 'Magnetorquers only work in LEO or SSO' });
     return { ok: items.every(function (i) { return i.ok; }), items: items, stats: st };
   }
@@ -198,6 +220,17 @@
     if (s && eventIs(s, 'event-11') && !hasKey(parts, 'battery')) { n -= 1; notes.push('Eclipse Passage −1'); }
     if (s && eventIs(s, 'event-18') && hasKey(parts, 'cells') && !hasKey(parts, 'panels')) { n -= 1; notes.push('Panel Degradation −1'); }
     return { n: Math.max(0, n), notes: notes };
+  }
+  function newFlagship() { return { missionId: COOP_MISSION, orbit: card(COOP_MISSION).rules.orbits[0], parts: [] }; }
+  function buildOf(s, pi) { return s.coop ? s.flagship : s.players[pi].build; }
+  function roleOf(key) { for (var i = 0; i < ROLES.length; i++) if (ROLES[i].keys.indexOf(key) >= 0) return i; return -1; }
+  function canBuy(s, pi, key) { return !s.coop || s.players[pi].roles.indexOf(roleOf(key)) >= 0; }
+  function ownerOfRole(s, key) { var r = roleOf(key); return s.players.filter(function (p) { return p.roles.indexOf(r) >= 0; })[0] || null; }
+  // Launch insurance: premium is 10% of the satellite's value (parts + launch), rounded up;
+  // a satellite lost at the launch check pays back half its value.
+  function insurance(s, b, pi) {
+    var value = designStats(b.parts, b.orbit).cost + launchPrice(s, b.orbit, pi).price;
+    return { premium: Math.max(1, Math.ceil(value / 10)), payout: Math.floor(value / 2), value: value };
   }
   function missionOpen(p) { return p.missions.length; }
   function satForMission(s, mid) { return s.sats.filter(function (x) { return x.missionId === mid && (x.status === 'active' || x.status === 'pending'); })[0] || null; }
@@ -245,7 +278,8 @@
     if (s.phase !== 'turns') return fail('It is not the turn phase.');
     if (pi !== current(s)) return fail('It is not your turn.');
 
-    var b = p.build;
+    var b = buildOf(s, pi);
+    if (s.coop && (a.type === 'takeMission' || a.type === 'selectBuild' || a.type === 'setOrbit')) return fail('In co-op, everyone builds the Flagship Observatory.');
     switch (a.type) {
       case 'takeMission':
         if (s.actionsLeft < 1) return fail('No actions left.');
@@ -271,7 +305,7 @@
       case 'buy':
       case 'specialOrder':
         if (s.actionsLeft < 1) return fail('No actions left.');
-        if (!b) return fail('Choose a mission to build for first.');
+        if (!b) return fail(s.coop ? 'The Flagship is in flight; wait for its launch check.' : 'Choose a mission to build for first.');
         var key, cid, price, slot = null;
         if (a.type === 'buy' && a.source === 'market') {
           slot = a.slot; cid = s.market[slot]; if (!cid) return fail('That Market slot is empty.');
@@ -285,6 +319,7 @@
           if (idx < 0) return fail('No ' + partCard(key).title + ' left in the Special deck.');
           cid = s.specialDeck[idx]; price = partPrice(s, key) + SPECIAL_ORDER_FEE;
         }
+        if (!canBuy(s, pi, key)) return fail(partCard(key).title + ' belongs to ' + ROLES[roleOf(key)].name + ', which is ' + possessive(ownerOfRole(s, key).name) + ' subsystem.');
         var isFrame = key.indexOf('frame') === 0, st = designStats(b.parts, b.orbit);
         if (isFrame && st.frame) return fail('You already have a frame. Scrap it first to change size.');
         if (!isFrame && !st.frame) return fail('Buy a frame first: it sets how much fits.');
@@ -334,9 +369,10 @@
         if (!b) return fail('Nothing to launch.');
         var rv = review(b.parts, b.missionId, b.orbit);
         if (!rv.ok) return fail('Design Review: ' + rv.items.filter(function (x) { return !x.ok; }).map(function (x) { return x.text; }).join('; '));
-        var lp = launchPrice(s, b.orbit, pi);
-        if (p.bc < lp.price) return fail('Launch costs ' + lp.price + ' BC; you have ' + p.bc + '.');
-        p.bc -= lp.price; spend(s, 1);
+        var lp = launchPrice(s, b.orbit, pi), ins = a.insure ? insurance(s, b, pi) : null;
+        var total = lp.price + (ins ? ins.premium : 0);
+        if (p.bc < total) return fail('Launch costs ' + lp.price + ' BC' + (ins ? ' + ' + ins.premium + ' BC insurance' : '') + '; you have ' + p.bc + '.');
+        p.bc -= total; spend(s, 1);
         s.rideRefunded = s.rideRefunded || {};
         if (lp.rideshareWith != null && !s.rideRefunded[b.orbit]) {
           var refund = Math.floor(lp.full / 2), q = s.players[lp.rideshareWith];
@@ -347,14 +383,45 @@
         var sat = {
           id: 's' + (++s.satSeq), owner: pi, missionId: b.missionId, orbit: b.orbit, parts: b.parts.slice(),
           launchRound: s.round, stored: 0, down: 0, opsRounds: 0, status: 'pending', launchCost: lp.price,
-          buildCost: rv.stats.cost, history: []
+          buildCost: rv.stats.cost, history: [], insured: ins ? ins.payout : 0
         };
-        s.sats.push(sat); p.build = null; p.stats.launched++;
-        // auto-select next build for another open mission
-        var next = p.missions.filter(function (m) { return !satForMission(s, m); })[0];
-        if (next) p.build = { missionId: next, orbit: card(next).rules.orbits[0], parts: [] };
-        log(s, p.name + ' launches ' + card(sat.missionId).title + ' to ' + orbitCard(sat.orbit).title + ' (' + lp.price + ' BC).', pi);
+        s.sats.push(sat); p.stats.launched++;
+        if (s.coop) s.flagship = null;
+        else {
+          p.build = null;
+          // auto-select next build for another open mission
+          var next = p.missions.filter(function (m) { return !satForMission(s, m); })[0];
+          if (next) p.build = { missionId: next, orbit: card(next).rules.orbits[0], parts: [] };
+        }
+        log(s, p.name + ' launches ' + card(sat.missionId).title + ' to ' + orbitCard(sat.orbit).title + ' (' + lp.price + ' BC' + (ins ? ', insured for ' + ins.premium + ' BC' : '') + ').', pi);
         return okr({ sat: sat.id });
+
+      // Free action on your turn. The other agency agrees off-engine (hot-seat: they confirm on the shared screen).
+      // Each side may add BC and one installed, non-frame part from its current build; both builds must still fit.
+      case 'trade':
+        var qi = a.to, q = s.players[qi];
+        if (!q || qi === pi) return fail('Pick another agency to trade with.');
+        var give = a.giveBC | 0, get = a.getBC | 0;
+        if (give < 0 || get < 0) return fail('Amounts must be zero or more.');
+        if (give > p.bc) return fail('You only have ' + p.bc + ' BC.');
+        if (get > q.bc) return fail(q.name + ' only has ' + q.bc + ' BC.');
+        if (s.coop && (a.givePart || a.getPart)) return fail('In co-op the parts are already shared; trade BC only.');
+        var mine = buildOf(s, pi), theirs = buildOf(s, qi);
+        var gp = a.givePart ? (mine && mine.parts.filter(function (x) { return x.uid === a.givePart; })[0]) : null;
+        var tp = a.getPart ? (theirs && theirs.parts.filter(function (x) { return x.uid === a.getPart; })[0]) : null;
+        if ((a.givePart && !gp) || (a.getPart && !tp)) return fail('That part is not installed.');
+        if ((gp && gp.key.indexOf('frame') === 0) || (tp && tp.key.indexOf('frame') === 0)) return fail('Frames can’t be traded.');
+        if (!give && !get && !gp && !tp) return fail('Add something to the trade.');
+        var after = function (bd, out, inn) { return bd.parts.filter(function (x) { return x !== out; }).concat(inn ? [inn] : []); };
+        var fits = function (bd, parts) { var st2 = designStats(parts, bd.orbit); return !!st2.frame && st2.volume <= st2.capacity + 1e-9 && st2.cells <= st2.cellSlots; };
+        if (tp && !(mine && fits(mine, after(mine, gp, tp)))) return fail(card(tp.cardId).title + ' does not fit in your satellite.');
+        if (gp && !(theirs && fits(theirs, after(theirs, tp, gp)))) return fail(card(gp.cardId).title + ' does not fit in ' + q.name + '’s satellite.');
+        if (gp) { mine.parts = after(mine, gp, null); theirs.parts = after(theirs, tp, gp); }
+        if (tp) { if (!gp) theirs.parts = after(theirs, tp, null); mine.parts.push(tp); }
+        p.bc += get - give; q.bc += give - get;
+        var bits = function (bc, part) { return [bc ? bc + ' BC' : '', part ? card(part.cardId).title : ''].filter(Boolean).join(' + ') || 'nothing'; };
+        log(s, 'Trade: ' + p.name + ' gives ' + bits(give, gp) + ' to ' + q.name + ' for ' + bits(get, tp) + '.', pi);
+        return okr();
 
       case 'endTurn':
         s.pending = null; s.turnPos += 1;
@@ -380,6 +447,7 @@
         if (roll <= rk.risk) {
           sat.status = 'lost'; p.stats.lost++;
           line.notes.push('Launch check: rolled ' + roll + ' against Risk ' + rk.risk + '. Satellite lost.');
+          if (sat.insured) { p.bc += sat.insured; line.payout = sat.insured; line.notes.push('Insurance pays out ' + sat.insured + ' BC.'); }
           retire(s, sat); rep.push(line); queueDebrief(s, sat, 'lost'); return;
         }
         sat.status = 'active';
@@ -420,7 +488,8 @@
       sat.history.push({ round: s.round, stored: sat.stored, down: sat.down });
       if (sat.down >= m.rules.data) {
         sat.status = 'done'; p.sp += m.rules.sp; p.stats.completed++;
-        p.missions.splice(p.missions.indexOf(sat.missionId), 1);
+        if (p.missions.indexOf(sat.missionId) >= 0) p.missions.splice(p.missions.indexOf(sat.missionId), 1);
+        if (s.coop) s.coopWon = true;
         line.scored = m.rules.sp;
         line.notes.push('Mission complete: +' + m.rules.sp + ' SP.');
         retire(s, sat); queueDebrief(s, sat, 'done');
@@ -434,10 +503,33 @@
       rep.push(line);
     });
     s.reportsThisRound = rep; s.reports.push({ round: s.round, lines: rep });
+    // co-op: a lost Flagship leaves the mission open, so the team starts a fresh build
+    if (s.coop && !s.coopWon && !s.flagship && !s.sats.some(function (x) { return x.missionId === COOP_MISSION && (x.status === 'active' || x.status === 'pending'); })) s.flagship = newFlagship();
+    if (s.coop) {
+      if (s.coopWon || s.round >= ROUNDS) { s.phase = 'over'; s.winner = 0; log(s, s.coopWon ? 'Flagship Observatory complete: every agency wins.' : 'Round ' + ROUNDS + ' is over: the Flagship did not finish.'); }
+      else s.phase = 'roundEnd';
+      s.reportsThisRound = rep; return rep;
+    }
     var top = Math.max.apply(null, s.players.map(function (p) { return p.sp; }));
+    if (top < s.winSP && s.round >= ROUNDS) partialCredit(s, rep);
     if (top >= s.winSP || s.round >= ROUNDS) { s.phase = 'over'; s.winner = winnerOf(s); log(s, s.players.length > 1 ? 'Game over. ' + s.players[s.winner].name + ' wins.' : 'Game over: ' + s.players[0].sp + ' of ' + s.winSP + ' SP.'); }
     else s.phase = 'roundEnd';
     return rep;
+  }
+  // Game ends on the round limit: satellites still in orbit publish what they already sent home,
+  // scored as the same share of the mission's SP (rounded down). Real missions publish partial results too.
+  function partialSP(sat) { var m = card(sat.missionId); return Math.floor(m.rules.sp * sat.down / m.rules.data); }
+  function partialCredit(s, rep) {
+    s.sats.forEach(function (sat) {
+      var sp = sat.status === 'active' ? partialSP(sat) : 0;
+      if (!sp) return;
+      var m = card(sat.missionId), p = s.players[sat.owner];
+      p.sp += sp; sat.partial = sp;
+      var msg = 'Partial science: ' + sat.down + ' of ' + m.rules.data + ' Data home, published for ' + sp + ' SP.';
+      log(s, p.name + ', ' + m.title + ': ' + msg);
+      var line = rep.filter(function (l) { return l.sat === sat.id; })[0];
+      if (line) { line.notes.push(msg); line.scored = (line.scored || 0) + sp; }
+    });
   }
   // Special parts go back to the bottom of the Special deck (only 2 of each camera exist; a discard pile locked them away).
   function retire(s, sat) {
@@ -519,7 +611,7 @@
   };
 
   var api = {
-    ACTIONS_PER_TURN: ACTIONS_PER_TURN, WIN_SP: WIN_SP, ROUNDS: ROUNDS, MAX_MISSIONS: MAX_MISSIONS, SPECIAL_ORDER_FEE: SPECIAL_ORDER_FEE, UHF_CAP: UHF_CAP,
+    ACTIONS_PER_TURN: ACTIONS_PER_TURN, actionsFor: actionsFor, partialSP: partialSP, buildOf: buildOf, canBuy: canBuy, roleOf: roleOf, ownerOfRole: ownerOfRole, insurance: insurance, ROLES: ROLES, COOP_MISSION: COOP_MISSION, possessive: possessive, COOP_BUDGET: COOP_BUDGET, COOP_FUNDING: COOP_FUNDING, fundingOf: function (s, i) { return s.coop ? shareOf(COOP_FUNDING, s.players.length, (i - s.lead + s.players.length) % s.players.length) : s.funding; }, WIN_SP: WIN_SP, ROUNDS: ROUNDS, MAX_MISSIONS: MAX_MISSIONS, SPECIAL_ORDER_FEE: SPECIAL_ORDER_FEE, UHF_CAP: UHF_CAP,
     ORBIT_ORDER: ORBIT_ORDER, ORBIT_LESSONS: ORBIT_LESSONS,
     loadCards: loadCards, createGame: createGame, startRound: startRound, beginTurns: beginTurns, act: act, runOps: runOps, endRound: endRound,
     current: current, card: card, orbitCard: orbitCard, partCard: partCard, shelfKeys: shelfKeys, byType: function (t) { return BY_TYPE[t] || []; },

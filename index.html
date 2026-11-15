@@ -316,6 +316,25 @@ button.cardimg:not(.empty):hover { transform: translateY(-4px) rotate(-1deg); }
 .key { font-size: 12px; margin: 8px 0 0; opacity: .85; }
 .meter .k span { display: block; font-weight: 400; text-transform: none; opacity: .7; }
 
+/* players: a shape as well as a colour */
+.mark { font-size: 15px; line-height: 1; display: inline-block; width: 1em; text-align: center; }
+.turnbar .mark { font-size: 22px; }
+
+/* co-op roles */
+.roles { flex: 1; min-width: 240px; }
+.roles ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.roles li { background: var(--ink-3); border-radius: 10px; padding: 6px 10px; font-size: 13px; }
+.roles li.mine { outline: 2px solid var(--mustard); }
+.roles li span { display: block; font-size: 11px; opacity: .75; margin-top: 2px; }
+
+/* warnings, insurance, trade */
+.warn { background: #e2603a22; border-left: 4px solid var(--bad); border-radius: 8px; padding: 6px 10px; font-size: 13px; margin: 8px 0 0; }
+.insure { font-size: 13px; text-transform: none; margin-top: 8px; }
+.insure small { display: block; font-weight: 400; opacity: .75; }
+.tradeform { display: grid; gap: 10px; }
+.tradeform .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tradeform input[type=number] { width: 100%; padding: 8px 10px; border-radius: 10px; border: 2px solid var(--ink); background: #fff8ea; font: inherit; }
+
 /* toasts */
 #toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 10px; z-index: 30; width: min(380px, calc(100vw - 32px)); }
 .toast { background: var(--paper); color: var(--ink); border-radius: 14px; padding: 10px 12px; box-shadow: 0 10px 30px #0009; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; font-size: 13px; }
@@ -388,6 +407,16 @@ function cardImg(id, opts = {}) {
 function swoosh(w = 120) { return `<svg class="swoosh" style="width:${w}px" aria-hidden="true"><use href="#swoosh"/></svg>`; }
 function curIdx() { const i = LW.current(G); return i == null ? G.lead : i; }
 function me() { return G.players[curIdx()]; }
+function bld(i = curIdx()) { return LW.buildOf(G, i); }
+const SHAPES = ['●', '■', '▲', '◆'];
+function mark(i) { return `<span class="mark" style="color:${PLAYER_COLORS[i]}" aria-hidden="true">${SHAPES[i]}</span>`; }
+function shapeSvg(i, x, y, fill, stroke) {
+  const a = `fill="${fill}" stroke="${stroke}" stroke-width="3"`;
+  if (i === 1) return `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" ${a}/>`;
+  if (i === 2) return `<path d="M${x} ${y - 8}L${x + 7} ${y + 5}H${x - 7}Z" ${a}/>`;
+  if (i === 3) return `<path d="M${x} ${y - 8}L${x + 7} ${y}L${x} ${y + 8}L${x - 7} ${y}Z" ${a}/>`;
+  return `<circle cx="${x}" cy="${y}" r="6" ${a}/>`;
+}
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ G, UI: { debriefShown: UI.debriefShown, seenFacts: UI.seenFacts, step: UI.step } })); } catch (e) {} }
 function loadSave() { try { const raw = localStorage.getItem(SAVE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
 function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
@@ -418,14 +447,24 @@ function modal({ title, tag, body, foot, narrow, onClose, dismiss = true }) {
     <div class="mbody">${body}</div>${foot ? `<div class="mfoot">${foot}</div>` : ''}</div></div>`;
   const scrim = root.firstChild;
   const close = () => { root.innerHTML = ''; onClose && onClose(); };
-  if (dismiss) {
-    scrim.addEventListener('click', e => { if (e.target === scrim) close(); });
-    scrim.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-  }
+  UI.modalClose = dismiss ? close : null;
+  if (dismiss) scrim.addEventListener('click', e => { if (e.target === scrim) close(); });
   const f = scrim.querySelector('.mfoot .btn, .mbody button, .mbody input'); if (f) setTimeout(() => f.focus(), 30);
   return { el: scrim, close: () => { root.innerHTML = ''; } };
 }
 function closeModal() { $('#modal-root').innerHTML = ''; }
+// Keyboard: Tab stays inside an open dialog, Escape closes it when it can be dismissed.
+document.addEventListener('keydown', e => {
+  const scrim = $('#modal-root .scrim'); if (!scrim) return;
+  if (e.key === 'Escape' && UI.modalClose) { e.preventDefault(); UI.modalClose(); return; }
+  if (e.key !== 'Tab') return;
+  const f = [...scrim.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1], at = document.activeElement;
+  if (!scrim.contains(at)) { e.preventDefault(); first.focus(); }
+  else if (e.shiftKey && at === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && at === last) { e.preventDefault(); first.focus(); }
+});
 
 
 // Real distances and signal delays, shown on orbit cards and the orbit map.
@@ -533,6 +572,7 @@ function renderTitle() {
           <div><label for="win">Win at</label><select id="win"><option value="10" selected>10 SP (standard)</option><option value="8">8 SP (shorter)</option></select></div>
           <label class="check"><input type="checkbox" id="adv"> Advanced: include Mars</label>
           <label class="check"><input type="checkbox" id="guide" checked> Guide my first satellite</label>
+          <label class="check"><input type="checkbox" id="coop"> Co-op: build the Flagship Observatory together (2–4 agencies)</label>
         </div>
         <div class="row">
           <button class="btn go big" id="start">Start the countdown</button>
@@ -551,8 +591,10 @@ function renderTitle() {
   $('.fan').onclick = e => { const b = e.target.closest('[data-gal]'); if (b) showGallery(b.dataset.gal); };
   $('#seg').onclick = e => { const b = e.target.closest('button'); if (!b) return; UI.setupPlayers = +b.dataset.n; [...$('#seg').children].forEach(x => x.classList.toggle('on', x === b)); drawNames(); };
   $('#start').onclick = () => {
+    const coop = $('#coop').checked;
+    if (coop && UI.setupPlayers < 2) return errorToast('Co-op needs at least 2 agencies: pick 2, 3 or 4 above.');
     const names = Array.from({ length: UI.setupPlayers }, (_, i) => ($('#pn' + i).value || DEFAULT_NAMES[i]).trim());
-    G = LW.createGame(CARDS, { players: names, advanced: $('#adv').checked, funding: +$('#fund').value, winSP: +$('#win').value });
+    G = LW.createGame(CARDS, { players: names, advanced: $('#adv').checked, funding: +$('#fund').value, winSP: +$('#win').value, coop });
     G.guide = $('#guide').checked; UI.prevMarket = UI.prevParts = null;
     UI.debriefShown = 0; UI.seenFacts = {};
     nextRound();
@@ -589,7 +631,8 @@ function showEvent() {
     body: `<div class="zoom">${deckFlip(G.event)}<div>
       <p class="lede">${esc(lead.name)} is Mission Lead and draws the event.</p><div class="late">
       <div class="effect"><b>Effect:</b> ${esc(eventHelp(G.event))}</div>
-      <p>Every agency receives <b>+${G.funding} BC</b> of yearly funding.</p>
+      <p>${G.coop ? `The team receives <b>+${LW.COOP_FUNDING} BC</b> of funding, split between agencies.` : `Every agency receives <b>+${G.funding} BC</b> of yearly funding.`}</p>
+      ${G.round === 1 ? `<p><b>Round 1:</b> every agency gets ${LW.actionsFor(G)} actions instead of ${LW.ACTIONS_PER_TURN}, enough to launch a first satellite straight away.</p>` : ''}
       ${tech ? `<p><b>${esc(lead.name)}, pick a Market part to make cheaper for the rest of the game:</b></p><div class="pick-row" id="techpick" style="justify-content:flex-start">${G.market.filter(Boolean).map(id => `<button class="btn small" data-k="${esc(C(id).rules.key)}">${esc(C(id).title)}</button>`).join('')}</div>` : ''}
     </div></div></div>`,
     foot: tech ? '' : `<button class="btn go" id="evgo">Begin turns</button>` });
@@ -606,7 +649,7 @@ function beforeTurn(resumed) {
     $('#app').classList.add('veiled');
     modal({ title: p.name + ', your turn', tag: ['Round ' + G.round + ' of ' + LW.ROUNDS, 'tag-mission'], narrow: true, dismiss: false,
       body: `<p class="lede">${G.players.length > 1 ? 'Pass the device to <b>' + esc(p.name) + '</b>. Other agencies, look away from the missions.' : 'Welcome back to mission control.'}</p>
-        <p>You have <b>${LW.ACTIONS_PER_TURN} actions</b> and <b>${p.bc} BC</b>.</p>`,
+        <p>You have <b>${LW.actionsFor(G)} actions</b> and <b>${p.bc} BC</b>.${G.coop ? ' Your subsystems: <b>' + p.roles.map(r => LW.ROLES[r].name).join(', ') + '</b>.' : ''}</p>`,
       foot: `<button class="btn go" id="ready">I'm ready</button>` });
     $('#ready').onclick = () => { $('#app').classList.remove('veiled'); reveal(); };
   } else reveal();
@@ -683,7 +726,7 @@ function showSpecialOrder() {
   const list = Object.keys(keys).sort((a, b) => LW.partCard(a).title.localeCompare(LW.partCard(b).title));
   modal({ title: 'Special Order', tag: ['1 action · price +' + LW.SPECIAL_ORDER_FEE + ' BC', 'tag-part'],
     body: `<p class="lede">Order a specific part straight from the supplier. Faster than waiting for it to show up in the Market, but it costs ${LW.SPECIAL_ORDER_FEE} BC extra.</p>
-      <div class="shelf" id="so">${list.map(k => { const pc = LW.partCard(k); return `<button class="shelf-item" data-k="${k}"><img src="${esc(pc.image)}" alt="" loading="lazy"><span class="t">${esc(pc.title)}</span><span class="m">${LW.partPrice(G, k) + LW.SPECIAL_ORDER_FEE} BC · ${pc.rules.volume} U · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W · ${keys[k]} left</span></button>`; }).join('') || '<p>The deck is empty.</p>'}</div>` });
+      <div class="shelf" id="so">${list.map(k => { const pc = LW.partCard(k); return `<button class="shelf-item" data-k="${k}" ${LW.canBuy(G, curIdx(), k) ? '' : 'disabled'}><img src="${esc(pc.image)}" alt="" loading="lazy"><span class="t">${esc(pc.title)}</span><span class="m">${LW.partPrice(G, k) + LW.SPECIAL_ORDER_FEE} BC · ${pc.rules.volume} U · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W · ${keys[k]} left</span></button>`; }).join('') || '<p>The deck is empty.</p>'}</div>` });
   $('#so').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; closeModal(); doAct({ type: 'specialOrder', key: b.dataset.k }); };
 }
 function showOps(rep, next) {
@@ -694,9 +737,9 @@ function showOps(rep, next) {
     const pct = v => Math.min(100, v / need * 100);
     const trouble = lost || l.notes.some(n => /skip|loses|re-enters|Signal Fade|Antenna Maintenance|No ground pass|Pointing Drift|−1/.test(n));
     return `<div class="opsline deal" style="--who:${PLAYER_COLORS[l.owner]};--i:${i * 3};--dx:0px;--dy:30px;--dr:0deg">
-      <div class="t">${esc(p.name)} · ${esc(l.mission)} <span style="font-weight:400">(${esc(LW.orbitCard(l.orbit).title)})</span></div>
+      <div class="t">${mark(l.owner)} ${esc(p.name)} · ${esc(l.mission)} <span style="font-weight:400">(${esc(LW.orbitCard(l.orbit).title)})</span></div>
       <div class="opsviz">
-        ${l.launch ? `<span class="die" data-roll="${l.launch.roll}" data-wait="${wait}">${l.launch.roll}</span><span class="vs">needs more than ${l.launch.risk}</span><span class="stamp ${lost ? 'bad' : 'ok'} pop" style="animation-delay:${shown}ms">${lost ? 'Lost' : 'Working'}</span>` : ''}
+        ${l.launch ? `<span class="die" data-roll="${l.launch.roll}" data-wait="${wait}">${l.launch.roll}</span><span class="vs">needs more than ${l.launch.risk}</span><span class="stamp ${lost ? 'bad' : 'ok'} pop" style="animation-delay:${shown}ms">${lost ? 'Lost' : 'Working'}</span>${l.payout ? `<span class="stamp ok pop" style="animation-delay:${shown + 300}ms">+${l.payout} BC insurance</span>` : ''}` : ''}
         ${lost ? '' : `<div class="dbar"><span class="down" style="width:${pct(sat.down)}%"></span><span class="stored" style="width:${Math.min(100 - pct(sat.down), pct(sat.stored))}%"></span></div><span class="mono">${sat.down}/${need} Data home</span>`}
         ${l.scored ? `<span class="stamp ok pop" style="animation-delay:${shown + 300}ms">+${l.scored} SP</span>` : ''}
       </div>
@@ -766,20 +809,23 @@ function tradeChart(alts) {
 }
 function showGameOver() {
   const order = G.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.sp - a.p.sp || b.p.bc - a.p.bc);
-  const w = G.players[G.winner];
-  const solo = G.players.length === 1;
-  modal({ title: solo ? (w.sp >= G.winSP ? 'Mission accomplished!' : 'Out of time') : w.name + ' wins!', tag: ['Mission archive', 'tag-mission'], dismiss: false,
-    body: `<p class="lede">${G.players.length === 1 ? (w.sp >= G.winSP ? 'You reached ' + G.winSP + ' SP. Ground control is cheering.' : 'Round ' + LW.ROUNDS + ' is over: you finished with ' + w.sp + ' SP. Target: ' + G.winSP + '.') : 'Final standings after round ' + G.round + ':'}</p>
+  const w = G.players[G.winner], solo = G.players.length === 1;
+  const title = G.coop ? (G.coopWon ? 'Flagship complete!' : 'Out of time') : solo ? (w.sp >= G.winSP ? 'Mission accomplished!' : 'Out of time') : w.name + ' wins!';
+  const lede = G.coop ? (G.coopWon ? 'The Flagship Observatory sent home all its Data. Every agency wins.' : 'Round ' + LW.ROUNDS + ' is over and the Flagship did not finish. Try a different plan: who launches, and when?')
+    : solo ? (w.sp >= G.winSP ? 'You reached ' + G.winSP + ' SP. Ground control is cheering.' : 'Round ' + LW.ROUNDS + ' is over: you finished with ' + w.sp + ' SP. Target: ' + G.winSP + '.')
+    : 'Final standings after round ' + G.round + ':';
+  modal({ title, tag: ['Mission archive', 'tag-mission'], dismiss: false,
+    body: `<p class="lede">${lede}</p>
       <table class="alts"><thead><tr><th>Agency</th><th>SP</th><th>BC left</th><th>Launched</th><th>Completed</th><th>Lost</th></tr></thead><tbody>
-      ${order.map(({ p, i }) => `<tr class="${i === G.winner && !solo ? 'you' : ''}"><td><span style="color:${PLAYER_COLORS[i]}">●</span> ${esc(p.name)}</td><td class="n">${p.sp}</td><td class="n">${p.bc}</td><td class="n">${p.stats.launched}</td><td class="n">${p.stats.completed}</td><td class="n">${p.stats.lost}</td></tr>`).join('')}</tbody></table>`,
+      ${order.map(({ p, i }) => `<tr class="${i === G.winner && !solo && !G.coop ? 'you' : ''}"><td>${mark(i)} ${esc(p.name)}</td><td class="n">${p.sp}</td><td class="n">${p.bc}</td><td class="n">${p.stats.launched}</td><td class="n">${p.stats.completed}</td><td class="n">${p.stats.lost}</td></tr>`).join('')}</tbody></table>`,
     foot: `<button class="btn go" id="again">New game</button>` });
   $('#again').onclick = () => { clearSave(); closeModal(); G = null; renderTitle(); };
 }
 function showRules() {
-  modal({ title: 'How to play', tag: ['Rules v3', 'tag-fact'],
+  modal({ title: 'How to play', tag: ['Rules v4', 'tag-fact'],
     body: `<ol style="padding-left:20px;display:grid;gap:8px">
       <li><b>Goal:</b> first to ${G ? G.winSP : LW.WIN_SP} Science Points (SP), or the most SP after round ${LW.ROUNDS}. Ties go to whoever has more BC left.</li>
-      <li><b>Each round:</b> an event is drawn, everyone gets +${G ? G.funding : 5} BC, then each agency takes a turn of <b>${LW.ACTIONS_PER_TURN} actions</b>.</li>
+      <li><b>Each round:</b> an event is drawn, everyone gets +${G ? G.funding : 5} BC, then each agency takes a turn of <b>${LW.ACTIONS_PER_TURN} actions</b> (5 in round 1, so you can launch straight away).</li>
       <li><b>Actions:</b> take a mission (max 2 open), buy a part (it installs straight away), special-order a part (+${LW.SPECIAL_ORDER_FEE} BC), run a Trade Study (1 BC), or launch.</li>
       <li><b>Free:</b> pick which mission you are building for and its orbit (locked after the first part), scrap a part.</li>
       <li><b>Design Review:</b> parts fit the frame, power made ≥ power used, the mission's instrument, an antenna (high-gain at L2 and Mars), an electric thruster for the Moon, L2 and Mars.</li>
@@ -787,7 +833,11 @@ function showRules() {
       <li><b>Operations:</b> each working satellite collects 1 Data per round (2 with reaction wheels) and downlinks it. UHF sends 2 Data per pass at most. At the Moon without a high-gain antenna, and on the way to Mars, you can only downlink every other round. LEO satellites re-enter after 3 rounds.</li>
       <li><b>Body-mounted cells</b> need frame surface: 1U fits 1, 3U 2, 6U 3, 12U 4. Need more power? Deployable panels.</li>
       <li><b>Sunlight:</b> solar parts give +1 W in High sun, +2 W in Very high, half in Low.</li>
-      <li><b>Rideshare:</b> if another agency already launched to the same orbit this round, you pay half and they get half back.</li></ol>
+      <li><b>Rideshare:</b> if another agency already launched to the same orbit this round, you pay half and they get half back.</li>
+      <li><b>Launch insurance:</b> when you launch, you can pay 10% of the satellite's value (parts + launch). If it is lost at the launch check, you get half its value back. Worth it when the fail chance is above 20%.</li>
+      <li><b>Trade</b> (free, on your turn): swap BC and one installed part with another agency, if they agree and both satellites still fit.</li>
+      <li><b>End of the game:</b> if round ${LW.ROUNDS} ends with nobody at the target, satellites still in orbit publish partial science: the same share of their SP as the share of Data already home.</li>
+      <li><b>Co-op:</b> all agencies build the Flagship Observatory at L2 together. Each agency buys only its own subsystems. The team shares a budget of ${LW.COOP_BUDGET} BC + ${LW.COOP_FUNDING} BC per round, split between agencies. Like NASA Class A missions, the Flagship must reach Risk 1. Finish before round ${LW.ROUNDS} ends and everyone wins.</li></ol>
       <p>Every card's <i>Real Science</i> line links to its source. Click any card to read it.</p>`,
     foot: `<button class="btn go" id="rok">Back to the console</button>` });
   $('#rok').onclick = closeModal;
@@ -798,53 +848,99 @@ function showRules() {
 // ponytail: no tutorial script. The next step is derived from the same state the Design Review reads,
 // so it can't drift from the rules. Shown to each agency until its first launch.
 function coachStep(p) {
-  if (!G.guide || G.phase !== 'turns' || G.pending || p.stats.launched > 0) return null;
-  const end = why => ({ text: why + ' End your turn: installed parts stay, and you get +' + G.funding + ' BC next round.', sel: '#endturn' });
-  if (!p.build) return p.missions.length < LW.MAX_MISSIONS && G.actionsLeft > 0 ? { text: 'Take a mission: it tells you which orbit and instrument you need.', sel: '#takemission' } : end('Nothing to build right now.');
-  const b = p.build, m = C(b.missionId), o = LW.orbitCard(b.orbit), st = LW.designStats(b.parts, b.orbit), has = k => b.parts.some(x => x.key === k);
+  const pi = curIdx(), b = bld(pi);
+  if (!G.guide || G.phase !== 'turns' || G.pending) return null;
+  if (G.coop ? !b : p.stats.launched > 0) return null;
+  const fund = LW.fundingOf(G, pi);
+  const end = why => ({ text: why + ' End your turn: installed parts stay, and you get +' + fund + ' BC next round.', sel: '#endturn' });
+  if (!b) return p.missions.length < LW.MAX_MISSIONS && G.actionsLeft > 0 ? { text: 'Take a mission: it tells you which orbit and instrument you need.', sel: '#takemission' } : end('Nothing to build right now.');
+  const m = C(b.missionId), o = LW.orbitCard(b.orbit), st = LW.designStats(b.parts, b.orbit), has = k => b.parts.some(x => x.key === k);
   if (G.actionsLeft < 1) return end('No actions left.');
   // buying step: from the shelf, the Market, or by Special Order
   const buy = (k, why) => {
     const pc = LW.partCard(k), shelf = LW.shelfKeys().includes(k), slot = G.market.findIndex(id => id && C(id).rules.key === k);
     const price = LW.partPrice(G, k) + (shelf || slot >= 0 ? 0 : LW.SPECIAL_ORDER_FEE);
-    if (p.bc < price) return end(pc.title + ' costs ' + price + ' BC and you have ' + p.bc + '.');
+    if (p.bc < price) return end(pc.title + ' costs ' + price + ' BC and you have ' + p.bc + '.' + (G.coop ? ' A teammate can send you BC with Trade.' : ''));
     if (shelf) return { text: why + ' Buy ' + pc.title + ' from the Workshop shelf (' + price + ' BC).', sel: `[data-shelf="${k}"]` };
     if (slot >= 0) return { text: why + ' ' + pc.title + ' is in the Market: buy it (' + price + ' BC).', sel: `[data-buy="${slot}"]` };
     return { text: why + ' ' + pc.title + ' is not in the Market. Use Special order (' + price + ' BC).', sel: '#sobtn' };
   };
+  const classA = m.id === LW.COOP_MISSION;
   const ant = o.rules.requires.includes('hga') ? 'hga' : 'uhf';
-  const essentials = [m.rules.payload, ant, ...o.rules.requires.filter(k => k !== 'hga')];
+  const essentials = [m.rules.payload, ant, ...o.rules.requires.filter(k => k !== 'hga'), ...(classA ? ['battery', 'wheels', 'shielding'] : [])];
+  // what the design still needs, in build order
+  const needs = [];
   if (!st.frame) {
     const vol = essentials.reduce((a, k) => a + LW.partCard(k).rules.volume, 0), f = vol <= 1 ? 'frame1' : vol <= 3 ? 'frame3' : vol <= 6 ? 'frame6' : 'frame12';
-    return buy(f, 'Start with a frame. The essentials for this mission need ' + vol + ' U; pick a bigger frame if you want room for backups.');
+    needs.push([f, 'Start with a frame. The essentials for this mission need ' + vol + ' U; pick a bigger frame if you want room for backups.']);
+  } else {
+    if (!has(m.rules.payload)) needs.push([m.rules.payload, 'Now the instrument the mission asks for.']);
+    if (!LW.bestAntenna(b.parts) || (ant === 'hga' && !has('hga'))) needs.push([ant, ant === 'hga' ? 'This orbit is too far for a small radio.' : 'Data only scores once it reaches Earth, so you need an antenna.']);
+    o.rules.requires.filter(k => !has(k)).forEach(k => needs.push([k, o.title + ' needs this to get there.']));
+    if (classA) {
+      if (!has('battery')) needs.push(['battery', 'Flagships are Class A missions with backups for everything: add a battery.']);
+      if (!has('wheels') && !has('magnetorquers')) needs.push(['wheels', 'Class A needs precise pointing; wheels also collect 2 Data per round.']);
+      if (LW.riskOf(b.parts, b.orbit, false).risk > 1) needs.push([has('shielding') ? 'computer' : 'shielding', 'Class A: Risk must be 1, so add ' + (has('shielding') ? 'a backup computer.' : 'radiation shielding.')]);
+    }
+    if (st.made < st.used) needs.push([st.cells < st.cellSlots ? 'cells' : 'panels', 'Your parts use ' + st.used + ' W but you make ' + st.made + ' W.']);
   }
-  if (!has(m.rules.payload)) return buy(m.rules.payload, 'Now the instrument the mission asks for.');
-  if (!LW.bestAntenna(b.parts) || (ant === 'hga' && !has('hga'))) return buy(ant, ant === 'hga' ? 'This orbit is too far for a small radio.' : 'Data only scores once it reaches Earth, so you need an antenna.');
-  const req = o.rules.requires.find(k => !has(k));
-  if (req) return buy(req, o.title + ' needs this to get there.');
-  if (st.made < st.used) return buy(st.cells < st.cellSlots ? 'cells' : 'panels', 'Your parts use ' + st.used + ' W but you make ' + st.made + ' W.');
+  const mine = needs.find(([k]) => LW.canBuy(G, pi, k));
+  if (mine) return buy(mine[0], mine[1]);
+  if (needs.length) { const k = needs[0][0], owner = LW.ownerOfRole(G, k); return end('Next the Flagship needs ' + LW.partCard(k).title + ', which is ' + LW.possessive(owner.name) + ' subsystem. If they are short of BC, send some with Trade.'); }
   const rv = LW.review(b.parts, b.missionId, b.orbit);
   if (!rv.ok) return { text: 'Design Review: fix the ✗ items in the checklist.', sel: '.review' };
   if (G.event === 'event-03') return end('Launch Delay: nobody can launch this round.');
-  const lp = LW.launchPrice(G, b.orbit, curIdx()), rk = LW.riskOf(b.parts, b.orbit, G.event === 'event-13');
-  if (p.bc < lp.price) return end('The launch costs ' + lp.price + ' BC and you have ' + p.bc + '.');
+  const lp = LW.launchPrice(G, b.orbit, pi), rk = LW.riskOf(b.parts, b.orbit, G.event === 'event-13');
+  if (p.bc < lp.price) return end('The launch costs ' + lp.price + ' BC and you have ' + p.bc + '.' + (G.coop ? ' Any teammate can launch the Flagship, or send you BC with Trade.' : ''));
   const extras = [];
-  if (!has('battery')) extras.push('a battery');
-  if (!has('wheels') && !has('magnetorquers')) extras.push('reaction wheels or magnetorquers');
-  return { text: 'Design Review passed. Launch chance is ' + Math.round(rk.chance * 100) + '%.' + (extras.length ? ' You can launch now, or first add ' + extras.join(' and ') + ' (+10 points each).' : ' Launch!'), sel: '#launch' };
+  if (!classA && !has('battery')) extras.push('a battery');
+  if (!classA && !has('wheels') && !has('magnetorquers')) extras.push('reaction wheels or magnetorquers');
+  const risky = 1 - rk.chance > .2 ? ' It is a risky launch, so insurance is worth it.' : '';
+  return { text: 'Design Review passed. Launch chance is ' + Math.round(rk.chance * 100) + '%.' + (extras.length ? ' You can launch now, or first add ' + extras.join(' and ') + ' (+10 points each).' : ' Launch!') + risky, sel: '#launch' };
+}
+
+// ---------- trade between agencies (free action; the other agency confirms on the shared screen) ----------
+function showTradeModal() {
+  const pi = curIdx(), p = me(), others = G.players.map((q, i) => i).filter(i => i !== pi);
+  let to = others[0];
+  const partsOf = i => { const b = LW.buildOf(G, i); return b ? b.parts.filter(x => !x.key.startsWith('frame')) : []; };
+  const partSelect = (i, id, label) => G.coop ? '' : `<div><label for="${id}">${label}</label><select id="${id}"><option value="">No part</option>${partsOf(i).map(x => `<option value="${x.uid}">${esc(C(x.cardId).title)}</option>`).join('')}</select></div>`;
+  modal({ title: 'Trade', tag: ['Free action', 'tag-part'], narrow: true,
+    body: `<div class="setup tradeform" style="margin:0">
+      <div><label>Trade with</label><div class="seg" id="trto">${others.map(i => `<button data-i="${i}" class="${i === to ? 'on' : ''}">${mark(i)} ${esc(G.players[i].name)}</button>`).join('')}</div></div>
+      <div class="two"><div><label for="trgive">You give (BC)</label><input type="number" id="trgive" min="0" max="${p.bc}" value="0"></div>
+        <div><label for="trget">You get (BC)</label><input type="number" id="trget" min="0" value="0"></div></div>
+      <div class="two">${partSelect(pi, 'trgp', 'You give a part')}<div id="trgpwrap">${partSelect(to, 'trtp', 'You get a part')}</div></div>
+      ${G.coop ? '<p class="sub" style="margin:0">In co-op the parts are already shared, so trades are BC only. Use this to fund a teammate’s subsystem.</p>' : '<p class="sub" style="margin:0">Parts move from one satellite to the other, so they must fit. Frames stay put.</p>'}
+    </div>`,
+    foot: `<button class="btn" id="trno">Cancel</button><button class="btn go" id="trok">Propose trade</button>` });
+  $('#trto').onclick = e => { const t = e.target.closest('[data-i]'); if (!t) return; to = +t.dataset.i; [...$('#trto').children].forEach(x => x.classList.toggle('on', x === t)); if (!G.coop) $('#trgpwrap').innerHTML = partSelect(to, 'trtp', 'You get a part'); };
+  $('#trno').onclick = closeModal;
+  $('#trok').onclick = () => {
+    const a = { type: 'trade', to, giveBC: +$('#trgive').value || 0, getBC: +$('#trget').value || 0, givePart: G.coop ? null : $('#trgp').value || null, getPart: G.coop ? null : $('#trtp').value || null };
+    const test = LW.act(JSON.parse(JSON.stringify(G)), a); // dry run on a copy: catch problems before asking the other agency
+    if (!test.ok) return errorToast(test.error);
+    const q = G.players[to], part = (i, uid) => { const x = uid && partsOf(i).find(y => y.uid === uid); return x ? C(x.cardId).title : ''; };
+    const side = (bc, name) => [bc ? bc + ' BC' : '', name].filter(Boolean).join(' + ') || 'nothing';
+    modal({ title: q.name + ', do you accept?', tag: ['Trade offer', 'tag-part'], narrow: true, dismiss: false,
+      body: `<p class="lede">${mark(pi)} <b>${esc(p.name)}</b> gives <b>${esc(side(a.giveBC, part(pi, a.givePart)))}</b> and asks for <b>${esc(side(a.getBC, part(to, a.getPart)))}</b>.</p><p>Pass the device to ${mark(to)} ${esc(q.name)}.</p>`,
+      foot: `<button class="btn" id="trdecline">Decline</button><button class="btn go" id="traccept">Accept</button>` });
+    $('#trdecline').onclick = () => { closeModal(); toast(`<span></span><div><b>${esc(q.name)} declined.</b></div>`); };
+    $('#traccept').onclick = () => { closeModal(); doAct(a); };
+  };
 }
 
 // ---------- main render ----------
 function renderGame() {
   if (!G) return;
-  const pi = curIdx(), p = G.players[pi], inTurns = G.phase === 'turns';
+  const pi = curIdx(), p = G.players[pi], inTurns = G.phase === 'turns', b = bld(pi);
   const ev = G.event ? C(G.event) : null, coach = coachStep(p);
   $('#app').innerHTML = `
   <header class="bar">
     <div class="brand">${swoosh(90)}<h1 class="display">Sakipa Satellite</h1></div>
     <div class="roundbox"><span class="round-dial">ROUND <b>${G.round}</b>/${LW.ROUNDS}</span>
       ${ev ? `<button class="event-chip" data-zoom="${G.event}"><img src="${esc(ev.image)}" alt="">${esc(ev.title)}</button>` : ''}</div>
-    <div class="scores">${G.players.map((q, i) => `<div class="score ${inTurns && i === pi ? 'active' : ''}"><span class="dot" style="background:${PLAYER_COLORS[i]}"></span><span class="nm">${esc(q.name)}</span><span class="vals num">${q.sp} SP · ${q.bc} BC</span>${i === G.lead ? '<span class="lead">LEAD</span>' : ''}</div>`).join('')}</div>
+    <div class="scores">${G.players.map((q, i) => `<div class="score ${inTurns && i === pi ? 'active' : ''}">${mark(i)}<span class="nm">${esc(q.name)}</span><span class="vals num">${q.sp} SP · ${q.bc} BC</span>${i === G.lead ? '<span class="lead">LEAD</span>' : ''}</div>`).join('')}</div>
     <button class="btn small ghost" id="rulesbtn">Rules</button>
     <button class="btn small ghost" id="cardsbtn">Cards</button>
     <button class="btn small ghost" id="quitbtn">New game</button>
@@ -852,16 +948,16 @@ function renderGame() {
   <main class="console">
     <section>
       <div class="turnbar">
-        <span class="dot" style="width:14px;height:14px;border-radius:50%;background:${PLAYER_COLORS[pi]}"></span>
+        ${mark(pi)}
         <h2 class="display">${esc(p.name)}</h2>
-        <div class="pips" aria-label="${G.actionsLeft} actions left">${Array.from({ length: LW.ACTIONS_PER_TURN }, (_, i) => `<span class="pip ${i >= G.actionsLeft ? 'used' : ''}"></span>`).join('')}</div>
-        <span class="money num">${p.bc} BC · ${p.sp}/${G.winSP} SP</span>
+        <div class="pips" aria-label="${G.actionsLeft} actions left">${Array.from({ length: Math.max(LW.actionsFor(G), G.actionsLeft) }, (_, i) => `<span class="pip ${i >= G.actionsLeft ? 'used' : ''}"></span>`).join('')}</div>
+        <span class="money num">${p.bc} BC · ${G.coop ? 'team goal: the Flagship' : p.sp + '/' + G.winSP + ' SP'}</span>
         <span class="spacer"></span>
         <button class="btn go" id="endturn" ${inTurns ? '' : 'disabled'}>End turn</button>
       </div>
       ${coach ? `<div class="coach" role="status"><span class="eyebrow">Next step</span><span class="t">${esc(coach.text)}</span><button class="btn small" id="coachoff">Hide tips</button></div>` : ''}
       <div class="panel" style="margin-top:18px">
-        <div class="panel-head"><span class="eyebrow tag-mission">Missions</span><h2 class="display">Open missions</h2><span class="hint">Up to ${LW.MAX_MISSIONS}. Click a card to read its science.</span></div>
+        <div class="panel-head"><span class="eyebrow tag-mission">${G.coop ? 'Team mission' : 'Missions'}</span><h2 class="display">${G.coop ? 'Flagship Observatory' : 'Open missions'}</h2><span class="hint">${G.coop ? 'One satellite, built together. 20 SP.' : 'Up to ' + LW.MAX_MISSIONS + '. Click a card to read its science.'}</span></div>
         <div class="missions">${missionSlots(p)}</div>
         ${buildBay(p)}
       </div>
@@ -877,10 +973,11 @@ function renderGame() {
       </div>
       <div class="panel">
         <div class="panel-head"><span class="eyebrow tag-part">Market</span><h2 class="display">Special parts</h2><span class="hint">${G.specialDeck.length} in deck</span></div>
-        <div class="market">${G.market.map((id, i) => id ? `<div class="${!UI.prevMarket || UI.prevMarket.includes(id) ? '' : 'deal'}" style="--dx:0px;--dy:-60px;--dr:-8deg">${cardImg(id)}<span class="price">${marketPrice(id)}</span><button class="btn small mustard" style="width:100%;margin-top:4px" data-buy="${i}" ${canAct() && p.build ? '' : 'disabled'}>Buy</button></div>` : '<div class="cardimg empty"></div>').join('')}</div>
+        <div class="market">${G.market.map((id, i) => id ? `<div class="${!UI.prevMarket || UI.prevMarket.includes(id) ? '' : 'deal'}" style="--dx:0px;--dy:-60px;--dr:-8deg">${cardImg(id)}<span class="price">${marketPrice(id)}</span><button class="btn small mustard" style="width:100%;margin-top:4px" data-buy="${i}" ${canAct() && b && LW.canBuy(G, pi, C(id).rules.key) ? '' : 'disabled'}>Buy</button></div>` : '<div class="cardimg empty"></div>').join('')}</div>
         <div class="toolrow">
-          <button class="btn small" id="sobtn" ${canAct() && p.build ? '' : 'disabled'}>Special order…</button>
+          <button class="btn small" id="sobtn" ${canAct() && b ? '' : 'disabled'}>Special order…</button>
           <button class="btn small" id="tsbtn" ${canAct() ? '' : 'disabled'}>Trade Study…</button>
+          ${G.players.length > 1 ? `<button class="btn small" id="tradebtn" ${inTurns && !G.pending ? '' : 'disabled'}>Trade with an agency…</button>` : ''}
         </div>
       </div>
       <div class="panel">
@@ -891,7 +988,7 @@ function renderGame() {
   </main>`;
   bind();
   const target = coach && $(coach.sel); if (target) target.classList.add('coach-target');
-  UI.prevMarket = G.market.slice(); UI.prevParts = p.build ? p.build.parts.map(x => x.uid) : [];
+  UI.prevMarket = G.market.slice(); UI.prevParts = b ? b.parts.map(x => x.uid) : [];
 }
 function canAct() { return G.phase === 'turns' && G.actionsLeft > 0 && !G.pending; }
 function marketPrice(id) {
@@ -899,6 +996,16 @@ function marketPrice(id) {
   return pr < base ? `<span class="discount">${pr} BC</span> <s>${base}</s>` : `${pr} BC`;
 }
 function missionSlots(p) {
+  if (G.coop) {
+    const pi = curIdx(), sat = G.sats.find(s => s.missionId === LW.COOP_MISSION && (s.status === 'active' || s.status === 'pending'));
+    const roles = LW.ROLES.map((r, k) => {
+      const owner = G.players.findIndex(q => q.roles.includes(k));
+      const parts = [...new Set(r.keys.map(k2 => LW.partCard(k2).title.replace(/^\d+U /, '')))].join(', ');
+      return `<li class="${owner === pi ? 'mine' : ''}">${mark(owner)} <b>${esc(r.name)}</b> · ${esc(G.players[owner].name)}${owner === pi ? ' (you)' : ''}<span>${esc(parts)}</span></li>`;
+    }).join('');
+    return `<div class="mission-slot">${cardImg(LW.COOP_MISSION, { badge: sat ? (sat.status === 'pending' ? 'On the pad' : 'In orbit') : 'Building', cls: 'sel' })}</div>
+      <div class="roles"><p class="sub" style="margin:0 0 6px">Build it together before round ${LW.ROUNDS} ends. Each agency buys only its own subsystems; send BC to a teammate with Trade.</p><ul>${roles}</ul></div>`;
+  }
   let out = p.missions.map(id => {
     const sat = LW.satForMission(G, id), building = p.build && p.build.missionId === id;
     const badge = sat ? (sat.status === 'pending' ? 'On the pad' : 'In orbit') : building ? 'Building' : 'Waiting';
@@ -909,7 +1016,8 @@ function missionSlots(p) {
   return out;
 }
 function buildBay(p) {
-  const b = p.build;
+  const b = bld();
+  if (!b && G.coop) return `<div class="bay"><h3 class="display">Build bay</h3><p class="sub">The Flagship is in flight. If it is lost at launch, the team starts a new one.</p></div>`;
   if (!b) return `<div class="bay"><h3 class="display">Build bay</h3><p class="sub">${p.missions.length ? 'All your missions have satellites in orbit. Take another mission to start a new build.' : 'Take a mission to start building a satellite.'}</p></div>`;
   const m = C(b.missionId), rv = LW.review(b.parts, b.missionId, b.orbit), st = rv.stats;
   const rk = LW.riskOf(b.parts, b.orbit, G.event === 'event-13');
@@ -921,7 +1029,15 @@ function buildBay(p) {
     const oc = LW.orbitCard(o), allowed = m.rules.orbits.includes(o);
     return `<button class="orbit-btn ${b.orbit === o ? 'on' : ''}" data-orbit="${o}" ${allowed && !locked ? '' : 'disabled'} title="${esc(oc.title)}"><span class="t">${esc(oc.title.replace('Sun-synchronous Orbit', 'Sun-sync (SSO)').replace('Low Earth Orbit', 'Low Earth (LEO)').replace('Geostationary Orbit', 'Geostationary'))}</span><span class="m">${oc.rules.launch} BC · Sun ${SUN_LABEL[oc.rules.sun]} · Risk ${oc.rules.risk}</span></button>`;
   }).join('');
-  const costSoFar = st.cost + lp.price;
+  const costSoFar = st.cost + lp.price, budget = st.cost + p.bc, goal = G.coop ? m.rules.sp : G.winSP;
+  // Will it finish in time? Launching now, operations run this round and every round after it.
+  const left = LW.ROUNDS - G.round + 1;
+  let late = '';
+  if (rounds > left) {
+    let d = m.rules.data; while (d > 0 && LW.roundsToFinish(b.parts, b.orbit, d) > left) d--;
+    late = `<p class="warn">⚠ Needs about ${rounds > 8 ? 'more than 8' : rounds} rounds to finish, but only ${left} left if you launch now. ${G.coop ? 'The Flagship must finish to count, so add reaction wheels for 2 Data per round.' : `It would get about ${d} of ${m.rules.data} Data home: ${Math.floor(m.rules.sp * d / m.rules.data)} SP of partial science at the end.`}</p>`;
+  }
+  const ins = LW.insurance(G, b, curIdx()), insureWorth = 1 - rk.chance > .2;
   return `<div class="bay">
     <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span class="eyebrow" style="color:#a0472a">Build bay</span><h3 class="display">${esc(m.title)}</h3><span class="sub">${esc(m.text)} Needs ${m.rules.data} Data · pays ${m.rules.sp} SP</span></div>
     <p class="key"><b>BC</b> budget · <b>SP</b> science points · <b>U</b> size (1U is a 10 cm cube) · <b>W</b> watts of power · <b>Data</b> what your instrument collects</p>
@@ -932,9 +1048,9 @@ function buildBay(p) {
         ${chassis(b, st)}
         <ul class="partlist">${b.parts.map(x => `<li>${esc(C(x.cardId).title)} <button data-scrap="${x.uid}" aria-label="Scrap ${esc(C(x.cardId).title)}" ${G.phase === 'turns' && !G.pending ? '' : 'disabled'}>×</button></li>`).join('')}</ul>
         <div class="tradespace"><span class="eyebrow" style="color:var(--mustard)">Trade Space</span>
-          ${tsRow('Cost', Math.min(1, costSoFar / 35), '#e2793a', costSoFar + ' BC')}
-          ${tsRow('Science', Math.min(1, m.rules.sp / 9), '#eab43b', m.rules.sp + ' SP')}
-          ${tsRow('Risk', rk.risk / 10, '#e2603a', Math.round((1 - rk.chance) * 100) + '% fail')}
+          ${tsRow('Cost', Math.min(1, costSoFar / Math.max(1, budget)), '#e2793a', costSoFar + ' BC', 'parts + launch, against ' + budget + ' BC you have had for it')}
+          ${tsRow('Science', Math.min(1, m.rules.sp / goal), '#eab43b', m.rules.sp + ' SP', G.coop ? 'the whole team goal' : 'of the ' + goal + ' SP you need to win')}
+          ${tsRow('Risk', 1 - rk.chance, '#e2603a', Math.round((1 - rk.chance) * 100) + '% fail', 'chance it is lost at the launch check')}
         </div>
       </div>
       <div>
@@ -943,17 +1059,19 @@ function buildBay(p) {
           <div class="meter ${st.used > st.made ? 'warn' : ''}"><div class="k">Power <span>made / used</span></div><div class="v num">${st.made}/${st.used} W</div></div>
           <div class="meter"><div class="k">Launch <span>chance it works</span></div><div class="v num">${Math.round(rk.chance * 100)}%</div></div>
         </div>
-        <p class="sub" style="margin:8px 0 0">Risk ${rk.risk}: ${rk.why.map(w => esc(w.label) + ' ' + (w.v > 0 ? '+' : '') + w.v).join(', ')}. Collects ${dpr} Data/round; about ${rounds > 8 ? 'too many' : rounds} round${rounds === 1 ? '' : 's'} to finish.</p>
+        <p class="sub" style="margin:8px 0 0">Risk ${rk.risk}: ${rk.why.map(w => esc(w.label) + ' ' + (w.v > 0 ? '+' : '') + w.v).join(', ')}. Collects ${dpr} Data/round; about ${rounds > 8 ? 'too many' : rounds} round${rounds === 1 ? '' : 's'} to finish.</p>${late}
         <ul class="review">${rv.items.map(i => `<li><span class="${i.ok ? 'ok' : 'no'}">${i.ok ? '✓' : '✗'}</span>${esc(i.text)}</li>`).join('')}</ul>
         <div class="launchrow">
-          <button class="btn go big" id="launch" ${canAct() && rv.ok && G.event !== 'event-03' ? '' : 'disabled'}>Launch · ${lp.price} BC</button>
+          <button class="btn go big" id="launch" ${canAct() && rv.ok && G.event !== 'event-03' ? '' : 'disabled'}>Launch · ${lp.price + (UI.insure ? ins.premium : 0)} BC</button>
           <span class="note">${G.event === 'event-03' ? 'Launch Delay: no launches this round.' : lp.rideshareWith != null ? 'Rideshare with ' + esc(G.players[lp.rideshareWith].name) + ': half price.' : rv.ok ? 'Design Review passed.' : 'Fix the ✗ items to launch.'}</span>
         </div>
+        <label class="check insure"><input type="checkbox" id="insure" ${UI.insure ? 'checked' : ''}> Insure for ${ins.premium} BC: get ${ins.payout} BC back if it is lost at launch
+          <small>${insureWorth ? 'Worth it here: the fail chance is above 20%.' : 'Probably not worth it: the fail chance is 20% or less.'} Real agencies insure launches the same way.</small></label>
       </div>
     </div>
   </div>`;
 }
-function tsRow(k, f, col, val) { return `<div class="ts-row"><span>${k}</span><span class="track"><span class="fillb" style="display:block;width:${Math.round(f * 100)}%;background:${col}"></span></span><span class="val">${val}</span></div>`; }
+function tsRow(k, f, col, val, what) { return `<div class="ts-row" title="${esc(what || '')}"><span>${k}</span><span class="track"><span class="fillb" style="display:block;width:${Math.round(f * 100)}%;background:${col}"></span></span><span class="val">${val}</span></div>${what ? `<div style="font-size:11px;opacity:.65;margin:-2px 0 0 78px">${esc(what)}</div>` : ''}`; }
 function chassis(b, st) {
   if (!st.frame) return `<div class="chassis"><div class="nf">No frame yet. Buy a <b>1U, 3U, 6U or 12U frame</b> from the Workshop shelf: it sets how much fits.</div></div>`;
   const cells = st.capacity * 2, cols = Math.min(6, cells);
@@ -974,12 +1092,13 @@ function chassis(b, st) {
 }
 function shelfItem(k, p) {
   const pc = LW.partCard(k), price = LW.partPrice(G, k);
-  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && p.build ? '' : 'disabled'} title="${esc(partHelp(k))}"><img src="${esc(pc.image)}" alt="" loading="lazy"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room, ' + pc.rules.cellSlots + ' cell' + (pc.rules.cellSlots > 1 ? 's' : '') : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
+  const ok = LW.canBuy(G, curIdx(), k);
+  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && bld() && ok ? '' : 'disabled'} title="${esc(ok ? partHelp(k) : 'Another agency\u2019s subsystem')}"><img src="${esc(pc.image)}" alt="" loading="lazy"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room, ' + pc.rules.cellSlots + ' cell' + (pc.rules.cellSlots > 1 ? 's' : '') : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
 }
 function orbitMap(p) {
   const RAD = { leo: 36, sso: 50, geo: 70, lunar: 94, l2: 118, mars: 142 }, SHORT = { leo: 'LEO', sso: 'SSO', geo: 'GEO', lunar: 'Moon', l2: 'L2', mars: 'Mars' };
   const orbits = LW.ORBIT_ORDER.filter(o => G.advanced || o !== 'mars'), size = RAD[orbits[orbits.length - 1]] * 2 + 44, c = size / 2;
-  const target = p.build && p.build.orbit;
+  const tb = bld(), target = tb && tb.orbit;
   let g = orbits.map((o, k) => {
     const a = (-72 + k * 10) * Math.PI / 180;
     return `<circle cx="${c}" cy="${c}" r="${RAD[o]}" class="ring ${o === target ? 'on' : ''}"/><text x="${(c + RAD[o] * Math.cos(a)).toFixed(1)}" y="${(c + RAD[o] * Math.sin(a) - 3).toFixed(1)}" class="rl ${o === target ? 'on' : ''}">${SHORT[o]}</text>`;
@@ -989,11 +1108,11 @@ function orbitMap(p) {
   if (G.advanced) g += `<circle cx="${(c - RAD.mars * .9).toFixed(1)}" cy="${(c - RAD.mars * .436).toFixed(1)}" r="6" fill="#e2603a"/>`;
   G.sats.filter(s => s.status === 'active' || s.status === 'pending').forEach((s, k) => {
     const r = RAD[s.orbit], col = PLAYER_COLORS[s.owner];
-    g += `<g class="osat" style="transform-origin:${c}px ${c}px;animation-duration:${Math.round(10 + r / 3)}s;animation-delay:-${(k * 4.3).toFixed(1)}s"><circle cx="${c + r}" cy="${c}" r="6" fill="${s.status === 'pending' ? '#312838' : col}" stroke="${col}" stroke-width="3"><title>${esc(G.players[s.owner].name + ': ' + C(s.missionId).title)}</title></circle></g>`;
+    g += `<g class="osat" style="transform-origin:${c}px ${c}px;animation-duration:${Math.round(10 + r / 3)}s;animation-delay:-${(k * 4.3).toFixed(1)}s"><title>${esc(G.players[s.owner].name + ': ' + C(s.missionId).title)}</title>${shapeSvg(s.owner, c + r, c, s.status === 'pending' ? '#312838' : col, col)}</g>`;
   });
   return `<div class="omap"><svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Orbit map, not to scale">${g}</svg>
     <div class="olegs">${orbits.map(o => `<button class="oleg ${o === target ? 'on' : ''}" data-zoom="${LW.orbitCard(o).id}"><b>${SHORT[o]}</b> ${esc(ORBIT_REAL[o][0])}</button>`).join('')}</div>
-    <p class="empty-note" style="margin:6px 0 0;font-size:11px">Map not to scale; distances are real.${target ? ' Bright ring: the orbit you are building for.' : ''} Hollow dot: waiting for its launch check.</p></div>`;
+    <p class="empty-note" style="margin:6px 0 0;font-size:11px">Map not to scale; distances are real.${target ? ' Bright ring: the orbit you are building for.' : ''} Hollow: waiting for its launch check.${G.players.length > 1 ? ' ' + G.players.map((q, i) => mark(i) + ' ' + esc(q.name)).join(' · ') : ''}</p></div>`;
 }
 function tracker() {
   const live = G.sats.filter(s => s.status === 'active' || s.status === 'pending');
@@ -1002,13 +1121,14 @@ function tracker() {
     const m = C(s.missionId), need = m.rules.data, o = LW.orbitCard(s.orbit);
     const life = o.rules.lifetime ? ` · ${Math.max(0, o.rules.lifetime - s.opsRounds)} rounds before re-entry` : '';
     return `<div class="sat" style="--who:${PLAYER_COLORS[s.owner]}"><img src="${esc(m.image)}" alt=""><div>
-      <div class="t">${esc(m.title)}</div><div class="o">${esc(G.players[s.owner].name)} · ${esc(o.title)}${life}</div>
+      <div class="t">${esc(m.title)}</div><div class="o">${mark(s.owner)} ${esc(G.players[s.owner].name)} · ${esc(o.title)}${life}</div>
       <div class="dbar" title="${s.down} of ${need} Data downlinked, ${s.stored} stored"><span class="down" style="width:${Math.min(100, s.down / need * 100)}%"></span><span class="stored" style="width:${Math.min(100 - Math.min(100, s.down / need * 100), s.stored / need * 100)}%"></span></div>
       <span class="status ${s.status === 'pending' ? 'st-pending' : 'st-active'}">${s.status === 'pending' ? 'Launch check at end of round' : s.down + '/' + need + ' Data home'}</span></div></div>`;
   }).join('')}</div>`;
 }
 function bind() {
   const app = $('#app');
+  app.onchange = e => { if (e.target.id === 'insure') { UI.insure = e.target.checked; renderGame(); } };
   app.onclick = e => {
     const t = e.target.closest('button, [data-zoom]'); if (!t || t.disabled) return;
     if (t.dataset.zoom) return zoom(t.dataset.zoom);
@@ -1018,7 +1138,8 @@ function bind() {
     if (t.id === 'coachoff') { G.guide = false; save(); return renderGame(); }
     if (t.id === 'quitbtn') return confirmQuit();
     if (t.id === 'takemission') return doAct({ type: 'takeMission' });
-    if (t.id === 'launch') return doAct({ type: 'launch' });
+    if (t.id === 'launch') { const r = doAct({ type: 'launch', insure: !!UI.insure }); if (r.ok) { UI.insure = false; renderGame(); } return; }
+    if (t.id === 'tradebtn') return showTradeModal();
     if (t.id === 'sobtn') return showSpecialOrder();
     if (t.id === 'tsbtn') return showTradeChoice();
     if (t.dataset.build) return doAct({ type: 'selectBuild', missionId: t.dataset.build });

@@ -1,8 +1,8 @@
-# Sakipa Satellite — Rules (v3)
+# Sakipa Satellite — Rules (v4)
 
 Each player runs a small space agency. You take on missions, choose an orbit, build a CubeSat to carry them out, launch it, and earn Science Points (SP) from the data it sends back.
 
-**Winning.** The first player to reach 10 SP wins (8 SP for a shorter game). If nobody gets there, the player with the most SP after 6 rounds wins. If there's a tie, the player with more budget left wins (good engineering is cheap engineering).
+**Winning.** The first player to reach 10 SP wins (8 SP for a shorter game). If nobody gets there, the game ends after round 6: satellites still in orbit publish partial science (see Phase 3), then the player with the most SP wins. If there's a tie, the player with more budget left wins (good engineering is cheap engineering).
 
 Every decision is a trade-off between three things, shown on each player's Trade Space meter:
 
@@ -77,7 +77,7 @@ The Mission Lead draws the top Event card. Its effect applies to everyone, right
 
 ### Phase 2 — Player turns
 
-Starting with the Mission Lead and going clockwise, each player takes a turn of **4 actions**. You can repeat an action.
+Starting with the Mission Lead and going clockwise, each player takes a turn of **4 actions** (**5 in round 1**, enough to build and launch a first satellite straight away). You can repeat an action.
 
 | Action | Cost | What it does |
 |---|---|---|
@@ -85,9 +85,13 @@ Starting with the Mission Lead and going clockwise, each player takes a turn of 
 | Buy a Part | 1 action | Pay its price and install it in the satellite you're building. Buy a frame first; each part must fit the frame's volume. |
 | Special Order | 1 action | Pay a part's price +2 BC to take any named part from the Special deck. |
 | Run a Trade Study | 1 action, 1 BC | Look at the top 3 Special cards and swap one into the Market, **or** look at the next Event card. |
-| Launch | 1 action | Pay the orbit's launch cost. The satellite must pass the Design Review. |
+| Launch | 1 action | Pay the orbit's launch cost. The satellite must pass the Design Review. You may also buy launch insurance (below). |
 
-Free (no action): choosing the mission and orbit for the satellite you're building (locked once the first part is installed), and scrapping an installed part (no refund).
+Free (no action): choosing the mission and orbit for the satellite you're building (locked once the first part is installed), scrapping an installed part (no refund), and trading with another agency.
+
+**Trade.** On your turn, offer another agency any BC and/or one installed part (not a frame) from your satellite, for any BC and/or one installed part from theirs. They accept or decline. A part only moves if it still fits the satellite receiving it.
+
+**Launch insurance.** When you launch, you may pay a premium of 10% of the satellite's value (parts + launch, rounded up). If the satellite is lost at the launch check, you get half its value back (rounded down). It pays off when the fail chance is above 20%. Real agencies insure launches the same way.
 
 **One satellite per mission.** Each satellite carries out one mission. You build one satellite at a time; once it has launched you can start the next.
 
@@ -111,6 +115,7 @@ For every satellite that launched this round or is already in orbit:
 2. **Collect Data.** 1 Data per round, or 2 with reaction wheels.
 3. **Downlink.** Stored Data is sent home: a UHF antenna sends at most 2 Data per pass; S-band and high-gain send everything. Fast comms: every round. Lunar orbit: every round with a high-gain antenna, otherwise every other round. Mars: every other round.
 4. **Score.** When a mission's downlinked Data reaches its target, you earn its SP and the satellite retires. Its Special parts go to the bottom of the Special deck.
+5. **Partial science (end of round 6 only, if nobody reached the target).** Every satellite still in orbit scores the same share of its mission's SP as the share of Data already home, rounded down. Example: 2 of 3 Data home on a 4 SP mission = 2 SP. Real missions publish partial results too.
 
 A LEO satellite that hasn't finished after 3 rounds re-enters the atmosphere; the mission stays open.
 
@@ -123,7 +128,11 @@ Then the Mission Lead passes clockwise and a new round starts.
 - **Hot-seat:** players pass one device. The screen shows "Agency X, your turn" before revealing the hand.
 - **Online (planned):** each player on their own device, with a 90-second turn timer.
 - **Interaction:** a shared Market (if you buy a part, nobody else can have it), rideshares, and trading parts or BC on your turn (free).
-- **Co-op variant:** everyone builds one Flagship Observatory at L2 (20 SP) before round 6 ends; each player builds one subsystem.
+- **Co-op (2–4 agencies):** everyone builds one Flagship Observatory at L2 (6 Data, 20 SP). Finish it before round 6 ends and every agency wins.
+  - **Subsystems.** Each agency owns some subsystems and may only buy those parts: Payload & pointing (instruments, reaction wheels, magnetorquers), Communications (antennas and radios), Propulsion (thrusters), Power & structure (frames, solar, battery, shielding, backup computer). With 2 agencies each owns two; with 3, one agency owns two.
+  - **One budget.** The team starts with 24 BC and gets 7 BC per round, split as evenly as possible between agencies. Use Trade to pass BC to whoever needs it.
+  - **Class A.** Flagships are NASA Class A missions, built to the highest reliability standard: the Flagship's Risk must be 1 to pass the Design Review.
+  - The agency that owns Power & structure is the first Mission Lead, so the frame goes in first. Any agency may launch the Flagship. If it is lost, the team builds a new one.
 - **Solo:** play alone against the Event deck. Try to reach 10 SP in 6 rounds.
 
 ## 6. The Trade Space debrief
@@ -133,10 +142,21 @@ At the end of each mission, whether it worked or failed, the game shows a debrie
 ## 7. Quick reference
 
 1. Mission Lead draws an Event. Everyone gets +5 BC.
-2. Each player takes 4 actions (Mission, Buy, Special Order, Trade Study, Launch).
+2. Each player takes 4 actions, 5 in round 1 (Mission, Buy, Special Order, Trade Study, Launch). Trading is free.
 3. Launch checks, collect Data, downlink, score.
 4. Pass the Mission Lead clockwise.
-5. First to 10 SP wins, or most SP after round 6.
+5. First to 10 SP wins, or most SP after round 6 (after partial science).
+
+## What changed from v3
+
+Measured with `sim.js` (1,500 bot games per setting). Bots now reach 10 SP in 20% / 34% / 53% of solo / 2-player / 4-player games (v3: 4% / 9% / 14%).
+
+- **Partial science at the end.** A quarter of all satellites used to be still in orbit, unscored, when round 6 ended; satellites launched in round 6 finished only 5% of the time. Now they publish what they already sent home. The build bay warns when a satellite can't finish in the rounds left and shows what it would still score.
+- **5 actions in round 1.** Nobody could launch in round 1 before (frame, instrument, antenna and power use all 4 actions).
+- **Deep space pays.** Moon missions +2 SP (6→8), L2 missions +1 SP (Deep-Sky Watch 9, Cluster Portrait 8, Nebula Survey 9). Measured SP per 10 BC spent was 1.0 at the Moon and 1.3 at L2 against 1.6–1.7 nearer Earth; now all orbits land at 1.7–2.0. Card art reprinted to match.
+- **Launch insurance**, **trading** and the **co-op Flagship** are playable (rules above). Co-op is tuned so bots finish the Flagship in 58–73% of games.
+- Card art: the corner code now reads SS (it said LW, for Launch Window), and the UHF Antenna cards print the corrected Real Science line.
+- Digital version: players are marked by shape as well as colour; dialogs keep keyboard focus inside and close with Escape; the Trade Space bars measure against your budget and the win target.
 
 ## What changed from v2
 
@@ -145,7 +165,7 @@ At the end of each mission, whether it worked or failed, the game shows a debrie
 - No discard pile: Special parts that are scrapped or come home with a retired satellite go to the bottom of the Special deck, so the 2 copies of each camera keep circulating.
 - The digital version guides each agency through its first satellite.
 - Digital version: a card library on the title screen (flip through all cards before playing), an orbit map with real distances, animated event draws, card deals, launches and dice rolls, and a visual operations report.
-- UHF Antenna's Real Science line corrected: CubeSat UHF antennas radiate in almost every direction; they are not directional. The printed card art still shows the old line.
+- UHF Antenna's Real Science line corrected: CubeSat UHF antennas radiate in almost every direction; they are not directional.
 - Ground Station Pass now lifts the UHF 2-Data limit; before, it did exactly the same as Extra Ground Pass.
 - Added a second radiation shielding, redundant computer and cold-gas thruster (same card art; 106 cards). With one copy each, Spare Electronics and Space Debris Warning rarely mattered, and the debrief's "Safer option" asked for parts only one player could ever own.
 - Body-mounted cells are capped by frame surface (1U: 1, 3U: 2, 6U: 3, 12U: 4). Before, cells took no volume and had no limit, so a 1U frame with 10 cells made 40 W and deployable panels were never worth buying.

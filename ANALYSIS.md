@@ -55,3 +55,20 @@ Fixes to try (re-run `sim.js` after each one):
 4. ~~Solo loss screen + empty-deck guard~~ done. (The empty-deck soft lock could not actually happen with the current 19-mission deck: the free draft only runs on each player's first turn. The guard is there in case the mission set shrinks.)
 5. ~~Onboarding~~ done: a "Next step" coach derived from the Design Review state, shown until an agency's first launch.
 6. Co-op variant / trading, if time allows.
+
+## 5. Second analysis (rules v4)
+
+Re-measured on v3 with `sim.js`, then fixed:
+
+| Problem found | Fix | Result |
+|---|---|---|
+| 24% of satellites were still in orbit, unscored, at game end; round-6 launches finished 5% of the time | Partial science at the end + build-bay warning | 10 SP reached in 20% / 34% / 53% of solo / 2p / 4p games (was 4% / 9% / 14%) |
+| Nobody could launch in round 1 | 5 actions in round 1 | Low-orbit missions launch in round 1 |
+| Moon 1.0 and L2 1.3 SP per 10 BC vs 1.6–1.7 near Earth | Moon +2 SP, L2 +1 SP (card art reprinted) | All orbits 1.7–2.0; bots try Moon missions 4× as often |
+| Launch losses wiped a whole satellite | Optional insurance: 10% premium, half back on loss | Worth it only above 20% fail chance, which the game explains |
+| Trading and co-op promised but missing | Both built; co-op has subsystems, one team budget (24 + 7/round) and a Class A rule | Bots finish the Flagship in 58–73% of games |
+| Trade Space bars on made-up scales | Bars measure against your budget, the win target and the real fail chance | |
+| Dialogs leaked keyboard focus; players told apart by colour only | Focus trap + Escape anywhere; shapes per player | |
+| Card art said LW and had the old UHF line | All 103 images repainted (corner code SS, new rewards, new UHF line) | |
+
+Still open: phone layout and offline fonts (out of scope for this pass).

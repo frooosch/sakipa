@@ -59,7 +59,7 @@
       "Orbit": "Lunar",
       "Payload": "Radiation detector",
       "Downlink": "2 Data",
-      "Reward": "6 SP"
+      "Reward": "8 SP"
     },
     "image": "cards/mission-03.webp",
     "science": "The CRaTER instrument on LRO measures the radiation environment near the Moon.",
@@ -70,7 +70,7 @@
       ],
       "payload": "radiation",
       "data": 2,
-      "sp": 6,
+      "sp": 8,
       "advanced": false,
       "coop": false
     }
@@ -109,7 +109,7 @@
       "Orbit": "Sun–Earth L2",
       "Payload": "Small telescope",
       "Downlink": "4 Data",
-      "Reward": "8 SP"
+      "Reward": "9 SP"
     },
     "image": "cards/mission-05.webp",
     "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
@@ -120,7 +120,7 @@
       ],
       "payload": "telescope",
       "data": 4,
-      "sp": 8,
+      "sp": 9,
       "advanced": false,
       "coop": false
     }
@@ -285,7 +285,7 @@
       "Orbit": "Lunar",
       "Payload": "Magnetometer",
       "Downlink": "3 Data",
-      "Reward": "6 SP"
+      "Reward": "8 SP"
     },
     "image": "cards/mission-12.webp",
     "science": "Lunar Prospector carried a magnetometer to survey magnetic fields around the Moon.",
@@ -296,7 +296,7 @@
       ],
       "payload": "magnetometer",
       "data": 3,
-      "sp": 6,
+      "sp": 8,
       "advanced": false,
       "coop": false
     }
@@ -310,7 +310,7 @@
       "Orbit": "Sun–Earth L2",
       "Payload": "Small telescope",
       "Downlink": "3 Data",
-      "Reward": "7 SP"
+      "Reward": "8 SP"
     },
     "image": "cards/mission-13.webp",
     "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
@@ -321,7 +321,7 @@
       ],
       "payload": "telescope",
       "data": 3,
-      "sp": 7,
+      "sp": 8,
       "advanced": false,
       "coop": false
     }
@@ -335,7 +335,7 @@
       "Orbit": "Sun–Earth L2",
       "Payload": "Small telescope",
       "Downlink": "4 Data",
-      "Reward": "8 SP"
+      "Reward": "9 SP"
     },
     "image": "cards/mission-14.webp",
     "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
@@ -346,7 +346,7 @@
       ],
       "payload": "telescope",
       "data": 4,
-      "sp": 8,
+      "sp": 9,
       "advanced": false,
       "coop": false
     }
@@ -1209,7 +1209,7 @@
       "Power": "-1 W"
     },
     "image": "cards/part-26.webp",
-    "science": "UHF radios use simple antennas that radiate in almost every direction, so they need no precise pointing but carry data slowly.",
+    "science": "UHF antennas radiate in almost every direction: no pointing needed, but data comes home slowly.",
     "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
     "rules": {
       "key": "uhf",
@@ -1230,7 +1230,7 @@
       "Power": "-1 W"
     },
     "image": "cards/part-27.webp",
-    "science": "UHF radios use simple antennas that radiate in almost every direction, so they need no precise pointing but carry data slowly.",
+    "science": "UHF antennas radiate in almost every direction: no pointing needed, but data comes home slowly.",
     "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
     "rules": {
       "key": "uhf",
@@ -1251,7 +1251,7 @@
       "Power": "-1 W"
     },
     "image": "cards/part-28.webp",
-    "science": "UHF radios use simple antennas that radiate in almost every direction, so they need no precise pointing but carry data slowly.",
+    "science": "UHF antennas radiate in almost every direction: no pointing needed, but data comes home slowly.",
     "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
     "rules": {
       "key": "uhf",
