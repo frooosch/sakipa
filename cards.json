@@ -1,0 +1,1945 @@
+[
+  {
+    "id": "mission-01",
+    "type": "mission",
+    "title": "Wildfire Watch",
+    "text": "Locate active wildfire fronts.",
+    "stats": {
+      "Orbit": "SSO",
+      "Payload": "Thermal camera",
+      "Downlink": "3 Data",
+      "Reward": "4 SP"
+    },
+    "image": "cards/mission-01.webp",
+    "science": "Infrared observations help identify active fires from orbit.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "sso"
+      ],
+      "payload": "thermal",
+      "data": 3,
+      "sp": 4,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-02",
+    "type": "mission",
+    "title": "Ocean Bloom Survey",
+    "text": "Trace an algal bloom along a coast.",
+    "stats": {
+      "Orbit": "SSO or LEO",
+      "Payload": "Multispectral camera",
+      "Downlink": "2 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-02.webp",
+    "science": "Ocean-colour measurements help scientists track chlorophyll associated with phytoplankton.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "sso",
+        "leo"
+      ],
+      "payload": "multispectral",
+      "data": 2,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-03",
+    "type": "mission",
+    "title": "Lunar Radiation Census",
+    "text": "Measure radiation near the Moon.",
+    "stats": {
+      "Orbit": "Lunar",
+      "Payload": "Radiation detector",
+      "Downlink": "2 Data",
+      "Reward": "6 SP"
+    },
+    "image": "cards/mission-03.webp",
+    "science": "The CRaTER instrument on LRO measures the radiation environment near the Moon.",
+    "sourceUrl": "https://science.nasa.gov/mission/lro/spacecraft-and-instruments/",
+    "rules": {
+      "orbits": [
+        "lunar"
+      ],
+      "payload": "radiation",
+      "data": 2,
+      "sp": 6,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-04",
+    "type": "mission",
+    "title": "Solar Sail Trial",
+    "text": "Downlink evidence of sail deployment.",
+    "stats": {
+      "Orbit": "LEO",
+      "Payload": "Solar sail module",
+      "Downlink": "1 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-04.webp",
+    "science": "Sunlight exerts pressure on a reflective sail and can change its orbit.",
+    "sourceUrl": "https://www.nasa.gov/mission/acs3/",
+    "rules": {
+      "orbits": [
+        "leo"
+      ],
+      "payload": "sail",
+      "data": 1,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-05",
+    "type": "mission",
+    "title": "Deep-Sky Watch",
+    "text": "Observe faint deep-space objects.",
+    "stats": {
+      "Orbit": "Sun–Earth L2",
+      "Payload": "Small telescope",
+      "Downlink": "4 Data",
+      "Reward": "8 SP"
+    },
+    "image": "cards/mission-05.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/",
+    "rules": {
+      "orbits": [
+        "l2"
+      ],
+      "payload": "telescope",
+      "data": 4,
+      "sp": 8,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-06",
+    "type": "mission",
+    "title": "Floodplain Atlas",
+    "text": "Map the extent of floodwater.",
+    "stats": {
+      "Orbit": "SSO or LEO",
+      "Payload": "Multispectral camera",
+      "Downlink": "2 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-06.webp",
+    "science": "MODIS observes Earth in 36 bands spanning visible and infrared light.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "sso",
+        "leo"
+      ],
+      "payload": "multispectral",
+      "data": 2,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-07",
+    "type": "mission",
+    "title": "Glacier Retreat",
+    "text": "Compare ice margins over repeated passes.",
+    "stats": {
+      "Orbit": "SSO",
+      "Payload": "Multispectral camera",
+      "Downlink": "3 Data",
+      "Reward": "4 SP"
+    },
+    "image": "cards/mission-07.webp",
+    "science": "A sun-synchronous orbit crosses a given latitude at about the same local solar time.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/",
+    "rules": {
+      "orbits": [
+        "sso"
+      ],
+      "payload": "multispectral",
+      "data": 3,
+      "sp": 4,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-08",
+    "type": "mission",
+    "title": "Urban Heat Survey",
+    "text": "Find the warmest urban districts.",
+    "stats": {
+      "Orbit": "LEO",
+      "Payload": "Thermal camera",
+      "Downlink": "2 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-08.webp",
+    "science": "MODIS measures infrared radiation emitted by Earth’s surface.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "leo"
+      ],
+      "payload": "thermal",
+      "data": 2,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-09",
+    "type": "mission",
+    "title": "Volcano Watch",
+    "text": "Locate hotspots in a volcanic crater.",
+    "stats": {
+      "Orbit": "SSO",
+      "Payload": "Thermal camera",
+      "Downlink": "2 Data",
+      "Reward": "4 SP"
+    },
+    "image": "cards/mission-09.webp",
+    "science": "Thermal infrared observations reveal hot surfaces.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "sso"
+      ],
+      "payload": "thermal",
+      "data": 2,
+      "sp": 4,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-10",
+    "type": "mission",
+    "title": "Coastal Plumes",
+    "text": "Track suspended sediment near shore.",
+    "stats": {
+      "Orbit": "LEO",
+      "Payload": "Multispectral camera",
+      "Downlink": "2 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-10.webp",
+    "science": "MODIS measures visible light reflected from ocean waters.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "leo"
+      ],
+      "payload": "multispectral",
+      "data": 2,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-11",
+    "type": "mission",
+    "title": "Polar Field Survey",
+    "text": "Sample the magnetic field over the poles.",
+    "stats": {
+      "Orbit": "SSO",
+      "Payload": "Magnetometer",
+      "Downlink": "3 Data",
+      "Reward": "4 SP"
+    },
+    "image": "cards/mission-11.webp",
+    "science": "Magsat mapped Earth's magnetic field from a dawn-dusk sun-synchronous orbit in 1979–80.",
+    "sourceUrl": "https://ntrs.nasa.gov/citations/19800067063",
+    "rules": {
+      "orbits": [
+        "sso"
+      ],
+      "payload": "magnetometer",
+      "data": 3,
+      "sp": 4,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-12",
+    "type": "mission",
+    "title": "Lunar Magnetism",
+    "text": "Map variations above the lunar crust.",
+    "stats": {
+      "Orbit": "Lunar",
+      "Payload": "Magnetometer",
+      "Downlink": "3 Data",
+      "Reward": "6 SP"
+    },
+    "image": "cards/mission-12.webp",
+    "science": "Lunar Prospector carried a magnetometer to survey magnetic fields around the Moon.",
+    "sourceUrl": "https://science.nasa.gov/mission/lunar-prospector/",
+    "rules": {
+      "orbits": [
+        "lunar"
+      ],
+      "payload": "magnetometer",
+      "data": 3,
+      "sp": 6,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-13",
+    "type": "mission",
+    "title": "Cluster Portrait",
+    "text": "Measure light from a star cluster.",
+    "stats": {
+      "Orbit": "Sun–Earth L2",
+      "Payload": "Small telescope",
+      "Downlink": "3 Data",
+      "Reward": "7 SP"
+    },
+    "image": "cards/mission-13.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/",
+    "rules": {
+      "orbits": [
+        "l2"
+      ],
+      "payload": "telescope",
+      "data": 3,
+      "sp": 7,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-14",
+    "type": "mission",
+    "title": "Nebula Survey",
+    "text": "Survey the structure of a distant nebula.",
+    "stats": {
+      "Orbit": "Sun–Earth L2",
+      "Payload": "Small telescope",
+      "Downlink": "4 Data",
+      "Reward": "8 SP"
+    },
+    "image": "cards/mission-14.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/",
+    "rules": {
+      "orbits": [
+        "l2"
+      ],
+      "payload": "telescope",
+      "data": 4,
+      "sp": 8,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-15",
+    "type": "mission",
+    "title": "Storm-Top Watch",
+    "text": "Measure cloud-top temperatures over a storm.",
+    "stats": {
+      "Orbit": "GEO",
+      "Payload": "Thermal camera",
+      "Downlink": "3 Data",
+      "Reward": "5 SP"
+    },
+    "image": "cards/mission-15.webp",
+    "science": "A geostationary satellite appears fixed above a point on the equator.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/",
+    "rules": {
+      "orbits": [
+        "geo"
+      ],
+      "payload": "thermal",
+      "data": 3,
+      "sp": 5,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-16",
+    "type": "mission",
+    "title": "Forest Canopy Census",
+    "text": "Map changes in forest cover.",
+    "stats": {
+      "Orbit": "SSO",
+      "Payload": "Multispectral camera",
+      "Downlink": "3 Data",
+      "Reward": "4 SP"
+    },
+    "image": "cards/mission-16.webp",
+    "science": "MODIS observes Earth in 36 bands spanning visible and infrared light.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "orbits": [
+        "sso"
+      ],
+      "payload": "multispectral",
+      "data": 3,
+      "sp": 4,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-17",
+    "type": "mission",
+    "title": "Snowline Atlas",
+    "text": "Track the boundary of seasonal snow.",
+    "stats": {
+      "Orbit": "SSO",
+      "Payload": "Multispectral camera",
+      "Downlink": "2 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-17.webp",
+    "science": "A sun-synchronous orbit crosses a given latitude at about the same local solar time.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/",
+    "rules": {
+      "orbits": [
+        "sso"
+      ],
+      "payload": "multispectral",
+      "data": 2,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-18",
+    "type": "mission",
+    "title": "Equatorial Field Map",
+    "text": "Sample the magnetic field above one longitude.",
+    "stats": {
+      "Orbit": "GEO",
+      "Payload": "Magnetometer",
+      "Downlink": "3 Data",
+      "Reward": "5 SP"
+    },
+    "image": "cards/mission-18.webp",
+    "science": "GOES weather satellites in geostationary orbit have carried magnetometers since 1975.",
+    "sourceUrl": "https://www.swpc.noaa.gov/products/goes-magnetometer",
+    "rules": {
+      "orbits": [
+        "geo"
+      ],
+      "payload": "magnetometer",
+      "data": 3,
+      "sp": 5,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-19",
+    "type": "mission",
+    "title": "Particle Patrol",
+    "text": "Count energetic particles over Earth.",
+    "stats": {
+      "Orbit": "LEO",
+      "Payload": "Radiation detector",
+      "Downlink": "2 Data",
+      "Reward": "3 SP"
+    },
+    "image": "cards/mission-19.webp",
+    "science": "SAMPEX counted energetic particles from a near-polar low Earth orbit.",
+    "sourceUrl": "https://lasp.colorado.edu/sampex/",
+    "rules": {
+      "orbits": [
+        "leo"
+      ],
+      "payload": "radiation",
+      "data": 2,
+      "sp": 3,
+      "advanced": false,
+      "coop": false
+    }
+  },
+  {
+    "id": "mission-20",
+    "type": "mission",
+    "title": "Mars Cruise Dosimetry",
+    "text": "Advanced mission. Measure radiation en route to Mars.",
+    "stats": {
+      "Orbit": "Mars transfer",
+      "Payload": "Radiation detector",
+      "Downlink": "4 Data",
+      "Reward": "9 SP"
+    },
+    "image": "cards/mission-20.webp",
+    "science": "Mars Odyssey carried an experiment to measure the radiation environment on its journey.",
+    "sourceUrl": "https://science.nasa.gov/mission/odyssey/science-instruments/",
+    "rules": {
+      "orbits": [
+        "mars"
+      ],
+      "payload": "radiation",
+      "data": 4,
+      "sp": 9,
+      "advanced": true,
+      "coop": false
+    }
+  },
+  {
+    "id": "orbit-01",
+    "type": "orbit",
+    "title": "Low Earth Orbit",
+    "text": "Operate for up to 3 rounds, including launch.",
+    "stats": {
+      "Launch": "2 BC",
+      "Sun": "Medium",
+      "Base risk": "Low · 1",
+      "Comms": "Fast"
+    },
+    "image": "cards/orbit-01.webp",
+    "science": "Atmospheric drag gradually reduces the altitude of a low Earth orbit.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/",
+    "rules": {
+      "code": "leo",
+      "launch": 2,
+      "sun": "medium",
+      "risk": 1,
+      "comms": "fast",
+      "requires": [],
+      "lifetime": 3,
+      "advanced": false
+    }
+  },
+  {
+    "id": "orbit-02",
+    "type": "orbit",
+    "title": "Sun-synchronous Orbit",
+    "text": "Use for missions marked SSO.",
+    "stats": {
+      "Launch": "3 BC",
+      "Sun": "High",
+      "Base risk": "Low · 1",
+      "Comms": "Fast"
+    },
+    "image": "cards/orbit-02.webp",
+    "science": "A sun-synchronous orbit crosses a given latitude at about the same local solar time.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/",
+    "rules": {
+      "code": "sso",
+      "launch": 3,
+      "sun": "high",
+      "risk": 1,
+      "comms": "fast",
+      "requires": [],
+      "lifetime": null,
+      "advanced": false
+    }
+  },
+  {
+    "id": "orbit-03",
+    "type": "orbit",
+    "title": "Geostationary Orbit",
+    "text": "Use for missions marked GEO.",
+    "stats": {
+      "Launch": "6 BC",
+      "Sun": "High",
+      "Base risk": "Medium · 2",
+      "Comms": "Fast"
+    },
+    "image": "cards/orbit-03.webp",
+    "science": "A geostationary satellite appears fixed above a point on the equator.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/",
+    "rules": {
+      "code": "geo",
+      "launch": 6,
+      "sun": "high",
+      "risk": 2,
+      "comms": "fast",
+      "requires": [],
+      "lifetime": null,
+      "advanced": false
+    }
+  },
+  {
+    "id": "orbit-04",
+    "type": "orbit",
+    "title": "Lunar Orbit",
+    "text": "Electric thruster required. Basic links downlink every other round.",
+    "stats": {
+      "Launch": "8 BC",
+      "Sun": "High",
+      "Base risk": "High · 3",
+      "Comms": "Slow"
+    },
+    "image": "cards/orbit-04.webp",
+    "science": "NASA's Lunar Reconnaissance Orbiter has mapped the Moon from orbit since 2009.",
+    "sourceUrl": "https://science.nasa.gov/mission/lro/",
+    "rules": {
+      "code": "lunar",
+      "launch": 8,
+      "sun": "high",
+      "risk": 3,
+      "comms": "slow",
+      "requires": [
+        "electric"
+      ],
+      "lifetime": null,
+      "advanced": false
+    }
+  },
+  {
+    "id": "orbit-05",
+    "type": "orbit",
+    "title": "Sun–Earth L2",
+    "text": "Electric thruster and high-gain antenna required.",
+    "stats": {
+      "Launch": "9 BC",
+      "Sun": "Very high",
+      "Base risk": "Medium · 2",
+      "Comms": "Slow"
+    },
+    "image": "cards/orbit-05.webp",
+    "science": "Webb follows a halo orbit around the Sun–Earth L2 point.",
+    "sourceUrl": "https://science.nasa.gov/asset/webb/webbs-orbit/",
+    "rules": {
+      "code": "l2",
+      "launch": 9,
+      "sun": "veryhigh",
+      "risk": 2,
+      "comms": "slow",
+      "requires": [
+        "electric",
+        "hga"
+      ],
+      "lifetime": null,
+      "advanced": false
+    }
+  },
+  {
+    "id": "orbit-06",
+    "type": "orbit",
+    "title": "Mars Transfer",
+    "text": "Advanced only. Electric thruster and high-gain antenna required. Downlink every other round.",
+    "stats": {
+      "Launch": "12 BC",
+      "Sun": "Low",
+      "Base risk": "High · 3",
+      "Comms": "Very slow"
+    },
+    "image": "cards/orbit-06.webp",
+    "science": "Earth and Mars line up for the most efficient trip about once every 26 months.",
+    "sourceUrl": "https://mars.nasa.gov/insight/spacecraft/launch-vehicle/summary",
+    "rules": {
+      "code": "mars",
+      "launch": 12,
+      "sun": "low",
+      "risk": 3,
+      "comms": "veryslow",
+      "requires": [
+        "electric",
+        "hga"
+      ],
+      "lifetime": null,
+      "advanced": true
+    }
+  },
+  {
+    "id": "part-01",
+    "type": "part",
+    "title": "1U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "1 BC",
+      "Capacity": "1 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-01.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame1",
+      "price": 1,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 1,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-02",
+    "type": "part",
+    "title": "3U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "2 BC",
+      "Capacity": "3 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-02.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame3",
+      "price": 2,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 3,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-03",
+    "type": "part",
+    "title": "3U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "2 BC",
+      "Capacity": "3 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-03.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame3",
+      "price": 2,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 3,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-04",
+    "type": "part",
+    "title": "3U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "2 BC",
+      "Capacity": "3 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-04.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame3",
+      "price": 2,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 3,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-05",
+    "type": "part",
+    "title": "6U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "4 BC",
+      "Capacity": "6 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-05.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame6",
+      "price": 4,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 6,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-06",
+    "type": "part",
+    "title": "6U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "4 BC",
+      "Capacity": "6 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-06.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame6",
+      "price": 4,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 6,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-07",
+    "type": "part",
+    "title": "12U Frame",
+    "text": "Sets maximum installed volume.",
+    "stats": {
+      "Price": "6 BC",
+      "Capacity": "12 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-07.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/",
+    "rules": {
+      "key": "frame12",
+      "price": 6,
+      "power": 0,
+      "shelf": "workshop",
+      "capacity": 12,
+      "volume": 0
+    }
+  },
+  {
+    "id": "part-08",
+    "type": "part",
+    "title": "Body-mounted Cells",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0 U",
+      "Power": "+3 W"
+    },
+    "image": "cards/part-08.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "cells",
+      "price": 1,
+      "power": 3,
+      "shelf": "workshop",
+      "volume": 0.0
+    }
+  },
+  {
+    "id": "part-09",
+    "type": "part",
+    "title": "Body-mounted Cells",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0 U",
+      "Power": "+3 W"
+    },
+    "image": "cards/part-09.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "cells",
+      "price": 1,
+      "power": 3,
+      "shelf": "workshop",
+      "volume": 0.0
+    }
+  },
+  {
+    "id": "part-10",
+    "type": "part",
+    "title": "Body-mounted Cells",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0 U",
+      "Power": "+3 W"
+    },
+    "image": "cards/part-10.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "cells",
+      "price": 1,
+      "power": 3,
+      "shelf": "workshop",
+      "volume": 0.0
+    }
+  },
+  {
+    "id": "part-11",
+    "type": "part",
+    "title": "Deployable Panels",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "+6 W"
+    },
+    "image": "cards/part-11.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "panels",
+      "price": 3,
+      "power": 6,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-12",
+    "type": "part",
+    "title": "Deployable Panels",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "+6 W"
+    },
+    "image": "cards/part-12.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "panels",
+      "price": 3,
+      "power": 6,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-13",
+    "type": "part",
+    "title": "Deployable Panels",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "+6 W"
+    },
+    "image": "cards/part-13.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "panels",
+      "price": 3,
+      "power": 6,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-14",
+    "type": "part",
+    "title": "Deployable Panels",
+    "text": "Provides power in sunlight.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "+6 W"
+    },
+    "image": "cards/part-14.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "panels",
+      "price": 3,
+      "power": 6,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-15",
+    "type": "part",
+    "title": "Battery",
+    "text": "Protects against Eclipse Passage.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0.5 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-15.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "battery",
+      "price": 1,
+      "power": 0,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-16",
+    "type": "part",
+    "title": "Battery",
+    "text": "Protects against Eclipse Passage.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0.5 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-16.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/",
+    "rules": {
+      "key": "battery",
+      "price": 1,
+      "power": 0,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-17",
+    "type": "part",
+    "title": "Thermal Camera",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "1 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-17.webp",
+    "science": "Infrared observations help identify active fires from orbit.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "key": "thermal",
+      "price": 3,
+      "power": -2,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-18",
+    "type": "part",
+    "title": "Thermal Camera",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "1 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-18.webp",
+    "science": "Infrared observations help identify active fires from orbit.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "key": "thermal",
+      "price": 3,
+      "power": -2,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-19",
+    "type": "part",
+    "title": "Multispectral Camera",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "1 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-19.webp",
+    "science": "MODIS observes Earth in 36 bands spanning visible and infrared light.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "key": "multispectral",
+      "price": 3,
+      "power": -2,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-20",
+    "type": "part",
+    "title": "Multispectral Camera",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "1 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-20.webp",
+    "science": "MODIS observes Earth in 36 bands spanning visible and infrared light.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/",
+    "rules": {
+      "key": "multispectral",
+      "price": 3,
+      "power": -2,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-21",
+    "type": "part",
+    "title": "Radiation Detector",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-21.webp",
+    "science": "Mars Odyssey carried an experiment to measure the radiation environment on its journey.",
+    "sourceUrl": "https://science.nasa.gov/mission/odyssey/science-instruments/",
+    "rules": {
+      "key": "radiation",
+      "price": 2,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-22",
+    "type": "part",
+    "title": "Radiation Detector",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-22.webp",
+    "science": "Mars Odyssey carried an experiment to measure the radiation environment on its journey.",
+    "sourceUrl": "https://science.nasa.gov/mission/odyssey/science-instruments/",
+    "rules": {
+      "key": "radiation",
+      "price": 2,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-23",
+    "type": "part",
+    "title": "Small Telescope",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "5 BC",
+      "Volume": "2 U",
+      "Power": "-3 W"
+    },
+    "image": "cards/part-23.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/",
+    "rules": {
+      "key": "telescope",
+      "price": 5,
+      "power": -3,
+      "shelf": "market",
+      "volume": 2.0
+    }
+  },
+  {
+    "id": "part-24",
+    "type": "part",
+    "title": "Magnetometer",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-24.webp",
+    "science": "Lunar Prospector carried a magnetometer to survey magnetic fields around the Moon.",
+    "sourceUrl": "https://science.nasa.gov/mission/lunar-prospector/",
+    "rules": {
+      "key": "magnetometer",
+      "price": 2,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-25",
+    "type": "part",
+    "title": "Solar Sail Module",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-25.webp",
+    "science": "Sunlight exerts pressure on a reflective sail and can change its orbit.",
+    "sourceUrl": "https://www.nasa.gov/mission/acs3/",
+    "rules": {
+      "key": "sail",
+      "price": 3,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-26",
+    "type": "part",
+    "title": "UHF Antenna",
+    "text": "Basic downlink.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-26.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "uhf",
+      "price": 1,
+      "power": -1,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-27",
+    "type": "part",
+    "title": "UHF Antenna",
+    "text": "Basic downlink.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-27.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "uhf",
+      "price": 1,
+      "power": -1,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-28",
+    "type": "part",
+    "title": "UHF Antenna",
+    "text": "Basic downlink.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-28.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "uhf",
+      "price": 1,
+      "power": -1,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-29",
+    "type": "part",
+    "title": "S-band Radio",
+    "text": "Standard downlink.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-29.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "sband",
+      "price": 2,
+      "power": -2,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-30",
+    "type": "part",
+    "title": "S-band Radio",
+    "text": "Standard downlink.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-30.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "sband",
+      "price": 2,
+      "power": -2,
+      "shelf": "workshop",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-31",
+    "type": "part",
+    "title": "High-gain X-band Antenna",
+    "text": "Full-rate lunar downlink. Required at L2 and Mars.",
+    "stats": {
+      "Price": "4 BC",
+      "Volume": "1 U",
+      "Power": "-3 W"
+    },
+    "image": "cards/part-31.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "hga",
+      "price": 4,
+      "power": -3,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-32",
+    "type": "part",
+    "title": "High-gain X-band Antenna",
+    "text": "Full-rate lunar downlink. Required at L2 and Mars.",
+    "stats": {
+      "Price": "4 BC",
+      "Volume": "1 U",
+      "Power": "-3 W"
+    },
+    "image": "cards/part-32.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/",
+    "rules": {
+      "key": "hga",
+      "price": 4,
+      "power": -3,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-33",
+    "type": "part",
+    "title": "Reaction Wheels",
+    "text": "Collect 2 Data per operating round.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-33.webp",
+    "science": "Changing a reaction wheel’s spin turns the spacecraft in the opposite direction.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/",
+    "rules": {
+      "key": "wheels",
+      "price": 3,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-34",
+    "type": "part",
+    "title": "Reaction Wheels",
+    "text": "Collect 2 Data per operating round.",
+    "stats": {
+      "Price": "3 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-34.webp",
+    "science": "Changing a reaction wheel’s spin turns the spacecraft in the opposite direction.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/",
+    "rules": {
+      "key": "wheels",
+      "price": 3,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-35",
+    "type": "part",
+    "title": "Magnetorquers",
+    "text": "LEO/SSO only. Cancel Pointing Drift.",
+    "stats": {
+      "Price": "1 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-35.webp",
+    "science": "A magnetic torquer interacts with Earth’s magnetic field to turn a satellite.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/",
+    "rules": {
+      "key": "magnetorquers",
+      "price": 1,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-36",
+    "type": "part",
+    "title": "Cold-gas Thruster",
+    "text": "Protects against Space Debris Warning.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-36.webp",
+    "science": "A thruster changes spacecraft motion by ejecting propellant.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/in-space_propulsion/",
+    "rules": {
+      "key": "coldgas",
+      "price": 2,
+      "power": 0,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-37",
+    "type": "part",
+    "title": "Electric Thruster",
+    "text": "Qualifies for lunar, L2 and Mars launches.",
+    "stats": {
+      "Price": "4 BC",
+      "Volume": "1 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-37.webp",
+    "science": "A thruster changes spacecraft motion by ejecting propellant.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/in-space_propulsion/",
+    "rules": {
+      "key": "electric",
+      "price": 4,
+      "power": -2,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-38",
+    "type": "part",
+    "title": "Electric Thruster",
+    "text": "Qualifies for lunar, L2 and Mars launches.",
+    "stats": {
+      "Price": "4 BC",
+      "Volume": "1 U",
+      "Power": "-2 W"
+    },
+    "image": "cards/part-38.webp",
+    "science": "A thruster changes spacecraft motion by ejecting propellant.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/in-space_propulsion/",
+    "rules": {
+      "key": "electric",
+      "price": 4,
+      "power": -2,
+      "shelf": "market",
+      "volume": 1.0
+    }
+  },
+  {
+    "id": "part-39",
+    "type": "part",
+    "title": "Radiation Shielding",
+    "text": "Lower Risk by 1. Protects against Solar Flare.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-39.webp",
+    "science": "Shielding helps protect electronics from some forms of radiation.",
+    "sourceUrl": "https://www.nasa.gov/podcasts/houston-we-have-a-podcast/radiation-shielding/",
+    "rules": {
+      "key": "shielding",
+      "price": 2,
+      "power": 0,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-40",
+    "type": "part",
+    "title": "Redundant Computer",
+    "text": "Lower Risk by 1.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-40.webp",
+    "science": "A backup flight computer can take over if the primary computer fails.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/",
+    "rules": {
+      "key": "computer",
+      "price": 2,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-41",
+    "type": "part",
+    "title": "Small Telescope",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "5 BC",
+      "Volume": "2 U",
+      "Power": "-3 W"
+    },
+    "image": "cards/part-41.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/",
+    "rules": {
+      "key": "telescope",
+      "price": 5,
+      "power": -3,
+      "shelf": "market",
+      "volume": 2.0
+    }
+  },
+  {
+    "id": "part-42",
+    "type": "part",
+    "title": "Magnetometer",
+    "text": "Meets the matching mission payload requirement.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-42.webp",
+    "science": "Lunar Prospector carried a magnetometer to survey magnetic fields around the Moon.",
+    "sourceUrl": "https://science.nasa.gov/mission/lunar-prospector/",
+    "rules": {
+      "key": "magnetometer",
+      "price": 2,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "event-01",
+    "type": "event",
+    "title": "Solar Flare",
+    "text": "Each unshielded satellite in lunar orbit, L2 or GEO rolls a d10. On 1–3 it loses this round of operations.",
+    "stats": {
+      "Timing": "In orbit now"
+    },
+    "image": "cards/event-01.webp"
+  },
+  {
+    "id": "event-02",
+    "type": "event",
+    "title": "Space Debris Warning",
+    "text": "Each LEO satellite without propulsion skips operations this round. Its three-round lifetime still advances.",
+    "stats": {
+      "Timing": "In orbit now"
+    },
+    "image": "cards/event-02.webp"
+  },
+  {
+    "id": "event-03",
+    "type": "event",
+    "title": "Launch Delay",
+    "text": "No agency may launch. Building, data collection and downlinks continue.",
+    "stats": {
+      "Timing": "This round"
+    },
+    "image": "cards/event-03.webp"
+  },
+  {
+    "id": "event-04",
+    "type": "event",
+    "title": "Budget Cut",
+    "text": "Each agency loses 3 BC. Stop at zero, then collect normal funding.",
+    "stats": {
+      "Timing": "Immediately"
+    },
+    "image": "cards/event-04.webp"
+  },
+  {
+    "id": "event-05",
+    "type": "event",
+    "title": "Rideshare Opportunity",
+    "text": "Halve every launch price. Round up after any agreed split.",
+    "stats": {
+      "Timing": "This round"
+    },
+    "image": "cards/event-05.webp"
+  },
+  {
+    "id": "event-06",
+    "type": "event",
+    "title": "Research Grant",
+    "text": "The agency with the fewest SP gains 5 BC. Tied agencies each receive the grant.",
+    "stats": {
+      "Timing": "Immediately"
+    },
+    "image": "cards/event-06.webp"
+  },
+  {
+    "id": "event-07",
+    "type": "event",
+    "title": "Tech Breakthrough",
+    "text": "The Mission Lead selects one named part in the Market. Every copy costs 1 BC less, to a minimum of zero.",
+    "stats": {
+      "Timing": "Rest of game"
+    },
+    "image": "cards/event-07.webp"
+  },
+  {
+    "id": "event-08",
+    "type": "event",
+    "title": "Ground Station Pass",
+    "text": "Every working satellite may downlink this round, even if its regular link is unavailable.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-08.webp"
+  },
+  {
+    "id": "event-09",
+    "type": "event",
+    "title": "Crosswinds",
+    "text": "Launches to LEO or SSO cost 1 extra BC.",
+    "stats": {
+      "Timing": "This round"
+    },
+    "image": "cards/event-09.webp"
+  },
+  {
+    "id": "event-10",
+    "type": "event",
+    "title": "Array Calibration",
+    "text": "Working satellites with deployable panels collect 1 extra Data this round.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-10.webp"
+  },
+  {
+    "id": "event-11",
+    "type": "event",
+    "title": "Eclipse Passage",
+    "text": "Satellites without a battery collect 1 less Data this round, to a minimum of zero.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-11.webp"
+  },
+  {
+    "id": "event-12",
+    "type": "event",
+    "title": "Signal Fade",
+    "text": "Only high-gain antennas may downlink this round. Other satellites retain their data.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-12.webp"
+  },
+  {
+    "id": "event-13",
+    "type": "event",
+    "title": "Thermal Stress",
+    "text": "Each satellite without shielding adds 1 Risk for this round’s check.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-13.webp"
+  },
+  {
+    "id": "event-14",
+    "type": "event",
+    "title": "Spare Electronics",
+    "text": "Each agency may buy a redundant computer for 1 BC less, to a minimum of zero.",
+    "stats": {
+      "Timing": "This round"
+    },
+    "image": "cards/event-14.webp"
+  },
+  {
+    "id": "event-15",
+    "type": "event",
+    "title": "Pointing Drift",
+    "text": "Satellites without wheels or magnetorquers collect no new Data this round.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-15.webp"
+  },
+  {
+    "id": "event-16",
+    "type": "event",
+    "title": "Antenna Maintenance",
+    "text": "S-band radios miss this downlink. Keep all stored Data.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-16.webp"
+  },
+  {
+    "id": "event-17",
+    "type": "event",
+    "title": "Peer Review",
+    "text": "Each agency may run one Trade Study without paying its 1 BC fee. It still uses an action.",
+    "stats": {
+      "Timing": "This round"
+    },
+    "image": "cards/event-17.webp"
+  },
+  {
+    "id": "event-18",
+    "type": "event",
+    "title": "Panel Degradation",
+    "text": "A satellite with body-mounted cells and no deployable panels collects 1 less Data, minimum zero.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-18.webp"
+  },
+  {
+    "id": "event-19",
+    "type": "event",
+    "title": "Clear Launch Window",
+    "text": "Every launch costs 1 BC less, to a minimum of zero.",
+    "stats": {
+      "Timing": "This round"
+    },
+    "image": "cards/event-19.webp"
+  },
+  {
+    "id": "event-20",
+    "type": "event",
+    "title": "Extra Ground Pass",
+    "text": "Each working satellite with stored Data may downlink it, even between scheduled passes.",
+    "stats": {
+      "Timing": "Operations"
+    },
+    "image": "cards/event-20.webp"
+  },
+  {
+    "id": "fact-01",
+    "type": "fact",
+    "title": "Repeat the light",
+    "text": "A sun-synchronous orbit crosses a given latitude at about the same local solar time.",
+    "stats": {
+      "Field note": "01 / 14"
+    },
+    "image": "cards/fact-01.webp",
+    "science": "A sun-synchronous orbit crosses a given latitude at about the same local solar time.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/"
+  },
+  {
+    "id": "fact-02",
+    "type": "fact",
+    "title": "Read the spectrum",
+    "text": "MODIS observes Earth in 36 bands spanning visible and infrared light.",
+    "stats": {
+      "Field note": "02 / 14"
+    },
+    "image": "cards/fact-02.webp",
+    "science": "MODIS observes Earth in 36 bands spanning visible and infrared light.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/"
+  },
+  {
+    "id": "fact-03",
+    "type": "fact",
+    "title": "Map lunar magnetism",
+    "text": "Lunar Prospector carried a magnetometer to survey magnetic fields around the Moon.",
+    "stats": {
+      "Field note": "03 / 14"
+    },
+    "image": "cards/fact-03.webp",
+    "science": "Lunar Prospector carried a magnetometer to survey magnetic fields around the Moon.",
+    "sourceUrl": "https://science.nasa.gov/mission/lunar-prospector/"
+  },
+  {
+    "id": "fact-04",
+    "type": "fact",
+    "title": "Sail on sunlight",
+    "text": "Sunlight exerts pressure on a reflective sail and can change its orbit.",
+    "stats": {
+      "Field note": "04 / 14"
+    },
+    "image": "cards/fact-04.webp",
+    "science": "Sunlight exerts pressure on a reflective sail and can change its orbit.",
+    "sourceUrl": "https://www.nasa.gov/mission/acs3/"
+  },
+  {
+    "id": "fact-05",
+    "type": "fact",
+    "title": "Layer the light",
+    "text": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "stats": {
+      "Field note": "05 / 14"
+    },
+    "image": "cards/fact-05.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/"
+  },
+  {
+    "id": "fact-06",
+    "type": "fact",
+    "title": "Count particles",
+    "text": "Mars Odyssey carried an experiment to measure the radiation environment on its journey.",
+    "stats": {
+      "Field note": "06 / 14"
+    },
+    "image": "cards/fact-06.webp",
+    "science": "Mars Odyssey carried an experiment to measure the radiation environment on its journey.",
+    "sourceUrl": "https://science.nasa.gov/mission/odyssey/science-instruments/"
+  },
+  {
+    "id": "fact-07",
+    "type": "fact",
+    "title": "Store daylight",
+    "text": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "stats": {
+      "Field note": "07 / 14"
+    },
+    "image": "cards/fact-07.webp",
+    "science": "Solar cells generate electricity in sunlight. Rechargeable batteries store it for later use.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/"
+  },
+  {
+    "id": "fact-08",
+    "type": "fact",
+    "title": "Fit the frame",
+    "text": "A spacecraft structure supports components and carries loads during launch.",
+    "stats": {
+      "Field note": "08 / 14"
+    },
+    "image": "cards/fact-08.webp",
+    "science": "A spacecraft structure supports components and carries loads during launch.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/structures-materials-and-mechanisms/"
+  },
+  {
+    "id": "fact-09",
+    "type": "fact",
+    "title": "Aim the signal",
+    "text": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "stats": {
+      "Field note": "09 / 14"
+    },
+    "image": "cards/fact-09.webp",
+    "science": "A directional antenna concentrates the radio signal toward its receiving station.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/soa-communications/"
+  },
+  {
+    "id": "fact-10",
+    "type": "fact",
+    "title": "Change momentum",
+    "text": "A thruster changes spacecraft motion by ejecting propellant.",
+    "stats": {
+      "Field note": "10 / 14"
+    },
+    "image": "cards/fact-10.webp",
+    "science": "A thruster changes spacecraft motion by ejecting propellant.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/in-space_propulsion/"
+  },
+  {
+    "id": "fact-11",
+    "type": "fact",
+    "title": "Point the payload",
+    "text": "Changing a reaction wheel’s spin turns the spacecraft in the opposite direction.",
+    "stats": {
+      "Field note": "11 / 14"
+    },
+    "image": "cards/fact-11.webp",
+    "science": "Changing a reaction wheel’s spin turns the spacecraft in the opposite direction.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/"
+  },
+  {
+    "id": "fact-12",
+    "type": "fact",
+    "title": "Follow the equator",
+    "text": "A geostationary satellite appears fixed above a point on the equator.",
+    "stats": {
+      "Field note": "12 / 14"
+    },
+    "image": "cards/fact-12.webp",
+    "science": "A geostationary satellite appears fixed above a point on the equator.",
+    "sourceUrl": "https://science.nasa.gov/earth/earth-observatory/catalog-of-earth-satellite-orbits/"
+  },
+  {
+    "id": "fact-13",
+    "type": "fact",
+    "title": "Find the bloom",
+    "text": "Ocean-colour measurements help scientists track chlorophyll associated with phytoplankton.",
+    "stats": {
+      "Field note": "13 / 14"
+    },
+    "image": "cards/fact-13.webp",
+    "science": "Ocean-colour measurements help scientists track chlorophyll associated with phytoplankton.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/"
+  },
+  {
+    "id": "fact-14",
+    "type": "fact",
+    "title": "Spot active fires",
+    "text": "Infrared observations help identify active fires from orbit.",
+    "stats": {
+      "Field note": "14 / 14"
+    },
+    "image": "cards/fact-14.webp",
+    "science": "Infrared observations help identify active fires from orbit.",
+    "sourceUrl": "https://science.nasa.gov/mission/aqua/modis/"
+  },
+  {
+    "id": "coop-flagship",
+    "type": "mission",
+    "title": "Flagship Observatory",
+    "text": "Co-op. Build one satellite together. Assign each agency a subsystem. Finish by round 6.",
+    "stats": {
+      "Orbit": "Sun–Earth L2",
+      "Payload": "Small telescope",
+      "Downlink": "6 Data",
+      "Team reward": "20 SP"
+    },
+    "image": "cards/coop-flagship.webp",
+    "science": "Webb infrared data and Chandra X-rays reveal different features of the same sky target.",
+    "sourceUrl": "https://www.nasa.gov/centers-and-facilities/marshall/nasas-chandra-webb-combine-for-arresting-views/",
+    "mode": "coop",
+    "rules": {
+      "orbits": [
+        "l2"
+      ],
+      "payload": "telescope",
+      "data": 6,
+      "sp": 20,
+      "advanced": false,
+      "coop": true
+    }
+  }
+]

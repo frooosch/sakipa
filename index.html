@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch Window</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22%23e2793a%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;1,700;1,800&family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,800,100,1;1,9..144,900,100,1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a 1970s mission-control console. Dark ink chassis, cream instrument panels,
+   card-colour coding (mustard missions, sky orbits, salmon parts, orange events, lilac facts),
+   and the rainbow "launch stripe" from the cards as the recurring motif. Single dark theme by choice. */
+:root {
+  --ink: #241d27;
+  --ink-2: #312838;
+  --ink-3: #3e3445;
+  --paper: #fff1d8;
+  --paper-2: #f6e2c0;
+  --mustard: #eab43b;
+  --orange: #e2793a;
+  --salmon: #f2ab95;
+  --sky: #9db3cf;
+  --lilac: #c9acd2;
+  --teal: #7fb8a6;
+  --good: #7fb8a6;
+  --bad: #e2603a;
+  --display: 'Fraunces', 'Cooper Black', 'Georgia', serif;
+  --body: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Space Mono', 'Courier New', monospace;
+  --r: 14px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--ink); color: var(--paper); font-family: var(--body); font-size: 15px; line-height: 1.4; }
+#stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+#app { position: relative; z-index: 1; min-height: 100%; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+a { color: var(--mustard); }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+.display { font-family: var(--display); font-style: italic; font-weight: 900; font-variation-settings: 'SOFT' 100, 'WONK' 1; letter-spacing: -0.01em; }
+.eyebrow { font-family: var(--body); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: .04em; font-size: 13px; }
+.mono { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+.hidden { display: none !important; }
+#app.veiled main, #app.veiled .scores { filter: blur(22px); pointer-events: none; }
+
+/* ---------- buttons ---------- */
+.btn { border: 0; border-radius: 999px; padding: 10px 18px; font-weight: 800; background: var(--paper); color: var(--ink); box-shadow: 0 3px 0 #0006; transition: transform .08s; }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #0006; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.go { background: var(--orange); color: var(--ink); }
+.btn.mustard { background: var(--mustard); }
+.btn.ghost { background: transparent; color: var(--paper); box-shadow: inset 0 0 0 2px #fff3; }
+.btn.small { padding: 6px 12px; font-size: 13px; }
+.btn.big { padding: 14px 28px; font-size: 18px; }
+
+/* ---------- header ---------- */
+header.bar { display: flex; align-items: center; gap: 18px; padding: 12px 20px; background: #1b151dcc; backdrop-filter: blur(4px); border-bottom: 1px solid #fff1; position: sticky; top: 0; z-index: 5; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { font-size: 28px; color: var(--mustard); white-space: nowrap; }
+.swoosh { width: 120px; height: 26px; flex: none; }
+.roundbox { display: flex; align-items: center; gap: 10px; }
+.round-dial { font-family: var(--mono); font-weight: 700; background: var(--ink-2); border-radius: 999px; padding: 6px 14px; white-space: nowrap; }
+.round-dial b { color: var(--mustard); }
+.event-chip { display: flex; align-items: center; gap: 8px; background: var(--orange); color: var(--ink); border-radius: 999px; padding: 5px 14px 5px 6px; border: 0; font-weight: 800; }
+.event-chip img { width: 26px; height: 36px; border-radius: 4px; object-fit: cover; }
+.scores { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.score { display: flex; align-items: center; gap: 8px; background: var(--ink-2); border-radius: 12px; padding: 6px 12px; border: 2px solid transparent; }
+.score.active { border-color: var(--mustard); }
+.score .dot { width: 10px; height: 10px; border-radius: 50%; }
+.score .nm { font-weight: 800; font-size: 13px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score .vals { font-family: var(--mono); font-size: 12px; opacity: .9; white-space: nowrap; }
+.score .lead { font-size: 10px; background: var(--mustard); color: var(--ink); border-radius: 4px; padding: 1px 4px; font-weight: 800; }
+
+/* ---------- main grid ---------- */
+main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 18px; padding: 18px 20px 28px; max-width: 1500px; margin: 0 auto; }
+@media (max-width: 1100px) { main.console { grid-template-columns: 1fr; } }
+.panel { background: var(--ink-2); border-radius: 18px; padding: 16px; border: 1px solid #fff1; }
+.panel + .panel { margin-top: 18px; }
+.panel-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.panel-head h2 { font-size: 24px; }
+.panel-head .hint { font-size: 13px; opacity: .7; }
+.tag-mission { color: var(--mustard); } .tag-orbit { color: var(--sky); } .tag-part { color: var(--salmon); } .tag-event { color: var(--orange); } .tag-fact { color: var(--lilac); }
+
+/* turn banner */
+.turnbar { display: flex; align-items: center; gap: 16px; background: var(--paper); color: var(--ink); border-radius: 18px; padding: 12px 16px; flex-wrap: wrap; }
+.turnbar h2 { font-size: 26px; }
+.pips { display: flex; gap: 6px; }
+.pip { width: 18px; height: 18px; border-radius: 50%; background: var(--orange); box-shadow: inset 0 -3px 0 #0003; }
+.pip.used { background: #0002; box-shadow: none; }
+.turnbar .money { font-family: var(--mono); font-weight: 700; font-size: 18px; }
+.turnbar .spacer { flex: 1; }
+
+/* missions */
+.missions { display: flex; gap: 14px; flex-wrap: wrap; }
+.cardimg { width: 150px; aspect-ratio: 630/880; border-radius: 10px; overflow: hidden; display: block; background: var(--ink-3); border: 0; padding: 0; position: relative; box-shadow: 0 6px 18px #0007; }
+.cardimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cardimg.sel { outline: 4px solid var(--mustard); outline-offset: 3px; }
+.cardimg .badge { position: absolute; left: 8px; top: 34px; background: var(--ink); color: var(--paper); font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+.mission-slot { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.mission-slot .cap { font-size: 12px; opacity: .8; max-width: 150px; }
+.cardimg.empty { display: grid; place-items: center; text-align: center; background: transparent; border: 2px dashed #fff4; box-shadow: none; color: var(--paper); padding: 12px; }
+.cardimg.empty b { font-family: var(--display); font-style: italic; font-weight: 900; font-size: 20px; color: var(--mustard); display: block; }
+
+/* build bay */
+.bay { background: var(--paper); color: var(--ink); border-radius: 18px; padding: 16px; margin-top: 16px; }
+.bay h3 { font-size: 22px; }
+.bay .sub { font-size: 13px; opacity: .75; }
+.orbits { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.orbit-btn { border: 2px solid var(--ink); background: transparent; border-radius: 12px; padding: 6px 10px; text-align: left; color: var(--ink); min-width: 104px; }
+.orbit-btn .t { font-weight: 800; font-size: 13px; display: block; }
+.orbit-btn .m { font-family: var(--mono); font-size: 11px; }
+.orbit-btn.on { background: var(--sky); }
+.orbit-btn:disabled { opacity: .3; cursor: not-allowed; }
+.orbit-btn.on:disabled { opacity: 1; }
+.bayrow { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 760px) { .bayrow { grid-template-columns: 1fr; } }
+.chassis { background: var(--ink); border-radius: 12px; padding: 10px; }
+.chassis-grid { display: grid; gap: 4px; }
+.cell { height: 34px; border-radius: 6px; background: #ffffff10; border: 1px dashed #ffffff2a; }
+.cell.fill { border: 0; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 800; color: var(--ink); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.chassis .nf { color: var(--paper); font-size: 13px; padding: 14px; text-align: center; opacity: .8; }
+.chassis .ext { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.chassis .ext span { font-size: 11px; font-weight: 800; color: var(--ink); background: var(--salmon); border-radius: 6px; padding: 4px 8px; }
+.cat-instrument { background: var(--mustard); } .cat-power { background: #f3d36b; } .cat-comms { background: var(--sky); } .cat-control { background: var(--teal); } .cat-prop { background: var(--salmon); } .cat-rel { background: var(--lilac); }
+.partlist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.partlist li { display: flex; align-items: center; gap: 6px; background: var(--paper-2); border-radius: 999px; padding: 3px 4px 3px 10px; font-size: 12px; font-weight: 600; }
+.partlist button { border: 0; background: var(--ink); color: var(--paper); border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px; padding: 0; }
+.meters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.meter { background: var(--paper-2); border-radius: 12px; padding: 8px 10px; }
+.meter .k { font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.meter .v { font-family: var(--mono); font-weight: 700; font-size: 18px; }
+.meter.warn .v { color: var(--bad); }
+.tradespace { margin-top: 10px; background: var(--ink); color: var(--paper); border-radius: 12px; padding: 10px 12px; }
+.ts-row { display: grid; grid-template-columns: 70px 1fr 64px; align-items: center; gap: 8px; font-size: 12px; margin-top: 6px; }
+.ts-row .track { height: 10px; background: #ffffff14; border-radius: 99px; overflow: hidden; }
+.ts-row .fillb { height: 100%; border-radius: 99px; }
+.ts-row .val { font-family: var(--mono); text-align: right; }
+.review { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; font-size: 13px; }
+.review li { display: flex; gap: 8px; align-items: baseline; }
+.review .ok { color: #2e7a63; font-weight: 800; } .review .no { color: var(--bad); font-weight: 800; }
+.launchrow { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.launchrow .note { font-size: 12px; opacity: .8; }
+
+/* shelf & market */
+.shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.shelf-item { background: var(--salmon); color: var(--ink); border: 0; border-radius: 12px; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 2px; min-height: 74px; }
+.shelf-item .t { font-weight: 800; font-size: 13px; line-height: 1.15; }
+.shelf-item .m { font-family: var(--mono); font-size: 11px; margin-top: auto; }
+.shelf-item:disabled { opacity: .45; cursor: not-allowed; }
+.market { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.market .cardimg { width: 100%; }
+.market .price { display: block; text-align: center; font-family: var(--mono); font-size: 12px; margin-top: 4px; }
+.market .discount { color: var(--teal); font-weight: 700; }
+.toolrow { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+/* tracker */
+.tracker { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.sat { background: var(--ink-3); border-radius: 14px; padding: 10px; display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: start; border-left: 6px solid var(--who, var(--mustard)); }
+.sat img { width: 54px; border-radius: 6px; }
+.sat .t { font-weight: 800; font-size: 14px; }
+.sat .o { font-size: 12px; opacity: .8; }
+.bar { height: 10px; background: #ffffff18; border-radius: 99px; overflow: hidden; margin-top: 6px; display: flex; }
+.bar .down { background: var(--mustard); } .bar .stored { background: #eab43b66; }
+.sat .status { font-size: 11px; font-weight: 800; text-transform: uppercase; display: inline-block; padding: 1px 6px; border-radius: 4px; margin-top: 4px; }
+.st-pending { background: var(--sky); color: var(--ink); } .st-active { background: var(--teal); color: var(--ink); }
+.empty-note { opacity: .6; font-size: 13px; }
+
+/* log */
+.log { max-height: 240px; overflow: auto; font-size: 12px; display: grid; gap: 3px; }
+.log div { opacity: .85; } .log b { color: var(--mustard); font-family: var(--mono); font-weight: 400; }
+
+/* ---------- modal ---------- */
+.scrim { position: fixed; inset: 0; background: #120d14d9; z-index: 20; display: grid; place-items: center; padding: 16px; overflow: auto; }
+.modal { background: var(--paper); color: var(--ink); border-radius: 22px; width: min(860px, 100%); max-height: calc(100vh - 32px); overflow: auto; box-shadow: 0 20px 60px #000a; }
+.modal .mhead { background: var(--ink); color: var(--paper); padding: 16px 22px 14px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 1; }
+.modal .mhead h2 { font-size: 28px; }
+.modal .mbody { padding: 20px 22px 22px; }
+.modal .mfoot { padding: 0 22px 22px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.modal.narrow { width: min(520px, 100%); }
+.pick-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.pick-row .cardimg { width: 210px; }
+.zoom { display: grid; grid-template-columns: 300px 1fr; gap: 22px; align-items: start; }
+@media (max-width: 680px) { .zoom { grid-template-columns: 1fr; } .zoom .cardimg { margin: 0 auto; } }
+.zoom .cardimg { width: 300px; max-width: 100%; }
+.science { background: var(--ink); color: var(--paper); border-radius: 14px; padding: 14px 16px; margin-top: 12px; }
+.science .eyebrow { color: var(--lilac); }
+.science p { margin: 6px 0 8px; font-style: italic; font-family: Georgia, serif; font-size: 16px; }
+.lede { font-size: 16px; }
+.effect { background: var(--paper-2); border-radius: 12px; padding: 10px 14px; margin-top: 12px; }
+
+/* setup screen */
+.title-screen { min-height: 100vh; display: grid; place-items: center; padding: 30px 16px; }
+.title-card { width: min(980px, 100%); display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: center; }
+@media (max-width: 860px) { .title-card { grid-template-columns: 1fr; } }
+.title-card h1 { font-size: clamp(56px, 9vw, 104px); line-height: .9; color: var(--mustard); }
+.title-card h1 span { display: block; color: var(--orange); }
+.title-card .tagline { font-size: 18px; max-width: 46ch; margin-top: 14px; }
+.fan { position: relative; height: 380px; }
+.fan .cardimg { position: absolute; width: 190px; top: 30px; transition: transform .3s; }
+.setup { background: var(--paper); color: var(--ink); border-radius: 22px; padding: 20px; margin-top: 22px; }
+.setup label { font-size: 12px; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.setup input[type=text], .setup select { width: 100%; padding: 9px 12px; border-radius: 10px; border: 2px solid var(--ink); background: #fff8ea; font: inherit; color: var(--ink); }
+.setup .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 6px 14px; font-weight: 800; color: var(--ink); }
+.seg button.on { background: var(--ink); color: var(--paper); }
+.setup .row { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; margin-top: 12px; }
+.check { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 14px; text-transform: none !important; }
+
+/* ops + debrief */
+.opsline { border-left: 6px solid var(--who); background: var(--paper-2); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
+.opsline .t { font-weight: 800; }
+.opsline ul { margin: 4px 0 0; padding-left: 18px; font-size: 14px; }
+.die { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; background: var(--ink); color: var(--paper); font-family: var(--mono); font-weight: 700; margin-right: 6px; }
+.alts { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 12px; }
+.alts th, .alts td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #241d2722; vertical-align: top; }
+.alts td.n { white-space: nowrap; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.alts tr.you td { font-weight: 800; }
+.outcome { display: inline-block; font-weight: 800; border-radius: 999px; padding: 3px 12px; font-size: 13px; }
+.outcome.done { background: var(--teal); } .outcome.lost, .outcome.reentered { background: var(--bad); color: var(--paper); }
+.altdot { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 800; margin-right: 6px; border: 1.5px solid var(--ink); vertical-align: -4px; }
+.chartwrap svg { width: 100%; height: auto; display: block; }
+
+/* toasts */
+#toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 10px; z-index: 30; width: min(380px, calc(100vw - 32px)); }
+.toast { background: var(--paper); color: var(--ink); border-radius: 14px; padding: 10px 12px; box-shadow: 0 10px 30px #0009; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; font-size: 13px; }
+.toast.err { background: var(--orange); }
+.toast img { width: 52px; border-radius: 6px; }
+.toast button { border: 0; background: transparent; font-size: 18px; line-height: 1; color: var(--ink); }
+.toast .eyebrow { color: #7a4f8a; font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="swoosh" viewBox="0 0 240 40">
+    <g fill="none" stroke-width="4" stroke-linecap="round">
+      <path d="M2 34 H96 C120 34 122 8 146 8 H238" stroke="#e2793a"/>
+      <path d="M2 28 H92 C114 28 116 2 140 2 H238" stroke="#eab43b" transform="translate(0,0)"/>
+      <path d="M2 40 H100 C126 40 128 14 152 14 H238" stroke="#fff1d8" transform="translate(0,-2)"/>
+      <path d="M2 40 H104 C132 40 134 20 158 20 H238" stroke="#9db3cf" transform="translate(0,2)"/>
+    </g>
+  </symbol>
+</svg>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="engine.js"></script>
+<script>
+'use strict';
+const $ = (sel, el = document) => el.querySelector(sel);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const PLAYER_COLORS = ['#eab43b', '#9db3cf', '#f2ab95', '#7fb8a6'];
+const DEFAULT_NAMES = ['Orion Works', 'Vega Labs', 'Lyra Agency', 'Polaris Co.'];
+const SUN_LABEL = { low: 'Low', medium: 'Medium', high: 'High', veryhigh: 'Very high' };
+const COMMS_LABEL = { fast: 'Fast', slow: 'Slow', veryslow: 'Very slow' };
+const CAT = { thermal: 'instrument', multispectral: 'instrument', radiation: 'instrument', telescope: 'instrument', magnetometer: 'instrument', sail: 'instrument',
+  cells: 'power', panels: 'power', battery: 'power', uhf: 'comms', sband: 'comms', hga: 'comms', wheels: 'control', magnetorquers: 'control',
+  coldgas: 'prop', electric: 'prop', shielding: 'rel', computer: 'rel' };
+const ALT_COLORS = ['#e2793a', '#9db3cf', '#7fb8a6'];
+const SAVE_KEY = 'launch-window-save-v2';
+let CARDS = [], G = null, UI = { setupPlayers: 2, debriefShown: 0, seenFacts: {} };
+
+// ---------- starfield ----------
+function drawStars() {
+  const c = $('#stars'), dpr = window.devicePixelRatio || 1;
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+  const x = c.getContext('2d'); x.scale(dpr, dpr);
+  const g = x.createRadialGradient(innerWidth * .8, -100, 50, innerWidth * .8, -100, innerWidth);
+  g.addColorStop(0, '#3a2a3a'); g.addColorStop(1, '#241d27');
+  x.fillStyle = g; x.fillRect(0, 0, innerWidth, innerHeight);
+  let seed = 7; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < Math.min(420, innerWidth * innerHeight / 3500); i++) {
+    const s = r() < .93 ? r() * 1.1 + .3 : r() * 1.8 + 1;
+    x.fillStyle = r() < .15 ? '#eab43b' : r() < .3 ? '#9db3cf' : '#fff1d8';
+    x.globalAlpha = .25 + r() * .6;
+    x.beginPath(); x.arc(r() * innerWidth, r() * innerHeight, s, 0, Math.PI * 2); x.fill();
+  }
+  x.globalAlpha = 1;
+}
+addEventListener('resize', () => { clearTimeout(drawStars.t); drawStars.t = setTimeout(drawStars, 150); });
+
+// ---------- helpers ----------
+const C = id => LW.card(id);
+const img = id => C(id).image;
+function cardImg(id, opts = {}) {
+  const c = C(id);
+  return `<button class="cardimg ${opts.cls || ''}" data-zoom="${esc(id)}" ${opts.attrs || ''} aria-label="${esc(c.type + ': ' + c.title)}"><img src="${esc(c.image)}" alt="" loading="lazy">${opts.badge ? `<span class="badge">${esc(opts.badge)}</span>` : ''}</button>`;
+}
+function swoosh(w = 120) { return `<svg class="swoosh" style="width:${w}px" aria-hidden="true"><use href="#swoosh"/></svg>`; }
+function curIdx() { const i = LW.current(G); return i == null ? G.lead : i; }
+function me() { return G.players[curIdx()]; }
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ G, UI: { debriefShown: UI.debriefShown, seenFacts: UI.seenFacts, step: UI.step } })); } catch (e) {} }
+function loadSave() { try { const raw = localStorage.getItem(SAVE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+function toast(html, cls = '', ms = 5000) {
+  const t = document.createElement('div'); t.className = 'toast ' + cls;
+  t.innerHTML = html + '<button aria-label="Dismiss">×</button>';
+  t.lastChild.onclick = () => t.remove();
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), ms);
+  while ($('#toasts').children.length > 3) $('#toasts').firstChild.remove();
+}
+function errorToast(msg) { toast(`<span></span><div><b>Can't do that.</b><br>${esc(msg)}</div>`, 'err', 4500); }
+function factFor(cardId) {
+  const c = C(cardId); if (!c.science) return null;
+  return LW.byType('fact').find(f => f.science === c.science) || null;
+}
+function factToast(cardId) {
+  const f = factFor(cardId), c = C(cardId);
+  if (!c.science || UI.seenFacts[c.science]) return;
+  UI.seenFacts[c.science] = 1;
+  toast(`${f ? `<img src="${esc(f.image)}" alt="">` : '<span></span>'}<div><div class="eyebrow">Real science${f ? ' · ' + esc(f.title) : ''}</div>${esc(c.science)} <a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener">Source</a></div>`, '', 9000);
+}
+
+// ---------- modal ----------
+function modal({ title, tag, body, foot, narrow, onClose, dismiss = true }) {
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="scrim" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="modal ${narrow ? 'narrow' : ''}">
+    <div class="mhead">${tag ? `<span class="eyebrow ${tag[1]}">${esc(tag[0])}</span>` : ''}<h2 class="display">${esc(title)}</h2><span style="flex:1"></span>${swoosh(90)}</div>
+    <div class="mbody">${body}</div>${foot ? `<div class="mfoot">${foot}</div>` : ''}</div></div>`;
+  const scrim = root.firstChild;
+  const close = () => { root.innerHTML = ''; onClose && onClose(); };
+  if (dismiss) {
+    scrim.addEventListener('click', e => { if (e.target === scrim) close(); });
+    scrim.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  }
+  const f = scrim.querySelector('.mfoot .btn, .mbody button, .mbody input'); if (f) setTimeout(() => f.focus(), 30);
+  return { el: scrim, close: () => { root.innerHTML = ''; } };
+}
+function closeModal() { $('#modal-root').innerHTML = ''; }
+
+// ---------- card zoom ----------
+function zoom(id) {
+  const c = C(id);
+  const tags = { mission: ['Mission', 'tag-mission'], orbit: ['Orbit', 'tag-orbit'], part: ['Part', 'tag-part'], event: ['Event', 'tag-event'], fact: ['Field note', 'tag-fact'] };
+  let extra = '';
+  if (c.type === 'event') extra = `<div class="effect"><b>In play:</b> ${esc(eventHelp(id))}</div>`;
+  if (c.type === 'orbit') extra = `<div class="effect">${esc(LW.ORBIT_LESSONS[c.rules.code])}</div>`;
+  if (c.type === 'part' && CAT[c.rules.key]) extra = `<div class="effect">${esc(partHelp(c.rules.key))}</div>`;
+  let foot = '';
+  const slot = G && G.phase === 'turns' ? G.market.indexOf(id) : -1;
+  if (slot >= 0 && !G.pending) foot = `<button class="btn go" id="zbuy">Buy for ${LW.partPrice(G, c.rules.key)} BC</button>`;
+  const m = modal({ title: c.title, tag: tags[c.type], narrow: false,
+    body: `<div class="zoom">${cardImg(id)}<div><p class="lede">${esc(c.text)}</p>${extra}
+      ${c.science ? `<div class="science"><div class="eyebrow">Real science</div><p>${esc(c.science)}</p><a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener">Read the source ↗</a></div>` : ''}</div></div>`,
+    foot: foot + `<button class="btn ghost" style="color:var(--ink);box-shadow:inset 0 0 0 2px #241d2733" id="zclose">Close</button>` });
+  $('#zclose').onclick = closeModal;
+  if ($('#zbuy')) $('#zbuy').onclick = () => { closeModal(); doAct({ type: 'buy', source: 'market', slot }); };
+}
+function partHelp(k) {
+  return ({ wheels: 'Fine pointing: collects 2 Data per round instead of 1. Counts as attitude control (−1 Risk compared with none).',
+    magnetorquers: 'Cheap attitude control that pushes against Earth’s magnetic field, so it only works in LEO or SSO.',
+    battery: 'Stores power for the dark side of the orbit. A satellite without one is riskier (+1 Risk) and suffers in Eclipse Passage.',
+    shielding: 'Lowers Risk by 1 and protects against Solar Flares and Thermal Stress.', computer: 'A backup flight computer. Lowers Risk by 1.',
+    coldgas: 'A small thruster for dodging debris: protects against Space Debris Warning.', electric: 'Efficient propulsion needed to reach lunar orbit, L2 or Mars.',
+    uhf: 'Cheapest radio. Sends at most 2 Data per ground pass.', sband: 'Standard radio. Sends all stored Data each pass.',
+    hga: 'Points a tight beam home. Sends everything, every round, even from the Moon. Required at L2 and Mars.',
+    cells: 'Small solar cells on the body: +3 W (more in strong sunlight).', panels: 'Unfolding solar wings: +6 W (more in strong sunlight).'
+  })[k] || 'Meets the matching mission’s instrument requirement.';
+}
+function eventHelp(id) {
+  return ({ 'event-01': 'In Operations, unshielded satellites at GEO, the Moon or L2 roll a d10; on 1–3 they skip this round.',
+    'event-02': 'In Operations, LEO satellites without any thruster skip this round. Their 3-round lifetime still counts down.',
+    'event-03': 'Nobody can launch this round.', 'event-04': 'Already applied: every agency lost 3 BC before funding.',
+    'event-05': 'Launch prices are halved this round.', 'event-06': 'Already applied: the agency with the fewest SP got 5 BC.',
+    'event-07': 'The Mission Lead picked a Market part that now costs 1 BC less for the rest of the game.',
+    'event-08': 'In Operations, every working satellite can downlink, even off-schedule.', 'event-09': 'Launches to LEO or SSO cost 1 BC more this round.',
+    'event-10': 'Satellites with deployable panels collect 1 extra Data this round.', 'event-11': 'Satellites without a battery collect 1 less Data this round.',
+    'event-12': 'Only high-gain antennas can downlink this round. Data is kept.', 'event-13': 'Unshielded satellites launching this round get +1 Risk.',
+    'event-14': 'Redundant computers cost 1 BC less this round.', 'event-15': 'Satellites without wheels or magnetorquers collect nothing this round.',
+    'event-16': 'S-band radios can’t downlink this round. Data is kept.', 'event-17': 'Each agency gets one free Trade Study this round (it still uses an action).',
+    'event-18': 'Satellites with only body-mounted cells collect 1 less Data.', 'event-19': 'Every launch costs 1 BC less this round.',
+    'event-20': 'Every working satellite with stored Data can downlink this round.' })[id] || C(id).text;
+}
+
+// ---------- title / setup ----------
+function renderTitle() {
+  const saved = loadSave();
+  const fanIds = ['mission-05', 'orbit-04', 'part-31', 'event-01', 'fact-01'];
+  $('#app').innerHTML = `<div class="title-screen"><div class="title-card">
+    <div>
+      ${swoosh(200)}
+      <h1 class="display">Launch<span>Window</span></h1>
+      <p class="tagline">Run a small space agency. Pick a mission, choose its orbit, build a CubeSat that fits the budget, the volume and the power, and launch it before round 6 runs out.</p>
+      <div class="setup" id="setup">
+        <div class="row" style="margin-top:0">
+          <div><label>Agencies</label><div class="seg" id="seg">${[1, 2, 3, 4].map(n => `<button data-n="${n}" class="${n === UI.setupPlayers ? 'on' : ''}">${n === 1 ? 'Solo' : n}</button>`).join('')}</div></div>
+        </div>
+        <div class="grid" id="names" style="margin-top:12px"></div>
+        <div class="row">
+          <div><label for="fund">Funding per round</label><select id="fund"><option value="5" selected>+5 BC (standard)</option><option value="7">+7 BC (relaxed)</option></select></div>
+          <div><label for="win">Win at</label><select id="win"><option value="15" selected>15 SP (standard)</option><option value="12">12 SP (shorter)</option></select></div>
+          <label class="check"><input type="checkbox" id="adv"> Advanced: include Mars</label>
+        </div>
+        <div class="row">
+          <button class="btn go big" id="start">Start the countdown</button>
+          ${saved && saved.G && saved.G.phase !== 'over' ? `<button class="btn big" id="resume">Resume round ${saved.G.round}</button>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="fan" aria-hidden="true">${fanIds.map((id, i) => `<div class="cardimg" style="left:${i * 15}%;transform:rotate(${(i - 2) * 6}deg) translateY(${Math.abs(i - 2) * 14}px)"><img src="${esc(img(id))}" alt=""></div>`).join('')}</div>
+  </div></div>`;
+  const drawNames = () => {
+    $('#names').innerHTML = Array.from({ length: UI.setupPlayers }, (_, i) => `<div><label for="pn${i}">Agency ${i + 1}</label><input type="text" id="pn${i}" maxlength="22" value="${esc(DEFAULT_NAMES[i])}"></div>`).join('');
+  };
+  drawNames();
+  $('#seg').onclick = e => { const b = e.target.closest('button'); if (!b) return; UI.setupPlayers = +b.dataset.n; [...$('#seg').children].forEach(x => x.classList.toggle('on', x === b)); drawNames(); };
+  $('#start').onclick = () => {
+    const names = Array.from({ length: UI.setupPlayers }, (_, i) => ($('#pn' + i).value || DEFAULT_NAMES[i]).trim());
+    G = LW.createGame(CARDS, { players: names, advanced: $('#adv').checked, funding: +$('#fund').value, winSP: +$('#win').value });
+    UI.debriefShown = 0; UI.seenFacts = {};
+    nextRound();
+  };
+  if ($('#resume')) $('#resume').onclick = () => { G = saved.G; Object.assign(UI, saved.UI); resumeFlow(); };
+}
+
+// ---------- flow ----------
+function nextRound() {
+  LW.startRound(G); UI.step = 'event'; save(); renderGame(); showEvent();
+}
+function resumeFlow() {
+  renderGame();
+  if (G.phase === 'event') showEvent();
+  else if (G.phase === 'turns') beforeTurn(true);
+  else if (G.phase === 'ops') afterTurns();
+  else if (G.phase === 'roundEnd') showDebriefs(() => { LW.endRound(G); nextRound(); });
+  else if (G.phase === 'over') showDebriefs(showGameOver);
+}
+function showEvent() {
+  const ev = C(G.event), lead = G.players[G.lead];
+  const tech = G.pending && G.pending.type === 'tech';
+  modal({ title: ev.title, tag: ['Round ' + G.round + ' event', 'tag-event'], dismiss: false,
+    body: `<div class="zoom">${cardImg(G.event)}<div>
+      <p class="lede">${esc(lead.name)} is Mission Lead and draws the event.</p>
+      <div class="effect"><b>Effect:</b> ${esc(eventHelp(G.event))}</div>
+      <p>Every agency receives <b>+${G.funding} BC</b> of yearly funding.</p>
+      ${tech ? `<p><b>${esc(lead.name)}, pick a Market part to make cheaper for the rest of the game:</b></p><div class="pick-row" id="techpick" style="justify-content:flex-start">${G.market.filter(Boolean).map(id => `<button class="btn small" data-k="${esc(C(id).rules.key)}">${esc(C(id).title)}</button>`).join('')}</div>` : ''}
+    </div></div>`,
+    foot: tech ? '' : `<button class="btn go" id="evgo">Begin turns</button>` });
+  const begin = () => { closeModal(); LW.beginTurns(G); save(); beforeTurn(); };
+  if (tech) $('#techpick').onclick = e => { const b = e.target.closest('button'); if (!b) return; LW.act(G, { type: 'techPick', key: b.dataset.k }); begin(); };
+  else $('#evgo').onclick = begin;
+}
+function beforeTurn(resumed) {
+  renderGame();
+  const p = me();
+  const reveal = () => { closeModal(); renderGame(); if (G.pending && G.pending.type === 'draft') showDraft(); else if (G.pending && G.pending.type === 'trade') showTrade(); };
+  if (G.players.length > 1 || resumed) {
+    $('#app').classList.add('veiled');
+    modal({ title: p.name + ', your turn', tag: ['Round ' + G.round + ' of ' + LW.ROUNDS, 'tag-mission'], narrow: true, dismiss: false,
+      body: `<p class="lede">${G.players.length > 1 ? 'Pass the device to <b>' + esc(p.name) + '</b>. Other agencies, look away from the missions.' : 'Welcome back to mission control.'}</p>
+        <p>You have <b>${LW.ACTIONS_PER_TURN} actions</b> and <b>${p.bc} BC</b>.</p>`,
+      foot: `<button class="btn go" id="ready">I'm ready</button>` });
+    $('#ready').onclick = () => { $('#app').classList.remove('veiled'); reveal(); };
+  } else reveal();
+}
+function doAct(a) {
+  const res = LW.act(G, a);
+  if (!res.ok) { errorToast(res.error); return res; }
+  if (res.cardId) factToast(res.cardId);
+  save(); renderGame();
+  if (G.pending && G.pending.type === 'draft') showDraft();
+  if (G.pending && G.pending.type === 'trade') showTrade();
+  if (res.eventId) showPeek(res.eventId);
+  if (res.sat) { const s = G.sats.find(x => x.id === res.sat); factToast(LW.orbitCard(s.orbit).id); }
+  return res;
+}
+function endTurn() {
+  if (G.pending) return errorToast('Finish the current choice first.');
+  const res = LW.act(G, { type: 'endTurn' });
+  save();
+  if (res.ops) afterTurns(); else beforeTurn();
+}
+function afterTurns() {
+  const rep = LW.runOps(G); save(); renderGame();
+  showOps(rep, () => showDebriefs(() => {
+    if (G.phase === 'over') { save(); showGameOver(); }
+    else { LW.endRound(G); nextRound(); }
+  }));
+}
+
+// ---------- modals: draft, trade, special order, peek, ops, debrief, game over ----------
+function showDraft() {
+  const pd = G.pending, p = G.players[pd.player];
+  modal({ title: pd.free ? 'Choose your first mission' : 'Choose a mission', tag: ['Mission briefing', 'tag-mission'], dismiss: false,
+    body: `<p class="lede">${esc(p.name)}: keep one, the other goes back to the deck. Harder orbits pay more, but cost more to reach.</p>
+      <div class="pick-row">${pd.offer.map(id => `<div class="mission-slot">${cardImg(id, { attrs: `data-keep="${esc(id)}"` })}<button class="btn mustard small" data-keep="${esc(id)}">Keep ${esc(C(id).title)}</button><span class="cap">${esc(missionCostHint(id))}</span></div>`).join('')}</div>`,
+  });
+  $('.pick-row').onclick = e => { const b = e.target.closest('button.btn[data-keep]'); if (!b) return; closeModal(); doAct({ type: 'keepMission', id: b.dataset.keep }); };
+}
+function missionCostHint(id) {
+  const m = C(id), o = LW.orbitCard(m.rules.orbits[0]), pc = LW.partCard(m.rules.payload);
+  const need = o.rules.requires.length ? ' + ' + o.rules.requires.map(k => LW.partCard(k).title.replace('High-gain X-band Antenna', 'high-gain antenna')).join(' + ') : '';
+  return `Needs ${pc.title}${need}. Launch from ${o.rules.launch} BC.`;
+}
+function showTrade() {
+  const pd = G.pending; let pick = null, slot = null;
+  modal({ title: 'Trade Study', tag: ['Top of the Special deck', 'tag-part'], dismiss: false,
+    body: `<p class="lede">Pick one part to bring into the Market, then the Market card it replaces. The rest go to the bottom of the deck.</p>
+      <h3 class="eyebrow tag-part" style="color:#a0472a">From the deck</h3><div class="pick-row" id="tp" style="justify-content:flex-start;margin:8px 0 16px">${pd.offer.map((id, i) => cardImg(id, { attrs: `data-i="${i}"`, cls: 'tp' })).join('')}</div>
+      <h3 class="eyebrow" style="color:#a0472a">Replace in the Market</h3><div class="pick-row" id="tm" style="justify-content:flex-start;margin-top:8px">${G.market.map((id, i) => id ? cardImg(id, { attrs: `data-i="${i}"`, cls: 'tm' }) : '').join('')}</div>`,
+    foot: `<button class="btn" id="tcancel">Keep the Market as is</button><button class="btn go" id="tok" disabled>Swap</button>` });
+  [...document.querySelectorAll('.tp,.tm')].forEach(b => { b.style.width = '120px'; b.removeAttribute('data-zoom'); });
+  $('#tp').onclick = e => { const b = e.target.closest('.tp'); if (!b) return; pick = +b.dataset.i; document.querySelectorAll('.tp').forEach(x => x.classList.toggle('sel', x === b)); $('#tok').disabled = pick == null || slot == null; };
+  $('#tm').onclick = e => { const b = e.target.closest('.tm'); if (!b) return; slot = +b.dataset.i; document.querySelectorAll('.tm').forEach(x => x.classList.toggle('sel', x === b)); $('#tok').disabled = pick == null || slot == null; };
+  $('#tok').onclick = () => { closeModal(); doAct({ type: 'tradeSwap', pick, slot }); };
+  $('#tcancel').onclick = () => { closeModal(); doAct({ type: 'cancelPending' }); };
+}
+function showTradeChoice() {
+  const free = G.event === 'event-17' && !me().peerReviewUsed;
+  modal({ title: 'Run a Trade Study', tag: ['1 action · ' + (free ? 'free (Peer Review)' : '1 BC'), 'tag-part'], narrow: true,
+    body: `<p class="lede">Engineers spend a little to learn a lot. What do you want to study?</p>
+      <div style="display:grid;gap:10px"><button class="btn mustard" id="ts1">Search the Special deck: look at the top 3 parts and swap one into the Market</button>
+      <button class="btn" id="ts2">Forecast: look at next round's event</button></div>` });
+  $('#ts1').onclick = () => { closeModal(); doAct({ type: 'tradeStudy', mode: 'deck' }); };
+  $('#ts2').onclick = () => { closeModal(); doAct({ type: 'tradeStudy', mode: 'event' }); };
+}
+function showPeek(id) {
+  modal({ title: 'Forecast: ' + C(id).title, tag: ['Next round', 'tag-event'],
+    body: `<div class="zoom">${cardImg(id)}<div><p class="lede">This event will be drawn at the start of round ${G.round + 1}. Only you know.</p><div class="effect">${esc(eventHelp(id))}</div></div></div>`,
+    foot: `<button class="btn go" id="pk">Got it</button>` });
+  $('#pk').onclick = closeModal;
+}
+function showSpecialOrder() {
+  const keys = {}; G.specialDeck.forEach(id => { const k = C(id).rules.key; keys[k] = (keys[k] || 0) + 1; });
+  const list = Object.keys(keys).sort((a, b) => LW.partCard(a).title.localeCompare(LW.partCard(b).title));
+  modal({ title: 'Special Order', tag: ['1 action · price +' + LW.SPECIAL_ORDER_FEE + ' BC', 'tag-part'],
+    body: `<p class="lede">Order a specific part straight from the supplier. Faster than waiting for it to show up in the Market, but it costs ${LW.SPECIAL_ORDER_FEE} BC extra.</p>
+      <div class="shelf" id="so">${list.map(k => { const pc = LW.partCard(k); return `<button class="shelf-item" data-k="${k}"><span class="t">${esc(pc.title)}</span><span class="m">${LW.partPrice(G, k) + LW.SPECIAL_ORDER_FEE} BC · ${pc.rules.volume} U · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W · ${keys[k]} left</span></button>`; }).join('') || '<p>The deck is empty.</p>'}</div>` });
+  $('#so').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; closeModal(); doAct({ type: 'specialOrder', key: b.dataset.k }); };
+}
+function showOps(rep, next) {
+  const body = rep.length ? rep.map(l => {
+    const p = G.players[l.owner];
+    return `<div class="opsline" style="--who:${PLAYER_COLORS[l.owner]}"><div class="t">${esc(p.name)} · ${esc(l.mission)} <span style="font-weight:400">(${esc(LW.orbitCard(l.orbit).title)})</span></div>
+      <ul>${l.notes.map(n => `<li>${n.startsWith('Launch check') ? `<span class="die">${l.launch.roll}</span>` : ''}${esc(n)}</li>`).join('')}</ul></div>`;
+  }).join('') : '<p class="lede">No satellites in orbit yet. The ground stations wait.</p>';
+  modal({ title: 'Operations, round ' + G.round, tag: ['Phase 3', 'tag-orbit'], dismiss: false, body, foot: `<button class="btn go" id="opsgo">Continue</button>` });
+  $('#opsgo').onclick = () => { closeModal(); next(); };
+}
+function showDebriefs(next) {
+  if (UI.debriefShown >= G.debriefs.length) return next();
+  const d = G.debriefs[UI.debriefShown++]; save();
+  const sat = G.sats.find(x => x.id === d.sat), m = C(sat.missionId), o = LW.orbitCard(sat.orbit), p = G.players[d.owner];
+  const outcome = { done: 'Mission complete', lost: 'Lost at launch', reentered: 'Re-entered before finishing' }[d.outcome];
+  const fact = factFor(sat.missionId);
+  modal({ title: 'Debrief: ' + m.title, tag: [p.name, 'tag-mission'], dismiss: false,
+    body: `<p><span class="outcome ${d.outcome}">${outcome}</span> ${d.outcome === 'done' ? `<b>+${m.rules.sp} SP</b>` : 'The mission stays open, so you can try again.'}</p>
+      <p class="lede">Here is your design on the Trade Space, next to two alternatives for the same mission.</p>
+      <div class="chartwrap">${tradeChart(d.alts)}</div>
+      <table class="alts"><thead><tr><th>Design</th><th>Cost</th><th>Launch chance</th><th>Rounds to finish</th><th>What changes</th></tr></thead><tbody>
+      ${d.alts.map((a, i) => `<tr class="${i === 0 ? 'you' : ''}"><td><span class="altdot" style="background:${ALT_COLORS[i]}">${i + 1}</span>${esc(a.label)}</td><td class="n">${a.cost} BC</td><td class="n">${Math.round(a.chance * 100)}%</td><td class="n">${a.rounds > 8 ? '—' : a.rounds}${a.finishes ? '' : ' ⚠'}</td><td>${esc(i === 0 ? a.parts.filter(k => !k.startsWith('frame')).map(k => LW.partCard(k).title).join(', ') : altDiff(d.alts[0], a))}</td></tr>`).join('')}</tbody></table>
+      ${d.alts.some(a => !a.finishes) ? '<p style="font-size:13px">⚠ Too slow to finish before drag pulls a LEO satellite down (3 rounds).</p>' : ''}
+      <div class="effect"><b>What engineers weigh at ${esc(o.title)}:</b> ${esc(LW.ORBIT_LESSONS[sat.orbit])}</div>
+      <div class="science"><div class="eyebrow">Real science${fact ? ' · ' + esc(fact.title) : ''}</div><p>${esc(m.science)}</p><a href="${esc(m.sourceUrl)}" target="_blank" rel="noopener">Read the source ↗</a></div>`,
+    foot: `<button class="btn go" id="dbgo">Continue</button>` });
+  $('#dbgo').onclick = () => { closeModal(); showDebriefs(next); };
+}
+function altDiff(you, a) {
+  const count = arr => arr.reduce((m, k) => (m[k] = (m[k] || 0) + 1, m), {});
+  const cy = count(you.parts), ca = count(a.parts), add = [], drop = [];
+  Object.keys(ca).forEach(k => { if ((ca[k] || 0) > (cy[k] || 0)) add.push(LW.partCard(k).title); });
+  Object.keys(cy).forEach(k => { if ((cy[k] || 0) > (ca[k] || 0)) drop.push(LW.partCard(k).title); });
+  const bits = [];
+  if (add.length) bits.push('Adds ' + add.join(', '));
+  if (drop.length) bits.push('drops ' + drop.join(', '));
+  let t = bits.length ? bits.join('; ') + '.' : 'Same parts as yours.';
+  const dc = a.cost - you.cost, dp = Math.round((a.chance - you.chance) * 100), dr = a.rounds - you.rounds;
+  const eff = [];
+  if (dc) eff.push((dc > 0 ? dc + ' BC more' : -dc + ' BC less'));
+  if (dp) eff.push((dp > 0 ? '+' : '') + dp + ' points launch chance');
+  if (dr) eff.push(dr > 0 ? dr + ' round' + (dr > 1 ? 's' : '') + ' slower' : -dr + ' round' + (dr < -1 ? 's' : '') + ' faster');
+  return t.charAt(0).toUpperCase() + t.slice(1) + (eff.length ? ' ' + eff.join(', ') + '.' : '');
+}
+function tradeChart(alts) {
+  const W = 620, H = 250, L = 56, R = 20, T = 18, B = 44;
+  const maxC = Math.max(10, ...alts.map(a => a.cost)) * 1.15;
+  const x = c => L + (c / maxC) * (W - L - R), y = ch => T + (1 - ch) * (H - T - B);
+  let g = '';
+  for (let p = 0; p <= 100; p += 25) g += `<line x1="${L}" x2="${W - R}" y1="${y(p / 100)}" y2="${y(p / 100)}" stroke="#241d27" stroke-opacity=".12"/><text x="${L - 8}" y="${y(p / 100) + 4}" text-anchor="end" font-size="11" fill="#241d27">${p}%</text>`;
+  const step = maxC > 40 ? 10 : 5;
+  for (let c = 0; c <= maxC; c += step) g += `<text x="${x(c)}" y="${H - B + 18}" text-anchor="middle" font-size="11" fill="#241d27">${c}</text>`;
+  g += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" font-size="12" font-weight="700" fill="#241d27">Total cost (BC, parts + launch)</text>`;
+  g += `<text transform="translate(14 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="#241d27">Launch success chance</text>`;
+  const order = alts.map((a, i) => i).sort((a, b) => (alts[b].rounds) - (alts[a].rounds));
+  order.forEach(i => {
+    const a = alts[i], r = 10 + Math.max(0, 5 - Math.min(a.rounds, 5)) * 3;
+    const cx = x(a.cost), cy = y(a.chance);
+    g += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${ALT_COLORS[i]}" fill-opacity=".9" stroke="#241d27" stroke-width="${i === 0 ? 3 : 1.5}"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="12" font-weight="800" fill="#241d27">${i + 1}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trade space: cost against launch success chance; bigger dots finish faster">${g}</svg><p style="font-size:12px;margin:2px 0 0;text-align:right">Numbers match the table. Bigger dot = finishes in fewer rounds.</p>`;
+}
+function showGameOver() {
+  const order = G.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.sp - a.p.sp || b.p.bc - a.p.bc);
+  const w = G.players[G.winner];
+  modal({ title: w.name + ' wins!', tag: ['Mission archive', 'tag-mission'], dismiss: false,
+    body: `<p class="lede">${G.players.length === 1 ? (w.sp >= G.winSP ? 'You reached ' + G.winSP + ' SP. Ground control is cheering.' : 'Round ' + LW.ROUNDS + ' is over: you finished with ' + w.sp + ' SP. Target: ' + G.winSP + '.') : 'Final standings after round ' + G.round + ':'}</p>
+      <table class="alts"><thead><tr><th>Agency</th><th>SP</th><th>BC left</th><th>Launched</th><th>Completed</th><th>Lost</th></tr></thead><tbody>
+      ${order.map(({ p, i }) => `<tr class="${i === G.winner ? 'you' : ''}"><td><span style="color:${PLAYER_COLORS[i]}">●</span> ${esc(p.name)}</td><td class="n">${p.sp}</td><td class="n">${p.bc}</td><td class="n">${p.stats.launched}</td><td class="n">${p.stats.completed}</td><td class="n">${p.stats.lost}</td></tr>`).join('')}</tbody></table>`,
+    foot: `<button class="btn go" id="again">New game</button>` });
+  $('#again').onclick = () => { clearSave(); closeModal(); G = null; renderTitle(); };
+}
+function showRules() {
+  modal({ title: 'How to play', tag: ['Rules v2', 'tag-fact'],
+    body: `<ol style="padding-left:20px;display:grid;gap:8px">
+      <li><b>Goal:</b> first to ${G ? G.winSP : 15} Science Points (SP), or the most SP after round ${LW.ROUNDS}. Ties go to whoever has more BC left.</li>
+      <li><b>Each round:</b> an event is drawn, everyone gets +${G ? G.funding : 5} BC, then each agency takes a turn of <b>${LW.ACTIONS_PER_TURN} actions</b>.</li>
+      <li><b>Actions:</b> take a mission (max 2 open), buy a part (it installs straight away), special-order a part (+${LW.SPECIAL_ORDER_FEE} BC), run a Trade Study (1 BC), or launch.</li>
+      <li><b>Free:</b> pick which mission you are building for and its orbit (locked after the first part), scrap a part.</li>
+      <li><b>Design Review:</b> parts fit the frame, power made ≥ power used, the mission's instrument, an antenna (high-gain at L2 and Mars), an electric thruster for the Moon, L2 and Mars.</li>
+      <li><b>Risk</b> = orbit base risk, +1 with no battery, +1 with no wheels or magnetorquers, −1 shielding, −1 backup computer (minimum 1). Checked once, in the launch round: roll a d10 higher than Risk.</li>
+      <li><b>Operations:</b> each working satellite collects 1 Data per round (2 with reaction wheels) and downlinks it. UHF sends 2 Data per pass at most. At the Moon without a high-gain antenna, and on the way to Mars, you can only downlink every other round. LEO satellites re-enter after 3 rounds.</li>
+      <li><b>Sunlight:</b> solar parts give +1 W in High sun, +2 W in Very high, half in Low.</li>
+      <li><b>Rideshare:</b> if another agency already launched to the same orbit this round, you pay half and they get half back.</li></ol>
+      <p>Every card's <i>Real Science</i> line links to its source. Click any card to read it.</p>`,
+    foot: `<button class="btn go" id="rok">Back to the console</button>` });
+  $('#rok').onclick = closeModal;
+}
+
+// ---------- main render ----------
+function renderGame() {
+  if (!G) return;
+  const pi = curIdx(), p = G.players[pi], inTurns = G.phase === 'turns';
+  const ev = G.event ? C(G.event) : null;
+  $('#app').innerHTML = `
+  <header class="bar">
+    <div class="brand">${swoosh(90)}<h1 class="display">Launch Window</h1></div>
+    <div class="roundbox"><span class="round-dial">ROUND <b>${G.round}</b>/${LW.ROUNDS}</span>
+      ${ev ? `<button class="event-chip" data-zoom="${G.event}"><img src="${esc(ev.image)}" alt="">${esc(ev.title)}</button>` : ''}</div>
+    <div class="scores">${G.players.map((q, i) => `<div class="score ${inTurns && i === pi ? 'active' : ''}"><span class="dot" style="background:${PLAYER_COLORS[i]}"></span><span class="nm">${esc(q.name)}</span><span class="vals num">${q.sp} SP · ${q.bc} BC</span>${i === G.lead ? '<span class="lead">LEAD</span>' : ''}</div>`).join('')}</div>
+    <button class="btn small ghost" id="rulesbtn">Rules</button>
+    <button class="btn small ghost" id="quitbtn">New game</button>
+  </header>
+  <main class="console">
+    <section>
+      <div class="turnbar">
+        <span class="dot" style="width:14px;height:14px;border-radius:50%;background:${PLAYER_COLORS[pi]}"></span>
+        <h2 class="display">${esc(p.name)}</h2>
+        <div class="pips" aria-label="${G.actionsLeft} actions left">${Array.from({ length: LW.ACTIONS_PER_TURN }, (_, i) => `<span class="pip ${i >= G.actionsLeft ? 'used' : ''}"></span>`).join('')}</div>
+        <span class="money num">${p.bc} BC · ${p.sp}/${G.winSP} SP</span>
+        <span class="spacer"></span>
+        <button class="btn go" id="endturn" ${inTurns ? '' : 'disabled'}>End turn</button>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <div class="panel-head"><span class="eyebrow tag-mission">Missions</span><h2 class="display">Open missions</h2><span class="hint">Up to ${LW.MAX_MISSIONS}. Click a card to read its science.</span></div>
+        <div class="missions">${missionSlots(p)}</div>
+        ${buildBay(p)}
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="eyebrow tag-orbit">Tracking</span><h2 class="display">Satellites in orbit</h2><span class="hint">Yellow = downlinked Data, faded = stored on board</span></div>
+        ${tracker()}
+      </div>
+    </section>
+    <aside>
+      <div class="panel">
+        <div class="panel-head"><span class="eyebrow tag-part">Workshop shelf</span><h2 class="display">Always in stock</h2></div>
+        <div class="shelf">${LW.shelfKeys().map(k => shelfItem(k, p)).join('')}</div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="eyebrow tag-part">Market</span><h2 class="display">Special parts</h2><span class="hint">${G.specialDeck.length} in deck</span></div>
+        <div class="market">${G.market.map((id, i) => id ? `<div>${cardImg(id)}<span class="price">${marketPrice(id)}</span><button class="btn small mustard" style="width:100%;margin-top:4px" data-buy="${i}" ${canAct() && p.build ? '' : 'disabled'}>Buy</button></div>` : '<div class="cardimg empty"></div>').join('')}</div>
+        <div class="toolrow">
+          <button class="btn small" id="sobtn" ${canAct() && p.build ? '' : 'disabled'}>Special order…</button>
+          <button class="btn small" id="tsbtn" ${canAct() ? '' : 'disabled'}>Trade Study…</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="eyebrow tag-fact">Ground control</span><h2 class="display">Log</h2></div>
+        <div class="log">${G.log.slice(-40).reverse().map(l => `<div><b>R${l.round}</b> ${esc(l.msg)}</div>`).join('')}</div>
+      </div>
+    </aside>
+  </main>`;
+  bind();
+}
+function canAct() { return G.phase === 'turns' && G.actionsLeft > 0 && !G.pending; }
+function marketPrice(id) {
+  const k = C(id).rules.key, base = C(id).rules.price, pr = LW.partPrice(G, k);
+  return pr < base ? `<span class="discount">${pr} BC</span> <s>${base}</s>` : `${pr} BC`;
+}
+function missionSlots(p) {
+  let out = p.missions.map(id => {
+    const sat = LW.satForMission(G, id), building = p.build && p.build.missionId === id;
+    const badge = sat ? (sat.status === 'pending' ? 'On the pad' : 'In orbit') : building ? 'Building' : 'Waiting';
+    return `<div class="mission-slot">${cardImg(id, { badge, cls: building ? 'sel' : '' })}
+      ${!sat && !building ? `<button class="btn small mustard" data-build="${esc(id)}">Build for this</button>` : ''}</div>`;
+  }).join('');
+  if (p.missions.length < LW.MAX_MISSIONS) out += `<div class="mission-slot"><button class="cardimg empty" id="takemission" ${canAct() ? '' : 'disabled'}><span><b>Take a mission</b><span style="font-size:12px">1 action · draw 2, keep 1</span></span></button></div>`;
+  return out;
+}
+function buildBay(p) {
+  const b = p.build;
+  if (!b) return `<div class="bay"><h3 class="display">Build bay</h3><p class="sub">${p.missions.length ? 'All your missions have satellites in orbit. Take another mission to start a new build.' : 'Take a mission to start building a satellite.'}</p></div>`;
+  const m = C(b.missionId), rv = LW.review(b.parts, b.missionId, b.orbit), st = rv.stats;
+  const rk = LW.riskOf(b.parts, b.orbit, G.event === 'event-13');
+  const lp = LW.launchPrice(G, b.orbit, curIdx());
+  const dpr = LW.dataPerRound(b.parts, b.orbit, null).n;
+  const rounds = LW.roundsToFinish(b.parts, b.orbit, m.rules.data);
+  const locked = b.parts.length > 0;
+  const orbBtns = LW.ORBIT_ORDER.filter(o => G.advanced || o !== 'mars').map(o => {
+    const oc = LW.orbitCard(o), allowed = m.rules.orbits.includes(o);
+    return `<button class="orbit-btn ${b.orbit === o ? 'on' : ''}" data-orbit="${o}" ${allowed && !locked ? '' : 'disabled'} title="${esc(oc.title)}"><span class="t">${esc(oc.title.replace('Sun-synchronous Orbit', 'Sun-sync (SSO)').replace('Low Earth Orbit', 'Low Earth (LEO)').replace('Geostationary Orbit', 'Geostationary'))}</span><span class="m">${oc.rules.launch} BC · Sun ${SUN_LABEL[oc.rules.sun]} · Risk ${oc.rules.risk}</span></button>`;
+  }).join('');
+  const costSoFar = st.cost + lp.price;
+  return `<div class="bay">
+    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span class="eyebrow" style="color:#a0472a">Build bay</span><h3 class="display">${esc(m.title)}</h3><span class="sub">${esc(m.text)} Needs ${m.rules.data} Data · pays ${m.rules.sp} SP</span></div>
+    <div class="orbits" role="group" aria-label="Orbit">${orbBtns}</div>
+    ${locked ? '<p class="sub" style="margin:-4px 0 10px">Orbit locked: parts are installed.</p>' : '<p class="sub" style="margin:-4px 0 10px">Choosing the orbit is free until you install the first part.</p>'}
+    <div class="bayrow">
+      <div>
+        ${chassis(b, st)}
+        <ul class="partlist">${b.parts.map(x => `<li>${esc(C(x.cardId).title)} <button data-scrap="${x.uid}" aria-label="Scrap ${esc(C(x.cardId).title)}" ${G.phase === 'turns' && !G.pending ? '' : 'disabled'}>×</button></li>`).join('')}</ul>
+        <div class="tradespace"><span class="eyebrow" style="color:var(--mustard)">Trade Space</span>
+          ${tsRow('Cost', Math.min(1, costSoFar / 35), '#e2793a', costSoFar + ' BC')}
+          ${tsRow('Science', Math.min(1, m.rules.sp / 9), '#eab43b', m.rules.sp + ' SP')}
+          ${tsRow('Risk', rk.risk / 10, '#e2603a', Math.round((1 - rk.chance) * 100) + '% fail')}
+        </div>
+      </div>
+      <div>
+        <div class="meters">
+          <div class="meter ${st.volume > st.capacity ? 'warn' : ''}"><div class="k">Volume</div><div class="v num">${st.volume}/${st.capacity} U</div></div>
+          <div class="meter ${st.used > st.made ? 'warn' : ''}"><div class="k">Power</div><div class="v num">${st.made}/${st.used} W</div></div>
+          <div class="meter"><div class="k">Launch</div><div class="v num">${Math.round(rk.chance * 100)}%</div></div>
+        </div>
+        <p class="sub" style="margin:8px 0 0">Risk ${rk.risk}: ${rk.why.map(w => esc(w.label) + ' ' + (w.v > 0 ? '+' : '') + w.v).join(', ')}. Collects ${dpr} Data/round; about ${rounds > 8 ? 'too many' : rounds} round${rounds === 1 ? '' : 's'} to finish.</p>
+        <ul class="review">${rv.items.map(i => `<li><span class="${i.ok ? 'ok' : 'no'}">${i.ok ? '✓' : '✗'}</span>${esc(i.text)}</li>`).join('')}</ul>
+        <div class="launchrow">
+          <button class="btn go big" id="launch" ${canAct() && rv.ok && G.event !== 'event-03' ? '' : 'disabled'}>Launch · ${lp.price} BC</button>
+          <span class="note">${G.event === 'event-03' ? 'Launch Delay: no launches this round.' : lp.rideshareWith != null ? 'Rideshare with ' + esc(G.players[lp.rideshareWith].name) + ': half price.' : rv.ok ? 'Design Review passed.' : 'Fix the ✗ items to launch.'}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function tsRow(k, f, col, val) { return `<div class="ts-row"><span>${k}</span><span class="track"><span class="fillb" style="display:block;width:${Math.round(f * 100)}%;background:${col}"></span></span><span class="val">${val}</span></div>`; }
+function chassis(b, st) {
+  if (!st.frame) return `<div class="chassis"><div class="nf">No frame yet. Buy a <b>1U, 3U, 6U or 12U frame</b> from the Workshop shelf: it sets how much fits.</div></div>`;
+  const cells = st.capacity * 2, cols = Math.min(6, cells);
+  const blocks = [];
+  b.parts.filter(x => !x.key.startsWith('frame') && (C(x.cardId).rules.volume || 0) > 0).forEach(x => {
+    const n = Math.round(C(x.cardId).rules.volume * 2);
+    for (let i = 0; i < n; i++) blocks.push({ label: i === 0 ? C(x.cardId).title : '', cat: CAT[x.key] });
+  });
+  const ext = b.parts.filter(x => !x.key.startsWith('frame') && !(C(x.cardId).rules.volume > 0));
+  let html = '';
+  for (let i = 0; i < Math.max(cells, blocks.length); i++) {
+    const bl = blocks[i];
+    html += bl ? `<div class="cell fill cat-${bl.cat}" ${i >= cells ? 'style="outline:2px solid var(--bad)"' : ''}>${esc(bl.label)}</div>` : '<div class="cell"></div>';
+  }
+  return `<div class="chassis"><div class="eyebrow" style="color:var(--paper);opacity:.75;margin-bottom:6px">${esc(C(st.frame.cardId).title)} · each slot is 0.5 U</div>
+    <div class="chassis-grid" style="grid-template-columns:repeat(${cols},1fr)">${html}</div>
+    ${ext.length ? `<div class="ext">${ext.map(x => `<span>${esc(C(x.cardId).title)} (outside)</span>`).join('')}</div>` : ''}</div>`;
+}
+function shelfItem(k, p) {
+  const pc = LW.partCard(k), price = LW.partPrice(G, k);
+  return `<button class="shelf-item" data-shelf="${k}" ${canAct() && p.build ? '' : 'disabled'} title="${esc(partHelp(k))}"><span class="t">${esc(pc.title)}</span><span class="m">${price} BC · ${k.startsWith('frame') ? pc.rules.capacity + ' U room' : pc.rules.volume + ' U'} · ${pc.rules.power > 0 ? '+' : ''}${pc.rules.power} W</span></button>`;
+}
+function tracker() {
+  const live = G.sats.filter(s => s.status === 'active' || s.status === 'pending');
+  if (!live.length) return '<p class="empty-note">Nothing in orbit yet. The first launch is the hardest.</p>';
+  return `<div class="tracker">${live.map(s => {
+    const m = C(s.missionId), need = m.rules.data, o = LW.orbitCard(s.orbit);
+    const life = o.rules.lifetime ? ` · ${Math.max(0, o.rules.lifetime - s.opsRounds)} rounds before re-entry` : '';
+    return `<div class="sat" style="--who:${PLAYER_COLORS[s.owner]}"><img src="${esc(m.image)}" alt=""><div>
+      <div class="t">${esc(m.title)}</div><div class="o">${esc(G.players[s.owner].name)} · ${esc(o.title)}${life}</div>
+      <div class="bar" title="${s.down} of ${need} Data downlinked, ${s.stored} stored"><span class="down" style="width:${Math.min(100, s.down / need * 100)}%"></span><span class="stored" style="width:${Math.min(100 - Math.min(100, s.down / need * 100), s.stored / need * 100)}%"></span></div>
+      <span class="status ${s.status === 'pending' ? 'st-pending' : 'st-active'}">${s.status === 'pending' ? 'Launch check at end of round' : s.down + '/' + need + ' Data home'}</span></div></div>`;
+  }).join('')}</div>`;
+}
+function bind() {
+  const app = $('#app');
+  app.onclick = e => {
+    const t = e.target.closest('button, [data-zoom]'); if (!t || t.disabled) return;
+    if (t.dataset.zoom) return zoom(t.dataset.zoom);
+    if (t.id === 'endturn') return endTurn();
+    if (t.id === 'rulesbtn') return showRules();
+    if (t.id === 'quitbtn') return confirmQuit();
+    if (t.id === 'takemission') return doAct({ type: 'takeMission' });
+    if (t.id === 'launch') return doAct({ type: 'launch' });
+    if (t.id === 'sobtn') return showSpecialOrder();
+    if (t.id === 'tsbtn') return showTradeChoice();
+    if (t.dataset.build) return doAct({ type: 'selectBuild', missionId: t.dataset.build });
+    if (t.dataset.orbit) return doAct({ type: 'setOrbit', orbit: t.dataset.orbit });
+    if (t.dataset.shelf) return doAct({ type: 'buy', source: 'shelf', key: t.dataset.shelf });
+    if (t.dataset.buy != null) return doAct({ type: 'buy', source: 'market', slot: +t.dataset.buy });
+    if (t.dataset.scrap) return doAct({ type: 'scrap', uid: t.dataset.scrap });
+  };
+}
+function confirmQuit() {
+  modal({ title: 'Start a new game?', narrow: true, body: '<p class="lede">This game will be lost.</p>',
+    foot: `<button class="btn" id="qno">Keep playing</button><button class="btn go" id="qyes">New game</button>` });
+  $('#qno').onclick = closeModal;
+  $('#qyes').onclick = () => { clearSave(); closeModal(); G = null; renderTitle(); };
+}
+
+// ---------- boot ----------
+drawStars();
+fetch('cards.json').then(r => r.json()).then(list => { CARDS = list; LW.loadCards(list); renderTitle(); })
+  .catch(() => { $('#app').innerHTML = '<p style="padding:40px">Could not load the cards. Reload the page to try again.</p>'; });
+</script>
+</body>
+</html>
