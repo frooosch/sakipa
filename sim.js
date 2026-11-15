@@ -69,3 +69,12 @@ console.assert(res.launched > 0, 'bots never launched: engine or bot broken');
   LW.act(g, { type: 'buy', source: 'shelf', key: 'frame1' });
   console.assert(LW.act(g, { type: 'buy', source: 'shelf', key: 'cells' }).ok, 'first cell should fit');
   console.assert(!LW.act(g, { type: 'buy', source: 'shelf', key: 'cells' }).ok, 'second cell on a 1U frame should be refused'); }
+
+// check: Ground Station Pass (event-08) lifts the UHF cap; Extra Ground Pass (event-20) does not
+for (const [ev, want] of [['event-08', 5], ['event-20', LW.UHF_CAP]]) {
+  const g = LW.createGame(CARDS, { seed: 1 }); g.round = 1; g.event = ev;
+  const m = LW.byType('mission').find(c => c.rules.data >= 4 && !c.rules.coop).id;
+  g.sats.push({ id: 't', owner: 0, missionId: m, orbit: 'sso', parts: [{ key: 'uhf', cardId: LW.partCard('uhf').id }], stored: 4, down: 0, opsRounds: 1, status: 'active', history: [] });
+  LW.runOps(g);
+  console.assert(g.sats[0].down === want, ev + ': expected ' + want + ' Data down, got ' + g.sats[0].down);
+}

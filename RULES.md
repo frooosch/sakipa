@@ -19,13 +19,13 @@ You can never max out all three. That's the lesson of the game.
 - **Power (W):** solar parts make power; instruments, radios and other parts use it. Power used can never be more than power made.
 - **Data:** what your instruments collect. It only becomes SP once it is sent back to Earth through an antenna.
 
-## 2. The cards (103 cards)
+## 2. The cards (106 cards)
 
 | Type | Count | What it does |
 |---|---|---|
 | Mission | 20 + 1 co-op | A job: needed orbit, instrument, Data and SP reward |
 | Orbit | 6 | Always face up. Sets launch cost, sunlight, base risk and comms |
-| Part | 42 | What you build from: cost (BC), size (U), power (W) |
+| Part | 45 | What you build from: cost (BC), size (U), power (W) |
 | Event | 20 | One drawn each round; affects everyone |
 | Fact | 14 | Real Science field notes (pop-ups in the digital version) |
 
@@ -49,7 +49,7 @@ Every mission, orbit and part card has a Real Science line with a link to its so
 Parts come in two groups:
 
 - **Workshop shelf (always available, any number):** 1U/3U/6U/12U frames, body-mounted cells, deployable panels, battery, UHF antenna, S-band radio.
-- **Market (5 face-up cards from the Special deck):** thermal camera ×2, multispectral camera ×2, radiation detector ×2, small telescope ×2, magnetometer ×2, solar sail module, high-gain X-band antenna ×2, reaction wheels ×2, magnetorquers, cold-gas thruster, electric thruster ×2, radiation shielding, redundant computer. When a part is bought, refill the Market straight away. Scrapped parts and parts from retired satellites go to the bottom of the Special deck.
+- **Market (5 face-up cards from the Special deck):** thermal camera ×2, multispectral camera ×2, radiation detector ×2, small telescope ×2, magnetometer ×2, solar sail module, high-gain X-band antenna ×2, reaction wheels ×2, magnetorquers, cold-gas thruster ×2, electric thruster ×2, radiation shielding ×2, redundant computer ×2. When a part is bought, refill the Market straight away. Scrapped parts and parts from retired satellites go to the bottom of the Special deck.
 
 Part notes:
 
@@ -57,6 +57,7 @@ Part notes:
 - **Body-mounted cells** take no volume but need frame surface: a 1U frame fits 1, 3U fits 2, 6U fits 3 and 12U fits 4. For more power, use deployable panels.
 - **Magnetorquers** work only in LEO or SSO (they push against Earth's magnetic field). They count as attitude control but collect at the normal rate.
 - **Radiation shielding** and **redundant computer** each lower Risk by 1.
+- **Ground Station Pass** and **Extra Ground Pass** both give every working satellite a downlink, even off-schedule. Ground Station Pass uses a big ground dish, so UHF satellites send all their stored Data; Extra Ground Pass uses the satellite's own antenna, so UHF still sends at most 2.
 - **Cold-gas thruster** protects against Space Debris Warning. **Electric thruster** is needed for lunar orbit, L2 and Mars.
 
 ## 3. Setup
@@ -141,6 +142,8 @@ At the end of each mission, whether it worked or failed, the game shows a debrie
 - Renamed to Sakipa Satellite.
 - Win target lowered from 15 SP to 10 SP (shorter game: 8). Simulated games never reached 15: one satellite at a time plus 2–3 rounds of data collection caps a player at about 6–8 SP over 6 rounds.
 - No discard pile: Special parts that are scrapped or come home with a retired satellite go to the bottom of the Special deck, so the 2 copies of each camera keep circulating.
+- Ground Station Pass now lifts the UHF 2-Data limit; before, it did exactly the same as Extra Ground Pass.
+- Added a second radiation shielding, redundant computer and cold-gas thruster (same card art; 106 cards). With one copy each, Spare Electronics and Space Debris Warning rarely mattered, and the debrief's "Safer option" asked for parts only one player could ever own.
 - Body-mounted cells are capped by frame surface (1U: 1, 3U: 2, 6U: 3, 12U: 4). Before, cells took no volume and had no limit, so a 1U frame with 10 cells made 40 W and deployable panels were never worth buying.
 
 ## What changed from v1

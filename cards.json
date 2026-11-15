@@ -1556,6 +1556,69 @@
     }
   },
   {
+    "id": "part-43",
+    "type": "part",
+    "title": "Radiation Shielding",
+    "text": "Lower Risk by 1. Protects against Solar Flare.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-39.webp",
+    "science": "Shielding helps protect electronics from some forms of radiation.",
+    "sourceUrl": "https://www.nasa.gov/podcasts/houston-we-have-a-podcast/radiation-shielding/",
+    "rules": {
+      "key": "shielding",
+      "price": 2,
+      "power": 0,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-44",
+    "type": "part",
+    "title": "Redundant Computer",
+    "text": "Lower Risk by 1.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "-1 W"
+    },
+    "image": "cards/part-40.webp",
+    "science": "A backup flight computer can take over if the primary computer fails.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/",
+    "rules": {
+      "key": "computer",
+      "price": 2,
+      "power": -1,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
+    "id": "part-45",
+    "type": "part",
+    "title": "Cold-gas Thruster",
+    "text": "Protects against Space Debris Warning.",
+    "stats": {
+      "Price": "2 BC",
+      "Volume": "0.5 U",
+      "Power": "0 W"
+    },
+    "image": "cards/part-36.webp",
+    "science": "A thruster changes spacecraft motion by ejecting propellant.",
+    "sourceUrl": "https://www.nasa.gov/smallsat-institute/sst-soa/in-space_propulsion/",
+    "rules": {
+      "key": "coldgas",
+      "price": 2,
+      "power": 0,
+      "shelf": "market",
+      "volume": 0.5
+    }
+  },
+  {
     "id": "event-01",
     "type": "event",
     "title": "Solar Flare",

@@ -373,13 +373,13 @@ function eventHelp(id) {
     'event-03': 'Nobody can launch this round.', 'event-04': 'Already applied: every agency lost 3 BC before funding.',
     'event-05': 'Launch prices are halved this round.', 'event-06': 'Already applied: the agency with the fewest SP got 5 BC.',
     'event-07': 'The Mission Lead picked a Market part that now costs 1 BC less for the rest of the game.',
-    'event-08': 'In Operations, every working satellite can downlink, even off-schedule.', 'event-09': 'Launches to LEO or SSO cost 1 BC more this round.',
+    'event-08': 'In Operations, every working satellite downlinks all its stored Data through a big ground dish: off-schedule passes allowed, and UHF has no 2-Data limit.', 'event-09': 'Launches to LEO or SSO cost 1 BC more this round.',
     'event-10': 'Satellites with deployable panels collect 1 extra Data this round.', 'event-11': 'Satellites without a battery collect 1 less Data this round.',
     'event-12': 'Only high-gain antennas can downlink this round. Data is kept.', 'event-13': 'Unshielded satellites launching this round get +1 Risk.',
     'event-14': 'Redundant computers cost 1 BC less this round.', 'event-15': 'Satellites without wheels or magnetorquers collect nothing this round.',
     'event-16': 'S-band radios can’t downlink this round. Data is kept.', 'event-17': 'Each agency gets one free Trade Study this round (it still uses an action).',
     'event-18': 'Satellites with only body-mounted cells collect 1 less Data.', 'event-19': 'Every launch costs 1 BC less this round.',
-    'event-20': 'Every working satellite with stored Data can downlink this round.' })[id] || C(id).text;
+    'event-20': 'In Operations, every working satellite can downlink with its own antenna, even off-schedule. UHF still sends at most 2 Data.' })[id] || C(id).text;
 }
 
 // ---------- title / setup ----------

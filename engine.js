@@ -409,7 +409,8 @@
         } else if (!scheduled && !bonusPass) {
           line.notes.push('No ground pass this round (slow comms). ' + sat.stored + ' Data stored.');
         } else if (sat.stored > 0) {
-          var send = ant === 'uhf' ? Math.min(UHF_CAP, sat.stored) : sat.stored;
+          // Ground Station Pass (event-08): a big ground dish takes everything, so the UHF cap is lifted. Extra Ground Pass (event-20) uses the satellite's own link.
+          var send = ant === 'uhf' && !eventIs(s, 'event-08') ? Math.min(UHF_CAP, sat.stored) : sat.stored;
           sat.stored -= send; sat.down += send; line.sent = send;
           line.notes.push((scheduled ? 'Downlinked ' : 'Extra ground pass: downlinked ') + send + ' Data' + (ant === 'uhf' && send === UHF_CAP && sat.stored ? ' (UHF limit)' : '') + '.');
         }
