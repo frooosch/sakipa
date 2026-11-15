@@ -50,5 +50,5 @@ Fixes to try (re-run `sim.js` after each one):
 2. ~~Win target / pacing~~ done (v3): target 10 SP (8 short), Special parts recycle to the deck bottom. Bots now reach 10 SP in 4–13% of games and 8 SP in 26–55%; bots skip reaction wheels in LEO/SSO, so humans should do better. If playtests show 10 is still too hard, raise base Data per round next.
 3. ~~Cap body-mounted cells~~ done (1U: 1, 3U: 2, 6U: 3, 12U: 4; cheap builds unaffected, heavy LEO and Mars builds now need panels). ~~Duplicate/dead events and the debrief's unavailable parts~~ done: Ground Station Pass lifts the UHF cap; second copies of shielding, computer and cold-gas thruster.
 4. ~~Solo loss screen + empty-deck guard~~ done. (The empty-deck soft lock could not actually happen with the current 19-mission deck: the free draft only runs on each player's first turn. The guard is there in case the mission set shrinks.)
-5. Onboarding tutorial round.
+5. ~~Onboarding~~ done: a "Next step" coach derived from the Design Review state, shown until an agency's first launch.
 6. Co-op variant / trading, if time allows.

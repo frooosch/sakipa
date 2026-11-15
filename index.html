@@ -96,6 +96,13 @@ main.console { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 
 .turnbar .money { font-family: var(--mono); font-weight: 700; font-size: 18px; }
 .turnbar .spacer { flex: 1; }
 
+/* coach */
+.coach { display: flex; align-items: center; gap: 12px; background: var(--teal); color: var(--ink); border-radius: 18px; padding: 10px 16px; margin-top: 18px; font-weight: 600; }
+.coach .eyebrow { flex: none; }
+.coach span.t { flex: 1; }
+.coach-target { outline: 4px solid var(--teal) !important; outline-offset: 3px; animation: coachpulse 1s ease-in-out infinite alternate; }
+@keyframes coachpulse { to { outline-offset: 7px; } }
+
 /* missions */
 .missions { display: flex; gap: 14px; flex-wrap: wrap; }
 .cardimg { width: 150px; aspect-ratio: 630/880; border-radius: 10px; overflow: hidden; display: block; background: var(--ink-3); border: 0; padding: 0; position: relative; box-shadow: 0 6px 18px #0007; }
@@ -400,6 +407,7 @@ function renderTitle() {
           <div><label for="fund">Funding per round</label><select id="fund"><option value="5" selected>+5 BC (standard)</option><option value="7">+7 BC (relaxed)</option></select></div>
           <div><label for="win">Win at</label><select id="win"><option value="10" selected>10 SP (standard)</option><option value="8">8 SP (shorter)</option></select></div>
           <label class="check"><input type="checkbox" id="adv"> Advanced: include Mars</label>
+          <label class="check"><input type="checkbox" id="guide" checked> Guide my first satellite</label>
         </div>
         <div class="row">
           <button class="btn go big" id="start">Start the countdown</button>
@@ -417,6 +425,7 @@ function renderTitle() {
   $('#start').onclick = () => {
     const names = Array.from({ length: UI.setupPlayers }, (_, i) => ($('#pn' + i).value || DEFAULT_NAMES[i]).trim());
     G = LW.createGame(CARDS, { players: names, advanced: $('#adv').checked, funding: +$('#fund').value, winSP: +$('#win').value });
+    G.guide = $('#guide').checked;
     UI.debriefShown = 0; UI.seenFacts = {};
     nextRound();
   };
@@ -628,11 +637,52 @@ function showRules() {
   $('#rok').onclick = closeModal;
 }
 
+
+// ---------- coach: guided first satellite ----------
+// ponytail: no tutorial script. The next step is derived from the same state the Design Review reads,
+// so it can't drift from the rules. Shown to each agency until its first launch.
+function coachStep(p) {
+  if (!G.guide || G.phase !== 'turns' || G.pending || p.stats.launched > 0) return null;
+  const end = why => ({ text: why + ' End your turn: installed parts stay, and you get +' + G.funding + ' BC next round.', sel: '#endturn' });
+  if (!p.build) return p.missions.length < LW.MAX_MISSIONS && G.actionsLeft > 0 ? { text: 'Take a mission: it tells you which orbit and instrument you need.', sel: '#takemission' } : end('Nothing to build right now.');
+  const b = p.build, m = C(b.missionId), o = LW.orbitCard(b.orbit), st = LW.designStats(b.parts, b.orbit), has = k => b.parts.some(x => x.key === k);
+  if (G.actionsLeft < 1) return end('No actions left.');
+  // buying step: from the shelf, the Market, or by Special Order
+  const buy = (k, why) => {
+    const pc = LW.partCard(k), shelf = LW.shelfKeys().includes(k), slot = G.market.findIndex(id => id && C(id).rules.key === k);
+    const price = LW.partPrice(G, k) + (shelf || slot >= 0 ? 0 : LW.SPECIAL_ORDER_FEE);
+    if (p.bc < price) return end(pc.title + ' costs ' + price + ' BC and you have ' + p.bc + '.');
+    if (shelf) return { text: why + ' Buy ' + pc.title + ' from the Workshop shelf (' + price + ' BC).', sel: `[data-shelf="${k}"]` };
+    if (slot >= 0) return { text: why + ' ' + pc.title + ' is in the Market: buy it (' + price + ' BC).', sel: `[data-buy="${slot}"]` };
+    return { text: why + ' ' + pc.title + ' is not in the Market. Use Special order (' + price + ' BC).', sel: '#sobtn' };
+  };
+  const ant = o.rules.requires.includes('hga') ? 'hga' : 'uhf';
+  const essentials = [m.rules.payload, ant, ...o.rules.requires.filter(k => k !== 'hga')];
+  if (!st.frame) {
+    const vol = essentials.reduce((a, k) => a + LW.partCard(k).rules.volume, 0), f = vol <= 1 ? 'frame1' : vol <= 3 ? 'frame3' : vol <= 6 ? 'frame6' : 'frame12';
+    return buy(f, 'Start with a frame. The essentials for this mission need ' + vol + ' U; pick a bigger frame if you want room for backups.');
+  }
+  if (!has(m.rules.payload)) return buy(m.rules.payload, 'Now the instrument the mission asks for.');
+  if (!LW.bestAntenna(b.parts) || (ant === 'hga' && !has('hga'))) return buy(ant, ant === 'hga' ? 'This orbit is too far for a small radio.' : 'Data only scores once it reaches Earth, so you need an antenna.');
+  const req = o.rules.requires.find(k => !has(k));
+  if (req) return buy(req, o.title + ' needs this to get there.');
+  if (st.made < st.used) return buy(st.cells < st.cellSlots ? 'cells' : 'panels', 'Your parts use ' + st.used + ' W but you make ' + st.made + ' W.');
+  const rv = LW.review(b.parts, b.missionId, b.orbit);
+  if (!rv.ok) return { text: 'Design Review: fix the ✗ items in the checklist.', sel: '.review' };
+  if (G.event === 'event-03') return end('Launch Delay: nobody can launch this round.');
+  const lp = LW.launchPrice(G, b.orbit, curIdx()), rk = LW.riskOf(b.parts, b.orbit, G.event === 'event-13');
+  if (p.bc < lp.price) return end('The launch costs ' + lp.price + ' BC and you have ' + p.bc + '.');
+  const extras = [];
+  if (!has('battery')) extras.push('a battery');
+  if (!has('wheels') && !has('magnetorquers')) extras.push('reaction wheels or magnetorquers');
+  return { text: 'Design Review passed. Launch chance is ' + Math.round(rk.chance * 100) + '%.' + (extras.length ? ' You can launch now, or first add ' + extras.join(' and ') + ' (+10 points each).' : ' Launch!'), sel: '#launch' };
+}
+
 // ---------- main render ----------
 function renderGame() {
   if (!G) return;
   const pi = curIdx(), p = G.players[pi], inTurns = G.phase === 'turns';
-  const ev = G.event ? C(G.event) : null;
+  const ev = G.event ? C(G.event) : null, coach = coachStep(p);
   $('#app').innerHTML = `
   <header class="bar">
     <div class="brand">${swoosh(90)}<h1 class="display">Sakipa Satellite</h1></div>
@@ -652,6 +702,7 @@ function renderGame() {
         <span class="spacer"></span>
         <button class="btn go" id="endturn" ${inTurns ? '' : 'disabled'}>End turn</button>
       </div>
+      ${coach ? `<div class="coach" role="status"><span class="eyebrow">Next step</span><span class="t">${esc(coach.text)}</span><button class="btn small" id="coachoff">Hide tips</button></div>` : ''}
       <div class="panel" style="margin-top:18px">
         <div class="panel-head"><span class="eyebrow tag-mission">Missions</span><h2 class="display">Open missions</h2><span class="hint">Up to ${LW.MAX_MISSIONS}. Click a card to read its science.</span></div>
         <div class="missions">${missionSlots(p)}</div>
@@ -682,6 +733,7 @@ function renderGame() {
     </aside>
   </main>`;
   bind();
+  const target = coach && $(coach.sel); if (target) target.classList.add('coach-target');
 }
 function canAct() { return G.phase === 'turns' && G.actionsLeft > 0 && !G.pending; }
 function marketPrice(id) {
@@ -784,6 +836,7 @@ function bind() {
     if (t.dataset.zoom) return zoom(t.dataset.zoom);
     if (t.id === 'endturn') return endTurn();
     if (t.id === 'rulesbtn') return showRules();
+    if (t.id === 'coachoff') { G.guide = false; save(); return renderGame(); }
     if (t.id === 'quitbtn') return confirmQuit();
     if (t.id === 'takemission') return doAct({ type: 'takeMission' });
     if (t.id === 'launch') return doAct({ type: 'launch' });

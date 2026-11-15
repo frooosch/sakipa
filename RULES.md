@@ -119,6 +119,7 @@ Then the Mission Lead passes clockwise and a new round starts.
 ## 5. Playing with other people
 
 - **Players:** 1–4. Best with 2–3.
+- **Guided first satellite (digital):** on by default. A "Next step" tip walks each agency through frame, instrument, antenna, power and launch until its first launch, and highlights the button to press. Turn it off at setup or with "Hide tips".
 - **Hot-seat:** players pass one device. The screen shows "Agency X, your turn" before revealing the hand.
 - **Online (planned):** each player on their own device, with a 90-second turn timer.
 - **Interaction:** a shared Market (if you buy a part, nobody else can have it), rideshares, and trading parts or BC on your turn (free).
@@ -142,6 +143,7 @@ At the end of each mission, whether it worked or failed, the game shows a debrie
 - Renamed to Sakipa Satellite.
 - Win target lowered from 15 SP to 10 SP (shorter game: 8). Simulated games never reached 15: one satellite at a time plus 2–3 rounds of data collection caps a player at about 6–8 SP over 6 rounds.
 - No discard pile: Special parts that are scrapped or come home with a retired satellite go to the bottom of the Special deck, so the 2 copies of each camera keep circulating.
+- The digital version guides each agency through its first satellite.
 - Ground Station Pass now lifts the UHF 2-Data limit; before, it did exactly the same as Extra Ground Pass.
 - Added a second radiation shielding, redundant computer and cold-gas thruster (same card art; 106 cards). With one copy each, Spare Electronics and Space Debris Warning rarely mattered, and the debrief's "Safer option" asked for parts only one player could ever own.
 - Body-mounted cells are capped by frame surface (1U: 1, 3U: 2, 6U: 3, 12U: 4). Before, cells took no volume and had no limit, so a 1U frame with 10 cells made 40 W and deployable panels were never worth buying.
